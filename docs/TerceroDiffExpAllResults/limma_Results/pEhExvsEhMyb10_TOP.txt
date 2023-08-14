@@ -1,0 +1,1 @@
+logFC	AveExpr	t	P.Value	adj.P.Val	B	EhMyb10_1	EhMyb10_2	pEhEx_1	pEhEx_2	EhMyb10_1	EhMyb10_2	pEhEx_1	pEhEx_2	DE	Regulation

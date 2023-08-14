@@ -1,0 +1,1 @@
+logFC	logCPM	PValue	FDR	UmasM_1	UmasM_2	UmasM_3	pEhEx_1	pEhEx_2	pEhEx_3	UmasM_1	UmasM_2	UmasM_3	pEhEx_1	pEhEx_2	pEhEx_3	DE	Regulation

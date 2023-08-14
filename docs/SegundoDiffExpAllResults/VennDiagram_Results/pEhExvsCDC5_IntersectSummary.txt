@@ -1,0 +1,5 @@
+NOISeq	DESeq2	Counts
+1	1	44
+1	0	686
+0	1	3
+730	47	777

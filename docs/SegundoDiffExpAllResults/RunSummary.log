@@ -1,0 +1,536 @@
+[1] "*************************  Running Date  *************************"
+[1] "2023-06-12"
+[1] "*************************  Program call parameters  *************************"
+[1] "RunAllComparisionMain(/home/user/scripts/DifferentialExp,/home/user/En/elisa.azuara155051/modificado.txt,/home/user/En/elisa.azuara155051,fnCombinations=c(pEhEx,CDC5,pEhEx,CmasM,pEhEx,EhMyb10,pEhEx,U2AF84,pEhEx,UmasM),TOP=TRUE,fnUmbral=0.05,fnFilterValue=1,fnUmbralFoldChange=1,fnSelectMethods=123456,fnFileGzipTar=TRUE,fnBatch=c(2,2,1,2,2,1,2,2,1,2,2,1,2,2,1,2,2,1))"
+[1] "*************************  Software Versions  *************************"
+R version 4.2.3 (2023-03-15)
+edgeR 3.40.2
+limma 3.54.2
+NOISeq 2.42.0
+DESeq2 1.38.3
+VennDiagram 1.7.3
+ggplot2 3.4.2
+UpSetR 1.4.0
+corrplot 0.92
+ComplexHeatmap 2.14.0
+[1] "*************************  Lectura de datos  *************************"
+[1] "      Read count table .......................... OK"
+[1] "*************************  Running Data Analysis for all conditions  *************************"
+[1] "dataAnalysis(fnCounts,c(CDC5,CDC5,CDC5,CmasM,CmasM,CmasM,EhMyb10,EhMyb10,EhMyb10,U2AF84,U2AF84,U2AF84,UmasM,UmasM,UmasM,pEhEx,pEhEx,pEhEx),/home/user/En/elisa.azuara155051/DataAnalysis_Results/AllConditions)"
+[1] "Antes del for en Dataanlysis"
+[1] "    BoxPlotLog2     .......................... OK"
+[1] "    DensitiesPlot     .......................... OK"
+[1] "    CPMPlot     .......................... OK"
+[1] "Entrando a PCA"
+[1] "    PCAPlot     .......................... OK"
+[1] "    MDSPlot     .......................... OK"
+[1] "    BoxPlotNorm     .......................... OK"
+[1] "Entrando a PCA"
+[1] "    PCAPlotNorm     .......................... OK"
+[1] "    MDSPlotNorm     .......................... OK"
+[1] "*************************  Running Differential Expresion  *************************"
+[1] "      Filter rawcount table .......................... OK"
+[1] "*************************  Running edgeR  *************************"
+[1] "RunedgeR(fnCounTable,/home/user/En/elisa.azuara155051/edgeR_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnSmearPlot=TRUE,fnVolcanoPlot=TRUE,fnBatch=(2,2,1,2,2,1), fnConditions=c(pEhEx,CDC5))"
+[1] "############"
+[1] "Samples:  pEhExvsCDC5"
+[1] "############"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "  edgeR   .......................... Failed"
+[1] "Error in fitFDistRobustly(var, df1 = df, covariate = covariate, winsor.tail.p = winsor.tail.p): statmod package required but is not installed\n"
+[1] "*************************  Running limma-Voom  *************************"
+[1] "Runlimma(fnCounTable,/home/user/En/elisa.azuara155051/limma_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMDPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,CDC5))"
+[1] "############"
+[1] "Samples:  pEhExvsCDC5"
+[1] "############"
+[1] "      Batch effect .......................... OK"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "      Voom transform .......................... OK"
+[1] "      lmfit estimation .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running NOISeq  *************************"
+[1] "RunNOISeq(fnCounTable,/home/user/En/elisa.azuara155051/NOISeq_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,CDC5))"
+[1] "############"
+[1] "Samples:  pEhExvsCDC5"
+[1] "############"
+[1] "      PCA Plot .......................... OK"
+Computing Z values...
+...k-means clustering done
+Size of 15 clusters:
+ [1]  160   45    8   15    1   13    7   22   72 4373    9   42    2    1    2
+Resampling cluster...[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+Size of 15 subclusters of cluster: 10
+ [1]   94   26  738    4   43   30   27   96   58  299  140 2738   37   18   25
+[1] 11
+[1] 12
+[1] 13
+[1] 14
+[1] 15
+Computing Z for noise...
+Computing probability of differential expression...
+p0 = 0.289677977247982
+Probability
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.5610  0.8173  0.7040  0.9304  1.0000 
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "1009 differentially expressed features"
+[1] "1009 differentially expressed features"
+[1] "      DE plot .......................... OK"
+[1] "1009 differentially expressed features"
+[1] "1009 differentially expressed features"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running DESeq2  *************************"
+[1] "RunDESeq2(fnCounTable,/home/user/En/elisa.azuara155051/DESeq2_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMAPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,CDC5))"
+[1] "############"
+[1] "Samples:  pEhExvsCDC5"
+[1] "############"
+[1] "      Batch effects .......................... OK"
+[1] "      Objeto Dds .......................... OK"
+[1] "      PCA plot .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      Grafica MA .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running Venn Diagram  *******************"
+[1] "VennDiag(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsCDC5)"
+[1] "*************************  Running UpSetPlot  *******************"
+[1] "UpSetPlot(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsCDC5)"
+[1] "*************************  Running Get Info from File  *******************"
+[1] "      RunGetInfo .......................... OK"
+[1] "*************************  Running Data Abundance  *******************"
+[1] "      RunDataAbundance .......................... OK"
+[1] "*************************  Running Data LogFC  *******************"
+[1] "      RunDataLogFC .......................... OK"
+[1] "*************************  Running Data Pval  *******************"
+[1] "      RunDataPval .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Intersect .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Union .......................... OK"
+[1] "      Filter rawcount table .......................... OK"
+[1] "*************************  Running edgeR  *************************"
+[1] "RunedgeR(fnCounTable,/home/user/En/elisa.azuara155051/edgeR_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnSmearPlot=TRUE,fnVolcanoPlot=TRUE,fnBatch=(2,2,1,2,2,1), fnConditions=c(pEhEx,CmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsCmasM"
+[1] "############"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "  edgeR   .......................... Failed"
+[1] "Error in fitFDistRobustly(var, df1 = df, covariate = covariate, winsor.tail.p = winsor.tail.p): statmod package required but is not installed\n"
+[1] "*************************  Running limma-Voom  *************************"
+[1] "Runlimma(fnCounTable,/home/user/En/elisa.azuara155051/limma_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMDPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,CmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsCmasM"
+[1] "############"
+[1] "      Batch effect .......................... OK"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "      Voom transform .......................... OK"
+[1] "      lmfit estimation .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running NOISeq  *************************"
+[1] "RunNOISeq(fnCounTable,/home/user/En/elisa.azuara155051/NOISeq_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,CmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsCmasM"
+[1] "############"
+[1] "      PCA Plot .......................... OK"
+Computing Z values...
+...k-means clustering done
+Size of 15 clusters:
+ [1]   10   41   23    3   13   52  274   97    8 4069    2   10    2   67   20
+Resampling cluster...[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+Size of 15 subclusters of cluster: 10
+ [1]   63   35  321   70  242  152   29   83   54  158   47 1953  102   13  747
+[1] 11
+[1] 12
+[1] 13
+[1] 14
+[1] 15
+Computing Z for noise...
+Computing probability of differential expression...
+p0 = 0.351936349421605
+Probability
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.3946  0.7664  0.6397  0.9191  1.0000 
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "502 differentially expressed features"
+[1] "502 differentially expressed features"
+[1] "      DE plot .......................... OK"
+[1] "502 differentially expressed features"
+[1] "502 differentially expressed features"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running DESeq2  *************************"
+[1] "RunDESeq2(fnCounTable,/home/user/En/elisa.azuara155051/DESeq2_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMAPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,CmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsCmasM"
+[1] "############"
+[1] "      Batch effects .......................... OK"
+[1] "      Objeto Dds .......................... OK"
+[1] "      PCA plot .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      Grafica MA .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running Venn Diagram  *******************"
+[1] "VennDiag(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsCmasM)"
+[1] "*************************  Running UpSetPlot  *******************"
+[1] "UpSetPlot(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsCmasM)"
+[1] "*************************  Running Get Info from File  *******************"
+[1] "      RunGetInfo .......................... OK"
+[1] "*************************  Running Data Abundance  *******************"
+[1] "      RunDataAbundance .......................... OK"
+[1] "*************************  Running Data LogFC  *******************"
+[1] "      RunDataLogFC .......................... OK"
+[1] "*************************  Running Data Pval  *******************"
+[1] "      RunDataPval .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Intersect .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Union .......................... OK"
+[1] "      Filter rawcount table .......................... OK"
+[1] "*************************  Running edgeR  *************************"
+[1] "RunedgeR(fnCounTable,/home/user/En/elisa.azuara155051/edgeR_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnSmearPlot=TRUE,fnVolcanoPlot=TRUE,fnBatch=(2,2,1,2,2,1), fnConditions=c(pEhEx,EhMyb10))"
+[1] "############"
+[1] "Samples:  pEhExvsEhMyb10"
+[1] "############"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "  edgeR   .......................... Failed"
+[1] "Error in fitFDistRobustly(var, df1 = df, covariate = covariate, winsor.tail.p = winsor.tail.p): statmod package required but is not installed\n"
+[1] "*************************  Running limma-Voom  *************************"
+[1] "Runlimma(fnCounTable,/home/user/En/elisa.azuara155051/limma_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMDPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,EhMyb10))"
+[1] "############"
+[1] "Samples:  pEhExvsEhMyb10"
+[1] "############"
+[1] "      Batch effect .......................... OK"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "      Voom transform .......................... OK"
+[1] "      lmfit estimation .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running NOISeq  *************************"
+[1] "RunNOISeq(fnCounTable,/home/user/En/elisa.azuara155051/NOISeq_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,EhMyb10))"
+[1] "############"
+[1] "Samples:  pEhExvsEhMyb10"
+[1] "############"
+[1] "      PCA Plot .......................... OK"
+Computing Z values...
+...k-means clustering done
+Size of 15 clusters:
+ [1]   68    3    4   31 4072   21    1   10  256   11   21  110   25   44   10
+Resampling cluster...[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+Size of 15 subclusters of cluster: 5
+ [1]  781  159   18   40   90 1878  358   64  244   29  159   78   82   48   44
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+[1] 11
+[1] 12
+[1] 13
+[1] 14
+[1] 15
+Computing Z for noise...
+Computing probability of differential expression...
+p0 = 0.375401515937144
+Probability
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.3538  0.7326  0.6153  0.9026  1.0000 
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "320 differentially expressed features"
+[1] "320 differentially expressed features"
+[1] "      DE plot .......................... OK"
+[1] "320 differentially expressed features"
+[1] "320 differentially expressed features"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running DESeq2  *************************"
+[1] "RunDESeq2(fnCounTable,/home/user/En/elisa.azuara155051/DESeq2_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMAPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,EhMyb10))"
+[1] "############"
+[1] "Samples:  pEhExvsEhMyb10"
+[1] "############"
+[1] "      Batch effects .......................... OK"
+[1] "      Objeto Dds .......................... OK"
+[1] "      PCA plot .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      Grafica MA .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running Venn Diagram  *******************"
+[1] "VennDiag(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsEhMyb10)"
+[1] "*************************  Running UpSetPlot  *******************"
+[1] "UpSetPlot(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsEhMyb10)"
+[1] "*************************  Running Get Info from File  *******************"
+[1] "      RunGetInfo .......................... OK"
+[1] "*************************  Running Data Abundance  *******************"
+[1] "      RunDataAbundance .......................... OK"
+[1] "*************************  Running Data LogFC  *******************"
+[1] "      RunDataLogFC .......................... OK"
+[1] "*************************  Running Data Pval  *******************"
+[1] "      RunDataPval .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Intersect .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Union .......................... OK"
+[1] "      Filter rawcount table .......................... OK"
+[1] "*************************  Running edgeR  *************************"
+[1] "RunedgeR(fnCounTable,/home/user/En/elisa.azuara155051/edgeR_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnSmearPlot=TRUE,fnVolcanoPlot=TRUE,fnBatch=(2,2,1,2,2,1), fnConditions=c(pEhEx,U2AF84))"
+[1] "############"
+[1] "Samples:  pEhExvsU2AF84"
+[1] "############"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "  edgeR   .......................... Failed"
+[1] "Error in fitFDistRobustly(var, df1 = df, covariate = covariate, winsor.tail.p = winsor.tail.p): statmod package required but is not installed\n"
+[1] "*************************  Running limma-Voom  *************************"
+[1] "Runlimma(fnCounTable,/home/user/En/elisa.azuara155051/limma_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMDPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,U2AF84))"
+[1] "############"
+[1] "Samples:  pEhExvsU2AF84"
+[1] "############"
+[1] "      Batch effect .......................... OK"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "      Voom transform .......................... OK"
+[1] "      lmfit estimation .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running NOISeq  *************************"
+[1] "RunNOISeq(fnCounTable,/home/user/En/elisa.azuara155051/NOISeq_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,U2AF84))"
+[1] "############"
+[1] "Samples:  pEhExvsU2AF84"
+[1] "############"
+[1] "      PCA Plot .......................... OK"
+Computing Z values...
+...k-means clustering done
+Size of 15 clusters:
+ [1]    7   25    9    2   25  243 4179   40    4   97   11   69   15   19    1
+Resampling cluster...[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+Size of 15 subclusters of cluster: 7
+ [1]  169  336   39   36 2076   61  109  124  846   76   37   35  196   15   24
+[1] 8
+[1] 9
+[1] 10
+[1] 11
+[1] 12
+[1] 13
+[1] 14
+[1] 15
+Computing Z for noise...
+Computing probability of differential expression...
+p0 = 0.384462467455141
+Probability
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.3695  0.7282  0.6092  0.8680  1.0000 
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "180 differentially expressed features"
+[1] "180 differentially expressed features"
+[1] "      DE plot .......................... OK"
+[1] "180 differentially expressed features"
+[1] "180 differentially expressed features"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running DESeq2  *************************"
+[1] "RunDESeq2(fnCounTable,/home/user/En/elisa.azuara155051/DESeq2_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMAPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,U2AF84))"
+[1] "############"
+[1] "Samples:  pEhExvsU2AF84"
+[1] "############"
+[1] "      Batch effects .......................... OK"
+[1] "      Objeto Dds .......................... OK"
+[1] "      PCA plot .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      Grafica MA .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running Venn Diagram  *******************"
+[1] "VennDiag(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsU2AF84)"
+[1] "*************************  Running UpSetPlot  *******************"
+[1] "UpSetPlot(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsU2AF84)"
+[1] "*************************  Running Get Info from File  *******************"
+[1] "      RunGetInfo .......................... OK"
+[1] "*************************  Running Data Abundance  *******************"
+[1] "      RunDataAbundance .......................... OK"
+[1] "*************************  Running Data LogFC  *******************"
+[1] "      RunDataLogFC .......................... OK"
+[1] "*************************  Running Data Pval  *******************"
+[1] "      RunDataPval .......................... OK"
+[1] "*************************  Running Heatmap  *************************"
+[1] "      RunHeatmap Intersect .......................... Failed"
+[1] "*************************  Running Heatmap  *************************"
+[1] "       Heatmap .......................... OK"
+[1] "      RunHeatmap Union .......................... OK"
+[1] "      Filter rawcount table .......................... OK"
+[1] "*************************  Running edgeR  *************************"
+[1] "RunedgeR(fnCounTable,/home/user/En/elisa.azuara155051/edgeR_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnSmearPlot=TRUE,fnVolcanoPlot=TRUE,fnBatch=(2,2,1,2,2,1), fnConditions=c(pEhEx,UmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsUmasM"
+[1] "############"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "  edgeR   .......................... Failed"
+[1] "Error in fitFDistRobustly(var, df1 = df, covariate = covariate, winsor.tail.p = winsor.tail.p): statmod package required but is not installed\n"
+[1] "*************************  Running limma-Voom  *************************"
+[1] "Runlimma(fnCounTable,/home/user/En/elisa.azuara155051/limma_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMDPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,UmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsUmasM"
+[1] "############"
+[1] "      Batch effect .......................... OK"
+[1] "      Objeto DGEList .......................... OK"
+[1] "      Normalizacion .......................... OK"
+[1] "      MDS Plot .......................... OK"
+[1] "      Voom transform .......................... OK"
+[1] "      lmfit estimation .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running NOISeq  *************************"
+[1] "RunNOISeq(fnCounTable,/home/user/En/elisa.azuara155051/NOISeq_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,UmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsUmasM"
+[1] "############"
+[1] "      PCA Plot .......................... OK"
+Computing Z values...
+...k-means clustering done
+Size of 15 clusters:
+ [1]   11   39   45  241  102   13   42   16    2    7 4342   28   22    7    2
+Resampling cluster...[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+[1] 11
+Size of 15 subclusters of cluster: 11
+ [1]  238   53  128   38  419   84   41  122   60   28  866   39   61   63 2102
+[1] 12
+[1] 13
+[1] 14
+[1] 15
+Computing Z for noise...
+Computing probability of differential expression...
+p0 = 0.605481695740292
+Probability
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.1308  0.3820  0.3872  0.6209  1.0000 
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "20 differentially expressed features"
+[1] "20 differentially expressed features"
+[1] "      DE plot .......................... OK"
+[1] "20 differentially expressed features"
+[1] "20 differentially expressed features"
+[1] "      MD plot .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running DESeq2  *************************"
+[1] "RunDESeq2(fnCounTable,/home/user/En/elisa.azuara155051/DESeq2_Results,TOP=TRUE,fnUmbral=0.05,fnUmbralFoldChange=1,fnMAPlot=TRUE,fnBatch=(2,2,1,2,2,1),fnConditions=c(pEhEx,UmasM))"
+[1] "############"
+[1] "Samples:  pEhExvsUmasM"
+[1] "############"
+[1] "      Batch effects .......................... OK"
+[1] "      Objeto Dds .......................... OK"
+[1] "      PCA plot .......................... OK"
+[1] "      Differential expression estimation.......................... OK"
+[1] "      Abundance estimation .......................... OK"
+[1] "      Results table .......................... OK"
+[1] "      Grafica MA .......................... OK"
+[1] "      Top file .......................... OK"
+[1] "      Final Results table to file .......................... OK"
+[1] "*************************  Running Venn Diagram  *******************"
+[1] "VennDiag(fnSetList,/home/user/En/elisa.azuara155051/VennDiagram_Results,pEhExvsUmasM)"
+[1] "      Venn Diagram .......................... Failed"
+[1] "Error in base::colSums(x, na.rm = na.rm, dims = dims, ...): 'x' must be an array of at least two dimensions\n"

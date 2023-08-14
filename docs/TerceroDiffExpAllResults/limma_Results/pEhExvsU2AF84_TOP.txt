@@ -1,0 +1,1 @@
+logFC	AveExpr	t	P.Value	adj.P.Val	B	U2AF84_1	U2AF84_2	pEhEx_1	pEhEx_2	U2AF84_1	U2AF84_2	pEhEx_1	pEhEx_2	DE	Regulation

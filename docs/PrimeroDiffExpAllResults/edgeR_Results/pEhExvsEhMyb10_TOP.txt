@@ -1,0 +1,1 @@
+logFC	logCPM	PValue	FDR	EhMyb10_1	EhMyb10_2	EhMyb10_3	pEhEx_1	pEhEx_2	pEhEx_3	EhMyb10_1	EhMyb10_2	EhMyb10_3	pEhEx_1	pEhEx_2	pEhEx_3	DE	Regulation

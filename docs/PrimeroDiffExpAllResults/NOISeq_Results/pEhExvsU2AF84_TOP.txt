@@ -1,0 +1,1 @@
+pEhEx_mean	U2AF84_mean	theta	prob	log2FC	U2AF84_1	U2AF84_2	U2AF84_3	pEhEx_1	pEhEx_2	pEhEx_3	U2AF84_1	U2AF84_2	U2AF84_3	pEhEx_1	pEhEx_2	pEhEx_3	DE	Regulation

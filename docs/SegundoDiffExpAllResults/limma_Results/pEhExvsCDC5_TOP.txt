@@ -1,0 +1,1 @@
+logFC	AveExpr	t	P.Value	adj.P.Val	B	CDC5_1	CDC5_2	CDC5_3	pEhEx_1	pEhEx_2	pEhEx_3	CDC5_1	CDC5_2	CDC5_3	pEhEx_1	pEhEx_2	pEhEx_3	DE	Regulation
