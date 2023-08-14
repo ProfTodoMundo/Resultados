@@ -24,7 +24,45 @@ A partir del análisis realizado por la Dra.
 
 ## Sección 1 - Página Principal
 
+Data Analysis module allows the user to have a preliminary analysis for quality control based on the data distribution per sample, using plots below
 
+[![CPM, Counts Per Million Plot](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_CPMPlot.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_CPMPlot.pdf)
+*Fig. 1. CPM, Counts Per Million Plot*
+
+The Count per million (CPM) plot shows the number of genes within each sample having more than 0 CPM, or more than 1, 2, 5 and 10 CPM. This plot could help the user decide the threshold to remove genes that appear to be very lowly expressed in any of the experimental conditions.
+
+[![Boxplot with pseudo counts](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_BoxPlotLog2.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_BoxPlotLog2.pdf)
+*Fig. 2. Boxplot with pseudo counts*
+
+Samples boxplot provides an easy way to visualize the distribution of pseudocounts in each sample, since it shows statistical measures such as median, quartiles, minimum and maximum. Whiskers are also drawn extending beyond each end of the box with points beyond the whiskers typically indicating outliers.
+
+[![Density plot](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_DensitiesPlot.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_DensitiesPlot.pdf)
+*Fig. 3. Density plot*
+
+Pseudocounts distributions can also be summarized by means of a density plot. Density plot provides more detail by enabling, for example, the detection of dissimilarity in replicates' behavior.
+
+[![Multi-dimensional scaling plot](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_MDSPlot.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_MDSPlot.pdf)
+*Fig. 4. Multi-dimensional scaling plot*
+
+Multidimensional Scaling (MDS) is a technique that is used to create a visual representation of the pattern of proximities (similarities, dissimilarities, or distances) among a set of objects. In the context of RNA-Seq analysis, MDS plot shows variation among RNA-seq samples, distance between sample labels indicates dissimilarity.
+
+[![Principal component plot](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_PCAPlot.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_PCAPlot.pdf)
+*Fig. 5. Principal component plot*
+
+This type of plot is useful for visualizing the overall effect of experimental covariates and batch effects. In the context of RNA-Seq analysis, PCA essentially clusters samples by groups of the most significantly deregulated genes. Clustering first by the most significant group, then by progressively less significant groups.
+
+[![Boxplot of standardized counts with TMM](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_BoxPlotNorm.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_BoxPlotNorm.pdf)
+*Fig. 6. Boxplot of standardized counts with TMM*
+
+[![Multi-dimensional scaling plot of standardized counts with TMM](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_MDSPlotNorm.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_MDSPlotNorm.pdf)
+*Fig. 7. Multi-dimensional scaling plot of standardized counts with TMM*
+
+[![Principal component plot of standardized counts with TMM](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_PCAPlotNorm.png)](PrimeroDiffExpAllResults/DataAnalysis_Results/AllConditions_PCAPlotNorm.pdf)
+*Fig. 8. Principal component plot of standardized counts with TMM*
+
+This type of graph is useful for visualizing the overall effect of experimental covariances and their batch effects. When a pair of samples, under the same condition, tend to group together, a lot effect can be suspected.
+
+From this point, the same graphs are replicated, but they show the raw counts normalized with the TMM method (Trimmed Mean of M-values), (1) Robinson.
 
 # Segundo Análisis
 
