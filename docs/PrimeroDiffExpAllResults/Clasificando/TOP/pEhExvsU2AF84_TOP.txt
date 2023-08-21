@@ -1,0 +1,1 @@
+baseMean	log2FoldChange	lfcSE	stat	pvalue	padj	U2AF84_1	U2AF84_2	U2AF84_3	pEhEx_1	pEhEx_2	pEhEx_3	U2AF84_1.1	U2AF84_2.1	U2AF84_3.1	pEhEx_1.1	pEhEx_2.1	pEhEx_3.1	Certeza	DE

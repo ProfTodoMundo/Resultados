@@ -1,0 +1,50 @@
+---
+title: "DataAnalysisUNAMFiles"
+author: "Carlos E Martinez R"
+date: "2023-08-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Construcción del proceso
+
+```{r, echo=FALSE}
+## Ruta a la carpeta
+ruta_carpeta <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/DESeq2_Results"
+
+# Obtener la lista de archivos TXT en la carpeta
+archivos_txt <- list.files(ruta_carpeta, pattern = "\\.txt$", full.names = TRUE)
+
+# Imprimir la lista de archivos TXT
+#print(archivos_txt)
+```
+
+
+# Obtener solo los nombres de los archivos TXT sin la ruta
+```{r,echo=FALSE}
+nombres_archivos <- basename(archivos_txt)
+
+# Imprimir la lista de nombres de archivos TXT
+print(nombres_archivos)
+```
+
+## Construir la ruta completa al archivo
+```{r, echo=FALSE}
+ruta_primer_archivo <- archivos_txt[1]
+# Leer la base de datos
+bd <- read.table(ruta_primer_archivo, header = TRUE)
+data <- as.data.frame(bd)
+# Mostrar la base de datos
+#print(bd)
+```
+
+## Conversion de la BDD
+
+```{r}
+ruta_csv <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/BDD"
+write.csv(data,"mydata.csv")
+
+```
