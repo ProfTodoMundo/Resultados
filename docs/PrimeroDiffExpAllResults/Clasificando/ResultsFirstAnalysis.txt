@@ -81,122 +81,136 @@ Elemento 5 :
 
 Resumen del contenido en el subfolder: Intersect
 Elemento 1 :
-    baseMean    log2FoldChange       lfcSE             stat       
- Min.   :3526   Min.   :-2.324   Min.   :0.4676   Min.   :-4.971  
- 1st Qu.:3610   1st Qu.:-2.310   1st Qu.:0.4886   1st Qu.:-4.756  
- Median :3694   Median :-2.297   Median :0.5096   Median :-4.542  
- Mean   :3694   Mean   :-2.297   Mean   :0.5096   Mean   :-4.542  
- 3rd Qu.:3778   3rd Qu.:-2.283   3rd Qu.:0.5306   3rd Qu.:-4.328  
- Max.   :3862   Max.   :-2.269   Max.   :0.5516   Max.   :-4.113  
-     pvalue               padj              CDC5_1     
- Min.   :6.672e-07   Min.   :0.001828   Min.   :716.0  
- 1st Qu.:1.026e-05   1st Qu.:0.008054   1st Qu.:736.5  
- Median :1.985e-05   Median :0.014280   Median :757.0  
- Mean   :1.985e-05   Mean   :0.014280   Mean   :757.0  
- 3rd Qu.:2.943e-05   3rd Qu.:0.020505   3rd Qu.:777.5  
- Max.   :3.902e-05   Max.   :0.026731   Max.   :798.0  
-     CDC5_2         CDC5_3        pEhEx_1        pEhEx_2    
- Min.   :1152   Min.   :1639   Min.   :7024   Min.   :6979  
- 1st Qu.:1175   1st Qu.:1714   1st Qu.:7141   1st Qu.:7163  
- Median :1198   Median :1790   Median :7258   Median :7346  
- Mean   :1198   Mean   :1790   Mean   :7258   Mean   :7346  
- 3rd Qu.:1221   3rd Qu.:1865   3rd Qu.:7376   3rd Qu.:7530  
- Max.   :1244   Max.   :1940   Max.   :7493   Max.   :7714  
-    pEhEx_3        CDC5_1.1       CDC5_2.1       CDC5_3.1   
- Min.   :5476   Min.   :1019   Min.   :1349   Min.   :1158  
- 1st Qu.:6288   1st Qu.:1048   1st Qu.:1376   1st Qu.:1211  
- Median :7101   Median :1078   Median :1403   Median :1265  
- Mean   :7101   Mean   :1078   Mean   :1403   Mean   :1265  
- 3rd Qu.:7914   3rd Qu.:1107   3rd Qu.:1430   3rd Qu.:1318  
- Max.   :8726   Max.   :1136   Max.   :1457   Max.   :1371  
-   pEhEx_1.1      pEhEx_2.1      pEhEx_3.1       Certeza     
- Min.   :5058   Min.   :7801   Min.   :3839   Min.   :97.33  
- 1st Qu.:5142   1st Qu.:8006   1st Qu.:4408   1st Qu.:97.95  
- Median :5226   Median :8212   Median :4978   Median :98.58  
- Mean   :5226   Mean   :8212   Mean   :4978   Mean   :98.58  
- 3rd Qu.:5311   3rd Qu.:8417   3rd Qu.:5547   3rd Qu.:99.20  
- Max.   :5395   Max.   :8623   Max.   :6117   Max.   :99.82  
-      DE           
- Length:2          
- Class :character  
- Mode  :character  
-                   
-                   
-                   
+    baseMean    log2FoldChange       lfcSE       
+ Min.   :3526   Min.   :-2.324   Min.   :0.4676  
+ 1st Qu.:3610   1st Qu.:-2.310   1st Qu.:0.4886  
+ Median :3694   Median :-2.297   Median :0.5096  
+ Mean   :3694   Mean   :-2.297   Mean   :0.5096  
+ 3rd Qu.:3778   3rd Qu.:-2.283   3rd Qu.:0.5306  
+ Max.   :3862   Max.   :-2.269   Max.   :0.5516  
+      stat            pvalue               padj         
+ Min.   :-4.971   Min.   :6.672e-07   Min.   :0.001828  
+ 1st Qu.:-4.756   1st Qu.:1.026e-05   1st Qu.:0.008054  
+ Median :-4.542   Median :1.985e-05   Median :0.014280  
+ Mean   :-4.542   Mean   :1.985e-05   Mean   :0.014280  
+ 3rd Qu.:-4.328   3rd Qu.:2.943e-05   3rd Qu.:0.020505  
+ Max.   :-4.113   Max.   :3.902e-05   Max.   :0.026731  
+     CDC5_1          CDC5_2         CDC5_3        pEhEx_1    
+ Min.   :716.0   Min.   :1152   Min.   :1639   Min.   :7024  
+ 1st Qu.:736.5   1st Qu.:1175   1st Qu.:1714   1st Qu.:7141  
+ Median :757.0   Median :1198   Median :1790   Median :7258  
+ Mean   :757.0   Mean   :1198   Mean   :1790   Mean   :7258  
+ 3rd Qu.:777.5   3rd Qu.:1221   3rd Qu.:1865   3rd Qu.:7376  
+ Max.   :798.0   Max.   :1244   Max.   :1940   Max.   :7493  
+    pEhEx_2        pEhEx_3        CDC5_1.1       CDC5_2.1   
+ Min.   :6979   Min.   :5476   Min.   :1019   Min.   :1349  
+ 1st Qu.:7163   1st Qu.:6288   1st Qu.:1048   1st Qu.:1376  
+ Median :7346   Median :7101   Median :1078   Median :1403  
+ Mean   :7346   Mean   :7101   Mean   :1078   Mean   :1403  
+ 3rd Qu.:7530   3rd Qu.:7914   3rd Qu.:1107   3rd Qu.:1430  
+ Max.   :7714   Max.   :8726   Max.   :1136   Max.   :1457  
+    CDC5_3.1      pEhEx_1.1      pEhEx_2.1      pEhEx_3.1   
+ Min.   :1158   Min.   :5058   Min.   :7801   Min.   :3839  
+ 1st Qu.:1211   1st Qu.:5142   1st Qu.:8006   1st Qu.:4408  
+ Median :1265   Median :5226   Median :8212   Median :4978  
+ Mean   :1265   Mean   :5226   Mean   :8212   Mean   :4978  
+ 3rd Qu.:1318   3rd Qu.:5311   3rd Qu.:8417   3rd Qu.:5547  
+ Max.   :1371   Max.   :5395   Max.   :8623   Max.   :6117  
+    Certeza           DE           
+ Min.   :97.33   Length:2          
+ 1st Qu.:97.95   Class :character  
+ Median :98.58   Mode  :character  
+ Mean   :98.58                     
+ 3rd Qu.:99.20                     
+ Max.   :99.82                     
 
 Elemento 2 :
-    baseMean     log2FoldChange       lfcSE            stat       
- Min.   :19.63   Min.   :-7.980   Min.   :1.311   Min.   :-5.862  
- 1st Qu.:20.75   1st Qu.:-7.906   1st Qu.:1.364   1st Qu.:-5.705  
- Median :21.87   Median :-7.833   Median :1.418   Median :-5.549  
- Mean   :21.87   Mean   :-7.833   Mean   :1.418   Mean   :-5.549  
- 3rd Qu.:22.99   3rd Qu.:-7.759   3rd Qu.:1.471   3rd Qu.:-5.392  
- Max.   :24.11   Max.   :-7.685   Max.   :1.524   Max.   :-5.235  
-     pvalue               padj              CmasM_1     CmasM_2 
- Min.   :4.574e-09   Min.   :2.098e-05   Min.   :0   Min.   :0  
- 1st Qu.:4.463e-08   1st Qu.:1.102e-04   1st Qu.:0   1st Qu.:0  
- Median :8.468e-08   Median :1.994e-04   Median :0   Median :0  
- Mean   :8.468e-08   Mean   :1.994e-04   Mean   :0   Mean   :0  
- 3rd Qu.:1.247e-07   3rd Qu.:2.886e-04   3rd Qu.:0   3rd Qu.:0  
- Max.   :1.648e-07   Max.   :3.779e-04   Max.   :0   Max.   :0  
-    CmasM_3     pEhEx_1         pEhEx_2         pEhEx_3     
- Min.   :0   Min.   :51.00   Min.   :35.00   Min.   :14.00  
- 1st Qu.:0   1st Qu.:58.25   1st Qu.:41.25   1st Qu.:22.25  
- Median :0   Median :65.50   Median :47.50   Median :30.50  
- Mean   :0   Mean   :65.50   Mean   :47.50   Mean   :30.50  
- 3rd Qu.:0   3rd Qu.:72.75   3rd Qu.:53.75   3rd Qu.:38.75  
- Max.   :0   Max.   :80.00   Max.   :60.00   Max.   :47.00  
-   CmasM_1.1   CmasM_2.1   CmasM_3.1   pEhEx_1.1       pEhEx_2.1    
- Min.   :0   Min.   :0   Min.   :0   Min.   :38.91   Min.   :42.43  
- 1st Qu.:0   1st Qu.:0   1st Qu.:0   1st Qu.:44.45   1st Qu.:50.01  
- Median :0   Median :0   Median :0   Median :49.98   Median :57.59  
- Mean   :0   Mean   :0   Mean   :0   Mean   :49.98   Mean   :57.59  
- 3rd Qu.:0   3rd Qu.:0   3rd Qu.:0   3rd Qu.:55.51   3rd Qu.:65.17  
- Max.   :0   Max.   :0   Max.   :0   Max.   :61.04   Max.   :72.74  
-   pEhEx_3.1        Certeza            DE           
- Min.   :10.85   Min.   : 99.96   Length:2          
- 1st Qu.:17.24   1st Qu.: 99.97   Class :character  
- Median :23.64   Median : 99.98   Mode  :character  
- Mean   :23.64   Mean   : 99.98                     
- 3rd Qu.:30.03   3rd Qu.: 99.99                     
- Max.   :36.42   Max.   :100.00                     
+    baseMean     log2FoldChange       lfcSE      
+ Min.   :19.63   Min.   :-7.980   Min.   :1.311  
+ 1st Qu.:20.75   1st Qu.:-7.906   1st Qu.:1.364  
+ Median :21.87   Median :-7.833   Median :1.418  
+ Mean   :21.87   Mean   :-7.833   Mean   :1.418  
+ 3rd Qu.:22.99   3rd Qu.:-7.759   3rd Qu.:1.471  
+ Max.   :24.11   Max.   :-7.685   Max.   :1.524  
+      stat            pvalue               padj          
+ Min.   :-5.862   Min.   :4.574e-09   Min.   :2.098e-05  
+ 1st Qu.:-5.705   1st Qu.:4.463e-08   1st Qu.:1.102e-04  
+ Median :-5.549   Median :8.468e-08   Median :1.994e-04  
+ Mean   :-5.549   Mean   :8.468e-08   Mean   :1.994e-04  
+ 3rd Qu.:-5.392   3rd Qu.:1.247e-07   3rd Qu.:2.886e-04  
+ Max.   :-5.235   Max.   :1.648e-07   Max.   :3.779e-04  
+    CmasM_1     CmasM_2     CmasM_3     pEhEx_1     
+ Min.   :0   Min.   :0   Min.   :0   Min.   :51.00  
+ 1st Qu.:0   1st Qu.:0   1st Qu.:0   1st Qu.:58.25  
+ Median :0   Median :0   Median :0   Median :65.50  
+ Mean   :0   Mean   :0   Mean   :0   Mean   :65.50  
+ 3rd Qu.:0   3rd Qu.:0   3rd Qu.:0   3rd Qu.:72.75  
+ Max.   :0   Max.   :0   Max.   :0   Max.   :80.00  
+    pEhEx_2         pEhEx_3        CmasM_1.1   CmasM_2.1
+ Min.   :35.00   Min.   :14.00   Min.   :0   Min.   :0  
+ 1st Qu.:41.25   1st Qu.:22.25   1st Qu.:0   1st Qu.:0  
+ Median :47.50   Median :30.50   Median :0   Median :0  
+ Mean   :47.50   Mean   :30.50   Mean   :0   Mean   :0  
+ 3rd Qu.:53.75   3rd Qu.:38.75   3rd Qu.:0   3rd Qu.:0  
+ Max.   :60.00   Max.   :47.00   Max.   :0   Max.   :0  
+   CmasM_3.1   pEhEx_1.1       pEhEx_2.1       pEhEx_3.1    
+ Min.   :0   Min.   :38.91   Min.   :42.43   Min.   :10.85  
+ 1st Qu.:0   1st Qu.:44.45   1st Qu.:50.01   1st Qu.:17.24  
+ Median :0   Median :49.98   Median :57.59   Median :23.64  
+ Mean   :0   Mean   :49.98   Mean   :57.59   Mean   :23.64  
+ 3rd Qu.:0   3rd Qu.:55.51   3rd Qu.:65.17   3rd Qu.:30.03  
+ Max.   :0   Max.   :61.04   Max.   :72.74   Max.   :36.42  
+    Certeza            DE           
+ Min.   : 99.96   Length:2          
+ 1st Qu.: 99.97   Class :character  
+ Median : 99.98   Mode  :character  
+ Mean   : 99.98                     
+ 3rd Qu.: 99.99                     
+ Max.   :100.00                     
 
 Elemento 3 :
-    baseMean    log2FoldChange       lfcSE             stat       
- Min.   :3332   Min.   :-1.902   Min.   :0.4032   Min.   :-4.719  
- 1st Qu.:3332   1st Qu.:-1.902   1st Qu.:0.4032   1st Qu.:-4.719  
- Median :3332   Median :-1.902   Median :0.4032   Median :-4.719  
- Mean   :3332   Mean   :-1.902   Mean   :0.4032   Mean   :-4.719  
- 3rd Qu.:3332   3rd Qu.:-1.902   3rd Qu.:0.4032   3rd Qu.:-4.719  
- Max.   :3332   Max.   :-1.902   Max.   :0.4032   Max.   :-4.719  
-     pvalue               padj           EhMyb10_1      EhMyb10_2   
- Min.   :2.371e-06   Min.   :0.01044   Min.   :1658   Min.   :1348  
- 1st Qu.:2.371e-06   1st Qu.:0.01044   1st Qu.:1658   1st Qu.:1348  
- Median :2.371e-06   Median :0.01044   Median :1658   Median :1348  
- Mean   :2.371e-06   Mean   :0.01044   Mean   :1658   Mean   :1348  
- 3rd Qu.:2.371e-06   3rd Qu.:0.01044   3rd Qu.:1658   3rd Qu.:1348  
- Max.   :2.371e-06   Max.   :0.01044   Max.   :1658   Max.   :1348  
-   EhMyb10_3      pEhEx_1        pEhEx_2        pEhEx_3    
- Min.   :485   Min.   :7493   Min.   :6979   Min.   :8726  
- 1st Qu.:485   1st Qu.:7493   1st Qu.:6979   1st Qu.:8726  
- Median :485   Median :7493   Median :6979   Median :8726  
- Mean   :485   Mean   :7493   Mean   :6979   Mean   :8726  
- 3rd Qu.:485   3rd Qu.:7493   3rd Qu.:6979   3rd Qu.:8726  
- Max.   :485   Max.   :7493   Max.   :6979   Max.   :8726  
-  EhMyb10_1.1    EhMyb10_2.1    EhMyb10_3.1     pEhEx_1.1   
- Min.   :1486   Min.   :1213   Min.   :1521   Min.   :4429  
- 1st Qu.:1486   1st Qu.:1213   1st Qu.:1521   1st Qu.:4429  
- Median :1486   Median :1213   Median :1521   Median :4429  
- Mean   :1486   Mean   :1213   Mean   :1521   Mean   :4429  
- 3rd Qu.:1486   3rd Qu.:1213   3rd Qu.:1521   3rd Qu.:4429  
- Max.   :1486   Max.   :1213   Max.   :1521   Max.   :4429  
-   pEhEx_2.1      pEhEx_3.1       Certeza           DE           
- Min.   :6553   Min.   :4791   Min.   :98.96   Length:1          
- 1st Qu.:6553   1st Qu.:4791   1st Qu.:98.96   Class :character  
- Median :6553   Median :4791   Median :98.96   Mode  :character  
- Mean   :6553   Mean   :4791   Mean   :98.96                     
- 3rd Qu.:6553   3rd Qu.:4791   3rd Qu.:98.96                     
- Max.   :6553   Max.   :4791   Max.   :98.96                     
+    baseMean    log2FoldChange       lfcSE       
+ Min.   :3332   Min.   :-1.902   Min.   :0.4032  
+ 1st Qu.:3332   1st Qu.:-1.902   1st Qu.:0.4032  
+ Median :3332   Median :-1.902   Median :0.4032  
+ Mean   :3332   Mean   :-1.902   Mean   :0.4032  
+ 3rd Qu.:3332   3rd Qu.:-1.902   3rd Qu.:0.4032  
+ Max.   :3332   Max.   :-1.902   Max.   :0.4032  
+      stat            pvalue               padj        
+ Min.   :-4.719   Min.   :2.371e-06   Min.   :0.01044  
+ 1st Qu.:-4.719   1st Qu.:2.371e-06   1st Qu.:0.01044  
+ Median :-4.719   Median :2.371e-06   Median :0.01044  
+ Mean   :-4.719   Mean   :2.371e-06   Mean   :0.01044  
+ 3rd Qu.:-4.719   3rd Qu.:2.371e-06   3rd Qu.:0.01044  
+ Max.   :-4.719   Max.   :2.371e-06   Max.   :0.01044  
+   EhMyb10_1      EhMyb10_2      EhMyb10_3      pEhEx_1    
+ Min.   :1658   Min.   :1348   Min.   :485   Min.   :7493  
+ 1st Qu.:1658   1st Qu.:1348   1st Qu.:485   1st Qu.:7493  
+ Median :1658   Median :1348   Median :485   Median :7493  
+ Mean   :1658   Mean   :1348   Mean   :485   Mean   :7493  
+ 3rd Qu.:1658   3rd Qu.:1348   3rd Qu.:485   3rd Qu.:7493  
+ Max.   :1658   Max.   :1348   Max.   :485   Max.   :7493  
+    pEhEx_2        pEhEx_3      EhMyb10_1.1    EhMyb10_2.1  
+ Min.   :6979   Min.   :8726   Min.   :1486   Min.   :1213  
+ 1st Qu.:6979   1st Qu.:8726   1st Qu.:1486   1st Qu.:1213  
+ Median :6979   Median :8726   Median :1486   Median :1213  
+ Mean   :6979   Mean   :8726   Mean   :1486   Mean   :1213  
+ 3rd Qu.:6979   3rd Qu.:8726   3rd Qu.:1486   3rd Qu.:1213  
+ Max.   :6979   Max.   :8726   Max.   :1486   Max.   :1213  
+  EhMyb10_3.1     pEhEx_1.1      pEhEx_2.1      pEhEx_3.1   
+ Min.   :1521   Min.   :4429   Min.   :6553   Min.   :4791  
+ 1st Qu.:1521   1st Qu.:4429   1st Qu.:6553   1st Qu.:4791  
+ Median :1521   Median :4429   Median :6553   Median :4791  
+ Mean   :1521   Mean   :4429   Mean   :6553   Mean   :4791  
+ 3rd Qu.:1521   3rd Qu.:4429   3rd Qu.:6553   3rd Qu.:4791  
+ Max.   :1521   Max.   :4429   Max.   :6553   Max.   :4791  
+    Certeza           DE           
+ Min.   :98.96   Length:1          
+ 1st Qu.:98.96   Class :character  
+ Median :98.96   Mode  :character  
+ Mean   :98.96                     
+ 3rd Qu.:98.96                     
+ Max.   :98.96                     
 
 Resumen del contenido en el subfolder: logFC
 Elemento 1 :
@@ -428,54 +442,54 @@ Elemento 4 :
  3rd Qu.:   226.2   3rd Qu.: 0.6434   3rd Qu.:0.9967  
  Max.   :509324.0   Max.   : 5.0388   Max.   :3.7344  
                                                       
-      stat             pvalue            padj           U2AF84_1     
- Min.   :-3.6039   Min.   :0.0001   Min.   :0.4451   Min.   :     0  
- 1st Qu.:-0.2425   1st Qu.:0.3403   1st Qu.:0.9998   1st Qu.:    15  
- Median : 0.2578   Median :0.5983   Median :0.9998   Median :    41  
- Mean   : 0.2352   Mean   :0.5690   Mean   :0.9995   Mean   :  1408  
- 3rd Qu.: 0.7971   3rd Qu.:0.8114   3rd Qu.:0.9998   3rd Qu.:   167  
- Max.   : 3.8901   Max.   :0.9998   Max.   :0.9998   Max.   :234070  
-                   NA's   :304      NA's   :304                      
-    U2AF84_2         U2AF84_3           pEhEx_1        
- Min.   :     0   Min.   :     0.0   Min.   :     0.0  
- 1st Qu.:    14   1st Qu.:     6.0   1st Qu.:    25.0  
- Median :    41   Median :    21.0   Median :    71.0  
- Mean   :  1383   Mean   :  1484.0   Mean   :  1948.0  
- 3rd Qu.:   181   3rd Qu.:   100.8   3rd Qu.:   290.8  
- Max.   :214967   Max.   :823789.0   Max.   :287854.0  
-                                                       
-    pEhEx_2          pEhEx_3          U2AF84_1.1       
- Min.   :     0   Min.   :      0   Min.   :     0.00  
- 1st Qu.:    14   1st Qu.:     22   1st Qu.:    15.16  
- Median :    45   Median :     78   Median :    41.43  
- Mean   :  1543   Mean   :   2738   Mean   :  1422.93  
- 3rd Qu.:   203   3rd Qu.:    348   3rd Qu.:   168.75  
- Max.   :237744   Max.   :1008932   Max.   :236529.55  
-                                                       
-   U2AF84_2.1          U2AF84_3.1          pEhEx_1.1        
- Min.   :     0.00   Min.   :      0.0   Min.   :     0.00  
- 1st Qu.:    14.49   1st Qu.:     14.1   1st Qu.:    14.85  
- Median :    42.43   Median :     49.5   Median :    42.17  
- Mean   :  1431.84   Mean   :   3498.7   Mean   :  1156.92  
- 3rd Qu.:   187.33   3rd Qu.:    237.5   3rd Qu.:   172.68  
- Max.   :222485.72   Max.   :1942165.3   Max.   :170957.75  
+      stat             pvalue            padj       
+ Min.   :-3.6039   Min.   :0.0001   Min.   :0.4451  
+ 1st Qu.:-0.2425   1st Qu.:0.3403   1st Qu.:0.9998  
+ Median : 0.2578   Median :0.5983   Median :0.9998  
+ Mean   : 0.2352   Mean   :0.5690   Mean   :0.9995  
+ 3rd Qu.: 0.7971   3rd Qu.:0.8114   3rd Qu.:0.9998  
+ Max.   : 3.8901   Max.   :0.9998   Max.   :0.9998  
+                   NA's   :304      NA's   :304     
+    U2AF84_1         U2AF84_2         U2AF84_3       
+ Min.   :     0   Min.   :     0   Min.   :     0.0  
+ 1st Qu.:    15   1st Qu.:    14   1st Qu.:     6.0  
+ Median :    41   Median :    41   Median :    21.0  
+ Mean   :  1408   Mean   :  1383   Mean   :  1484.0  
+ 3rd Qu.:   167   3rd Qu.:   181   3rd Qu.:   100.8  
+ Max.   :234070   Max.   :214967   Max.   :823789.0  
+                                                     
+    pEhEx_1            pEhEx_2          pEhEx_3       
+ Min.   :     0.0   Min.   :     0   Min.   :      0  
+ 1st Qu.:    25.0   1st Qu.:    14   1st Qu.:     22  
+ Median :    71.0   Median :    45   Median :     78  
+ Mean   :  1948.0   Mean   :  1543   Mean   :   2738  
+ 3rd Qu.:   290.8   3rd Qu.:   203   3rd Qu.:    348  
+ Max.   :287854.0   Max.   :237744   Max.   :1008932  
+                                                      
+   U2AF84_1.1          U2AF84_2.1          U2AF84_3.1       
+ Min.   :     0.00   Min.   :     0.00   Min.   :      0.0  
+ 1st Qu.:    15.16   1st Qu.:    14.49   1st Qu.:     14.1  
+ Median :    41.43   Median :    42.43   Median :     49.5  
+ Mean   :  1422.93   Mean   :  1431.84   Mean   :   3498.7  
+ 3rd Qu.:   168.75   3rd Qu.:   187.33   3rd Qu.:    237.5  
+ Max.   :236529.55   Max.   :222485.72   Max.   :1942165.3  
                                                             
-   pEhEx_2.1           pEhEx_3.1           Certeza        
- Min.   :     0.00   Min.   :     0.0   Min.   : 0.02000  
- 1st Qu.:    13.20   1st Qu.:    12.6   1st Qu.: 0.02000  
- Median :    42.42   Median :    44.7   Median : 0.02000  
- Mean   :  1454.96   Mean   :  1569.6   Mean   : 0.04323  
- 3rd Qu.:   191.38   3rd Qu.:   199.5   3rd Qu.: 0.02000  
- Max.   :224129.46   Max.   :578317.1   Max.   :55.50000  
-                                        NA's   :304       
-      DE           
- Length:4746       
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
+   pEhEx_1.1           pEhEx_2.1           pEhEx_3.1       
+ Min.   :     0.00   Min.   :     0.00   Min.   :     0.0  
+ 1st Qu.:    14.85   1st Qu.:    13.20   1st Qu.:    12.6  
+ Median :    42.17   Median :    42.42   Median :    44.7  
+ Mean   :  1156.92   Mean   :  1454.96   Mean   :  1569.6  
+ 3rd Qu.:   172.68   3rd Qu.:   191.38   3rd Qu.:   199.5  
+ Max.   :170957.75   Max.   :224129.46   Max.   :578317.1  
+                                                           
+    Certeza              DE           
+ Min.   : 0.02000   Length:4746       
+ 1st Qu.: 0.02000   Class :character  
+ Median : 0.02000   Mode  :character  
+ Mean   : 0.04323                     
+ 3rd Qu.: 0.02000                     
+ Max.   :55.50000                     
+ NA's   :304                          
 
 Elemento 5 :
     baseMean        log2FoldChange        lfcSE       
@@ -494,46 +508,46 @@ Elemento 5 :
  3rd Qu.: 0.5441   3rd Qu.:0.86169   3rd Qu.:0.9999  
  Max.   : 2.4150   Max.   :0.99989   Max.   :0.9999  
                    NA's   :212       NA's   :212     
-    UmasM_1          UmasM_2          UmasM_3          pEhEx_1      
- Min.   :     0   Min.   :     0   Min.   :     0   Min.   :     0  
- 1st Qu.:    14   1st Qu.:    27   1st Qu.:     9   1st Qu.:    22  
- Median :    39   Median :    77   Median :    35   Median :    66  
- Mean   :  1596   Mean   :  1481   Mean   :  2207   Mean   :  1880  
- 3rd Qu.:   165   3rd Qu.:   285   3rd Qu.:   189   3rd Qu.:   269  
- Max.   :284185   Max.   :215279   Max.   :953488   Max.   :287854  
-                                                                    
-    pEhEx_2            pEhEx_3          UmasM_1.1       
- Min.   :     0.0   Min.   :      0   Min.   :     0.0  
- 1st Qu.:    13.0   1st Qu.:     21   1st Qu.:    16.8  
- Median :    41.0   Median :     73   Median :    46.8  
- Mean   :  1490.9   Mean   :   2643   Mean   :  1915.1  
- 3rd Qu.:   189.5   3rd Qu.:    322   3rd Qu.:   198.0  
- Max.   :237744.0   Max.   :1008932   Max.   :340994.2  
-                                                        
-   UmasM_2.1           UmasM_3.1           pEhEx_1.1        
- Min.   :     0.00   Min.   :      0.0   Min.   :     0.00  
- 1st Qu.:    18.30   1st Qu.:     14.0   1st Qu.:    16.32  
- Median :    52.18   Median :     54.6   Median :    48.96  
- Mean   :  1003.67   Mean   :   3444.8   Mean   :  1394.44  
- 3rd Qu.:   193.15   3rd Qu.:    295.0   3rd Qu.:   199.53  
- Max.   :145896.83   Max.   :1488475.8   Max.   :213518.02  
-                                                            
-   pEhEx_2.1           pEhEx_3.1           Certeza    
- Min.   :     0.00   Min.   :     0.0   Min.   :0.01  
- 1st Qu.:    15.28   1st Qu.:    15.1   1st Qu.:0.01  
- Median :    48.19   Median :    52.4   Median :0.01  
- Mean   :  1752.18   Mean   :  1898.2   Mean   :0.01  
- 3rd Qu.:   222.71   3rd Qu.:   231.2   3rd Qu.:0.01  
- Max.   :279409.95   Max.   :724577.3   Max.   :0.01  
-                                        NA's   :212   
-      DE           
- Length:4919       
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
+    UmasM_1          UmasM_2          UmasM_3      
+ Min.   :     0   Min.   :     0   Min.   :     0  
+ 1st Qu.:    14   1st Qu.:    27   1st Qu.:     9  
+ Median :    39   Median :    77   Median :    35  
+ Mean   :  1596   Mean   :  1481   Mean   :  2207  
+ 3rd Qu.:   165   3rd Qu.:   285   3rd Qu.:   189  
+ Max.   :284185   Max.   :215279   Max.   :953488  
+                                                   
+    pEhEx_1          pEhEx_2            pEhEx_3       
+ Min.   :     0   Min.   :     0.0   Min.   :      0  
+ 1st Qu.:    22   1st Qu.:    13.0   1st Qu.:     21  
+ Median :    66   Median :    41.0   Median :     73  
+ Mean   :  1880   Mean   :  1490.9   Mean   :   2643  
+ 3rd Qu.:   269   3rd Qu.:   189.5   3rd Qu.:    322  
+ Max.   :287854   Max.   :237744.0   Max.   :1008932  
+                                                      
+   UmasM_1.1          UmasM_2.1           UmasM_3.1        
+ Min.   :     0.0   Min.   :     0.00   Min.   :      0.0  
+ 1st Qu.:    16.8   1st Qu.:    18.30   1st Qu.:     14.0  
+ Median :    46.8   Median :    52.18   Median :     54.6  
+ Mean   :  1915.1   Mean   :  1003.67   Mean   :   3444.8  
+ 3rd Qu.:   198.0   3rd Qu.:   193.15   3rd Qu.:    295.0  
+ Max.   :340994.2   Max.   :145896.83   Max.   :1488475.8  
+                                                           
+   pEhEx_1.1           pEhEx_2.1           pEhEx_3.1       
+ Min.   :     0.00   Min.   :     0.00   Min.   :     0.0  
+ 1st Qu.:    16.32   1st Qu.:    15.28   1st Qu.:    15.1  
+ Median :    48.96   Median :    48.19   Median :    52.4  
+ Mean   :  1394.44   Mean   :  1752.18   Mean   :  1898.2  
+ 3rd Qu.:   199.53   3rd Qu.:   222.71   3rd Qu.:   231.2  
+ Max.   :213518.02   Max.   :279409.95   Max.   :724577.3  
+                                                           
+    Certeza          DE           
+ Min.   :0.01   Length:4919       
+ 1st Qu.:0.01   Class :character  
+ Median :0.01   Mode  :character  
+ Mean   :0.01                     
+ 3rd Qu.:0.01                     
+ Max.   :0.01                     
+ NA's   :212                      
 
 Resumen del contenido en el subfolder: pval
 Elemento 1 :
@@ -588,129 +602,150 @@ Elemento 5 :
 
 Resumen del contenido en el subfolder: TOP
 Elemento 1 :
-    baseMean       log2FoldChange       lfcSE             stat       
- Min.   :  63.48   Min.   :-2.982   Min.   :0.4676   Min.   :-4.971  
- 1st Qu.: 179.50   1st Qu.:-2.713   1st Qu.:0.5516   1st Qu.:-4.671  
- Median : 237.46   Median :-2.324   Median :0.5808   Median :-4.638  
- Mean   :1573.52   Mean   :-1.586   Mean   :0.5658   Mean   :-2.874  
- 3rd Qu.:3525.58   3rd Qu.:-2.269   3rd Qu.:0.5859   3rd Qu.:-4.113  
- Max.   :3861.59   Max.   : 2.356   Max.   :0.6431   Max.   : 4.022  
-     pvalue               padj              CDC5_1     
- Min.   :6.672e-07   Min.   :0.001828   Min.   :  4.0  
- 1st Qu.:2.996e-06   1st Qu.:0.003217   1st Qu.: 31.0  
- Median :3.523e-06   Median :0.003217   Median :279.0  
- Mean   :2.079e-05   Mean   :0.013324   Mean   :365.6  
- 3rd Qu.:3.902e-05   3rd Qu.:0.026731   3rd Qu.:716.0  
- Max.   :5.772e-05   Max.   :0.031628   Max.   :798.0  
-     CDC5_2           CDC5_3          pEhEx_1        pEhEx_2    
- Min.   :  14.0   Min.   :  28.0   Min.   : 139   Min.   :  82  
- 1st Qu.:  61.0   1st Qu.:  39.0   1st Qu.: 166   1st Qu.: 101  
- Median : 262.0   Median : 690.0   Median : 384   Median : 304  
- Mean   : 546.6   Mean   : 867.2   Mean   :3041   Mean   :3036  
- 3rd Qu.:1152.0   3rd Qu.:1639.0   3rd Qu.:7024   3rd Qu.:6979  
- Max.   :1244.0   Max.   :1940.0   Max.   :7493   Max.   :7714  
-    pEhEx_3        CDC5_1.1           CDC5_2.1      
- Min.   :  59   Min.   :   5.694   Min.   :  16.40  
- 1st Qu.: 152   1st Qu.:  44.126   1st Qu.:  71.45  
- Median : 453   Median : 397.137   Median : 306.90  
- Mean   :2973   Mean   : 520.405   Mean   : 640.27  
- 3rd Qu.:5476   3rd Qu.:1019.175   3rd Qu.:1349.41  
- Max.   :8726   Max.   :1135.896   Max.   :1457.17  
-    CDC5_3.1         pEhEx_1.1        pEhEx_2.1      
- Min.   :  19.79   Min.   : 100.1   Min.   :  91.66  
- 1st Qu.:  27.56   1st Qu.: 119.5   1st Qu.: 112.90  
- Median : 487.60   Median : 276.5   Median : 339.81  
- Mean   : 612.82   Mean   :2189.8   Mean   :3393.63  
- 3rd Qu.:1158.22   3rd Qu.:5057.6   3rd Qu.:7801.09  
- Max.   :1370.93   Max.   :5395.3   Max.   :8622.67  
-   pEhEx_3.1          Certeza           DE           
- Min.   :  41.36   Min.   :96.84   Length:5          
- 1st Qu.: 106.55   1st Qu.:97.33   Class :character  
- Median : 317.55   Median :99.68   Mode  :character  
- Mean   :2084.21   Mean   :98.67                     
- 3rd Qu.:3838.68   3rd Qu.:99.68                     
- Max.   :6116.93   Max.   :99.82                     
+    baseMean       log2FoldChange       lfcSE       
+ Min.   :  63.48   Min.   :-2.982   Min.   :0.4676  
+ 1st Qu.: 179.50   1st Qu.:-2.713   1st Qu.:0.5516  
+ Median : 237.46   Median :-2.324   Median :0.5808  
+ Mean   :1573.52   Mean   :-1.586   Mean   :0.5658  
+ 3rd Qu.:3525.58   3rd Qu.:-2.269   3rd Qu.:0.5859  
+ Max.   :3861.59   Max.   : 2.356   Max.   :0.6431  
+      stat            pvalue               padj         
+ Min.   :-4.971   Min.   :6.672e-07   Min.   :0.001828  
+ 1st Qu.:-4.671   1st Qu.:2.996e-06   1st Qu.:0.003217  
+ Median :-4.638   Median :3.523e-06   Median :0.003217  
+ Mean   :-2.874   Mean   :2.079e-05   Mean   :0.013324  
+ 3rd Qu.:-4.113   3rd Qu.:3.902e-05   3rd Qu.:0.026731  
+ Max.   : 4.022   Max.   :5.772e-05   Max.   :0.031628  
+     CDC5_1          CDC5_2           CDC5_3      
+ Min.   :  4.0   Min.   :  14.0   Min.   :  28.0  
+ 1st Qu.: 31.0   1st Qu.:  61.0   1st Qu.:  39.0  
+ Median :279.0   Median : 262.0   Median : 690.0  
+ Mean   :365.6   Mean   : 546.6   Mean   : 867.2  
+ 3rd Qu.:716.0   3rd Qu.:1152.0   3rd Qu.:1639.0  
+ Max.   :798.0   Max.   :1244.0   Max.   :1940.0  
+    pEhEx_1        pEhEx_2        pEhEx_3        CDC5_1.1       
+ Min.   : 139   Min.   :  82   Min.   :  59   Min.   :   5.694  
+ 1st Qu.: 166   1st Qu.: 101   1st Qu.: 152   1st Qu.:  44.126  
+ Median : 384   Median : 304   Median : 453   Median : 397.137  
+ Mean   :3041   Mean   :3036   Mean   :2973   Mean   : 520.405  
+ 3rd Qu.:7024   3rd Qu.:6979   3rd Qu.:5476   3rd Qu.:1019.175  
+ Max.   :7493   Max.   :7714   Max.   :8726   Max.   :1135.896  
+    CDC5_2.1          CDC5_3.1         pEhEx_1.1     
+ Min.   :  16.40   Min.   :  19.79   Min.   : 100.1  
+ 1st Qu.:  71.45   1st Qu.:  27.56   1st Qu.: 119.5  
+ Median : 306.90   Median : 487.60   Median : 276.5  
+ Mean   : 640.27   Mean   : 612.82   Mean   :2189.8  
+ 3rd Qu.:1349.41   3rd Qu.:1158.22   3rd Qu.:5057.6  
+ Max.   :1457.17   Max.   :1370.93   Max.   :5395.3  
+   pEhEx_2.1         pEhEx_3.1          Certeza     
+ Min.   :  91.66   Min.   :  41.36   Min.   :96.84  
+ 1st Qu.: 112.90   1st Qu.: 106.55   1st Qu.:97.33  
+ Median : 339.81   Median : 317.55   Median :99.68  
+ Mean   :3393.63   Mean   :2084.21   Mean   :98.67  
+ 3rd Qu.:7801.09   3rd Qu.:3838.68   3rd Qu.:99.68  
+ Max.   :8622.67   Max.   :6116.93   Max.   :99.82  
+      DE           
+ Length:5          
+ Class :character  
+ Mode  :character  
+                   
+                   
+                   
 
 Elemento 2 :
-    baseMean       log2FoldChange       lfcSE             stat       
- Min.   :  19.63   Min.   :-7.980   Min.   :0.2640   Min.   :-5.862  
- 1st Qu.:  24.11   1st Qu.:-7.685   1st Qu.:0.4860   1st Qu.:-5.235  
- Median :  41.01   Median :-2.276   Median :0.5468   Median :-4.683  
- Mean   :1051.91   Mean   :-3.819   Mean   :0.8264   Mean   :-3.145  
- 3rd Qu.: 220.70   3rd Qu.:-2.260   3rd Qu.:1.3110   3rd Qu.:-4.134  
- Max.   :4954.13   Max.   : 1.106   Max.   :1.5243   Max.   : 4.189  
-     pvalue               padj              CmasM_1    
- Min.   :4.570e-09   Min.   :2.098e-05   Min.   :   0  
- 1st Qu.:1.648e-07   1st Qu.:3.779e-04   1st Qu.:   0  
- Median :2.828e-06   Median :4.324e-03   Median :  14  
- Mean   :1.335e-05   Mean   :1.392e-02   Mean   :1125  
- 3rd Qu.:2.803e-05   3rd Qu.:3.213e-02   3rd Qu.:  37  
- Max.   :3.572e-05   Max.   :3.276e-02   Max.   :5573  
-    CmasM_2        CmasM_3        pEhEx_1          pEhEx_2      
- Min.   :   0   Min.   :   0   Min.   :  51.0   Min.   :  35.0  
- 1st Qu.:   0   1st Qu.:   0   1st Qu.:  54.0   1st Qu.:  60.0  
- Median :  11   Median :  16   Median :  80.0   Median :  73.0  
- Mean   :1049   Mean   :1942   Mean   : 907.8   Mean   : 654.6  
- 3rd Qu.:  77   3rd Qu.: 120   3rd Qu.: 300.0   3rd Qu.: 329.0  
- Max.   :5158   Max.   :9573   Max.   :4054.0   Max.   :2776.0  
-    pEhEx_3         CmasM_1.1         CmasM_2.1      
- Min.   :  14.0   Min.   :   0.00   Min.   :   0.00  
- 1st Qu.:  47.0   1st Qu.:   0.00   1st Qu.:   0.00  
- Median :  95.0   Median :  18.13   Median :  12.62  
- Mean   : 919.4   Mean   :1456.58   Mean   :1203.54  
- 3rd Qu.: 607.0   3rd Qu.:  47.91   3rd Qu.:  88.33  
- Max.   :3834.0   Max.   :7216.84   Max.   :5916.74  
-   CmasM_3.1         pEhEx_1.1         pEhEx_2.1      
- Min.   :   0.00   Min.   :  38.91   Min.   :  42.43  
- 1st Qu.:   0.00   1st Qu.:  41.20   1st Qu.:  72.74  
- Median :  11.97   Median :  61.04   Median :  88.50  
- Mean   :1452.55   Mean   : 692.68   Mean   : 793.63  
- 3rd Qu.:  89.77   3rd Qu.: 228.91   3rd Qu.: 398.87  
- Max.   :7161.02   Max.   :3093.31   Max.   :3365.58  
-   pEhEx_3.1          Certeza            DE           
- Min.   :  10.85   Min.   : 96.72   Length:5          
- 1st Qu.:  36.42   1st Qu.: 96.79   Class :character  
- Median :  73.62   Median : 99.57   Mode  :character  
- Mean   : 712.53   Mean   : 98.61                     
- 3rd Qu.: 470.42   3rd Qu.: 99.96                     
- Max.   :2971.31   Max.   :100.00                     
+    baseMean       log2FoldChange       lfcSE       
+ Min.   :  19.63   Min.   :-7.980   Min.   :0.2640  
+ 1st Qu.:  24.11   1st Qu.:-7.685   1st Qu.:0.4860  
+ Median :  41.01   Median :-2.276   Median :0.5468  
+ Mean   :1051.91   Mean   :-3.819   Mean   :0.8264  
+ 3rd Qu.: 220.70   3rd Qu.:-2.260   3rd Qu.:1.3110  
+ Max.   :4954.13   Max.   : 1.106   Max.   :1.5243  
+      stat            pvalue               padj          
+ Min.   :-5.862   Min.   :4.570e-09   Min.   :2.098e-05  
+ 1st Qu.:-5.235   1st Qu.:1.648e-07   1st Qu.:3.779e-04  
+ Median :-4.683   Median :2.828e-06   Median :4.324e-03  
+ Mean   :-3.145   Mean   :1.335e-05   Mean   :1.392e-02  
+ 3rd Qu.:-4.134   3rd Qu.:2.803e-05   3rd Qu.:3.213e-02  
+ Max.   : 4.189   Max.   :3.572e-05   Max.   :3.276e-02  
+    CmasM_1        CmasM_2        CmasM_3        pEhEx_1      
+ Min.   :   0   Min.   :   0   Min.   :   0   Min.   :  51.0  
+ 1st Qu.:   0   1st Qu.:   0   1st Qu.:   0   1st Qu.:  54.0  
+ Median :  14   Median :  11   Median :  16   Median :  80.0  
+ Mean   :1125   Mean   :1049   Mean   :1942   Mean   : 907.8  
+ 3rd Qu.:  37   3rd Qu.:  77   3rd Qu.: 120   3rd Qu.: 300.0  
+ Max.   :5573   Max.   :5158   Max.   :9573   Max.   :4054.0  
+    pEhEx_2          pEhEx_3         CmasM_1.1      
+ Min.   :  35.0   Min.   :  14.0   Min.   :   0.00  
+ 1st Qu.:  60.0   1st Qu.:  47.0   1st Qu.:   0.00  
+ Median :  73.0   Median :  95.0   Median :  18.13  
+ Mean   : 654.6   Mean   : 919.4   Mean   :1456.58  
+ 3rd Qu.: 329.0   3rd Qu.: 607.0   3rd Qu.:  47.91  
+ Max.   :2776.0   Max.   :3834.0   Max.   :7216.84  
+   CmasM_2.1         CmasM_3.1         pEhEx_1.1      
+ Min.   :   0.00   Min.   :   0.00   Min.   :  38.91  
+ 1st Qu.:   0.00   1st Qu.:   0.00   1st Qu.:  41.20  
+ Median :  12.62   Median :  11.97   Median :  61.04  
+ Mean   :1203.54   Mean   :1452.55   Mean   : 692.68  
+ 3rd Qu.:  88.33   3rd Qu.:  89.77   3rd Qu.: 228.91  
+ Max.   :5916.74   Max.   :7161.02   Max.   :3093.31  
+   pEhEx_2.1         pEhEx_3.1          Certeza      
+ Min.   :  42.43   Min.   :  10.85   Min.   : 96.72  
+ 1st Qu.:  72.74   1st Qu.:  36.42   1st Qu.: 96.79  
+ Median :  88.50   Median :  73.62   Median : 99.57  
+ Mean   : 793.63   Mean   : 712.53   Mean   : 98.61  
+ 3rd Qu.: 398.87   3rd Qu.: 470.42   3rd Qu.: 99.96  
+ Max.   :3365.58   Max.   :2971.31   Max.   :100.00  
+      DE           
+ Length:5          
+ Class :character  
+ Mode  :character  
+                   
+                   
+                   
 
 Elemento 3 :
-    baseMean    log2FoldChange       lfcSE             stat       
- Min.   :3332   Min.   :-1.902   Min.   :0.4032   Min.   :-4.719  
- 1st Qu.:3332   1st Qu.:-1.902   1st Qu.:0.4032   1st Qu.:-4.719  
- Median :3332   Median :-1.902   Median :0.4032   Median :-4.719  
- Mean   :3332   Mean   :-1.902   Mean   :0.4032   Mean   :-4.719  
- 3rd Qu.:3332   3rd Qu.:-1.902   3rd Qu.:0.4032   3rd Qu.:-4.719  
- Max.   :3332   Max.   :-1.902   Max.   :0.4032   Max.   :-4.719  
-     pvalue               padj           EhMyb10_1      EhMyb10_2   
- Min.   :2.371e-06   Min.   :0.01044   Min.   :1658   Min.   :1348  
- 1st Qu.:2.371e-06   1st Qu.:0.01044   1st Qu.:1658   1st Qu.:1348  
- Median :2.371e-06   Median :0.01044   Median :1658   Median :1348  
- Mean   :2.371e-06   Mean   :0.01044   Mean   :1658   Mean   :1348  
- 3rd Qu.:2.371e-06   3rd Qu.:0.01044   3rd Qu.:1658   3rd Qu.:1348  
- Max.   :2.371e-06   Max.   :0.01044   Max.   :1658   Max.   :1348  
-   EhMyb10_3      pEhEx_1        pEhEx_2        pEhEx_3    
- Min.   :485   Min.   :7493   Min.   :6979   Min.   :8726  
- 1st Qu.:485   1st Qu.:7493   1st Qu.:6979   1st Qu.:8726  
- Median :485   Median :7493   Median :6979   Median :8726  
- Mean   :485   Mean   :7493   Mean   :6979   Mean   :8726  
- 3rd Qu.:485   3rd Qu.:7493   3rd Qu.:6979   3rd Qu.:8726  
- Max.   :485   Max.   :7493   Max.   :6979   Max.   :8726  
-  EhMyb10_1.1    EhMyb10_2.1    EhMyb10_3.1     pEhEx_1.1   
- Min.   :1486   Min.   :1213   Min.   :1521   Min.   :4429  
- 1st Qu.:1486   1st Qu.:1213   1st Qu.:1521   1st Qu.:4429  
- Median :1486   Median :1213   Median :1521   Median :4429  
- Mean   :1486   Mean   :1213   Mean   :1521   Mean   :4429  
- 3rd Qu.:1486   3rd Qu.:1213   3rd Qu.:1521   3rd Qu.:4429  
- Max.   :1486   Max.   :1213   Max.   :1521   Max.   :4429  
-   pEhEx_2.1      pEhEx_3.1       Certeza           DE           
- Min.   :6553   Min.   :4791   Min.   :98.96   Length:1          
- 1st Qu.:6553   1st Qu.:4791   1st Qu.:98.96   Class :character  
- Median :6553   Median :4791   Median :98.96   Mode  :character  
- Mean   :6553   Mean   :4791   Mean   :98.96                     
- 3rd Qu.:6553   3rd Qu.:4791   3rd Qu.:98.96                     
- Max.   :6553   Max.   :4791   Max.   :98.96                     
+    baseMean    log2FoldChange       lfcSE       
+ Min.   :3332   Min.   :-1.902   Min.   :0.4032  
+ 1st Qu.:3332   1st Qu.:-1.902   1st Qu.:0.4032  
+ Median :3332   Median :-1.902   Median :0.4032  
+ Mean   :3332   Mean   :-1.902   Mean   :0.4032  
+ 3rd Qu.:3332   3rd Qu.:-1.902   3rd Qu.:0.4032  
+ Max.   :3332   Max.   :-1.902   Max.   :0.4032  
+      stat            pvalue               padj        
+ Min.   :-4.719   Min.   :2.371e-06   Min.   :0.01044  
+ 1st Qu.:-4.719   1st Qu.:2.371e-06   1st Qu.:0.01044  
+ Median :-4.719   Median :2.371e-06   Median :0.01044  
+ Mean   :-4.719   Mean   :2.371e-06   Mean   :0.01044  
+ 3rd Qu.:-4.719   3rd Qu.:2.371e-06   3rd Qu.:0.01044  
+ Max.   :-4.719   Max.   :2.371e-06   Max.   :0.01044  
+   EhMyb10_1      EhMyb10_2      EhMyb10_3      pEhEx_1    
+ Min.   :1658   Min.   :1348   Min.   :485   Min.   :7493  
+ 1st Qu.:1658   1st Qu.:1348   1st Qu.:485   1st Qu.:7493  
+ Median :1658   Median :1348   Median :485   Median :7493  
+ Mean   :1658   Mean   :1348   Mean   :485   Mean   :7493  
+ 3rd Qu.:1658   3rd Qu.:1348   3rd Qu.:485   3rd Qu.:7493  
+ Max.   :1658   Max.   :1348   Max.   :485   Max.   :7493  
+    pEhEx_2        pEhEx_3      EhMyb10_1.1    EhMyb10_2.1  
+ Min.   :6979   Min.   :8726   Min.   :1486   Min.   :1213  
+ 1st Qu.:6979   1st Qu.:8726   1st Qu.:1486   1st Qu.:1213  
+ Median :6979   Median :8726   Median :1486   Median :1213  
+ Mean   :6979   Mean   :8726   Mean   :1486   Mean   :1213  
+ 3rd Qu.:6979   3rd Qu.:8726   3rd Qu.:1486   3rd Qu.:1213  
+ Max.   :6979   Max.   :8726   Max.   :1486   Max.   :1213  
+  EhMyb10_3.1     pEhEx_1.1      pEhEx_2.1      pEhEx_3.1   
+ Min.   :1521   Min.   :4429   Min.   :6553   Min.   :4791  
+ 1st Qu.:1521   1st Qu.:4429   1st Qu.:6553   1st Qu.:4791  
+ Median :1521   Median :4429   Median :6553   Median :4791  
+ Mean   :1521   Mean   :4429   Mean   :6553   Mean   :4791  
+ 3rd Qu.:1521   3rd Qu.:4429   3rd Qu.:6553   3rd Qu.:4791  
+ Max.   :1521   Max.   :4429   Max.   :6553   Max.   :4791  
+    Certeza           DE           
+ Min.   :98.96   Length:1          
+ 1st Qu.:98.96   Class :character  
+ Median :98.96   Mode  :character  
+ Mean   :98.96                     
+ 3rd Qu.:98.96                     
+ Max.   :98.96                     
 
 Elemento 4 :
  baseMean       log2FoldChange  lfcSE           stat        

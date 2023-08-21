@@ -9,6 +9,38 @@ nombres_archivos <- basename(archivos_txt)
 # Imprimir la lista de nombres de archivos TXT
 print(nombres_archivos)
 #------------------------------------------------------------------------------------------
+# VERIFICAMOS LA EXISTENCIA DE LOS SUBDIRECTORIOS A UTILIZAR, EN CASO DE QUE NO EXISTAN
+# SE CREAN
+#------------------------------------------------------------------------------------------
+# Ruta de la carpeta principal
+ruta_principal <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults"
+# Lista de rutas de las carpetas y subcarpetas que deseas verificar/crear
+carpetas <- c("Clasificando", "Tempo")
+# Verificar la existencia de las carpetas
+for (carpeta in carpetas) {
+  ruta_carpeta <- file.path(ruta_principal, carpeta)
+  if (!dir.exists(ruta_carpeta)) {
+    dir.create(ruta_carpeta, recursive = TRUE)
+    cat(paste("Carpeta", carpeta, "creada en la ruta.\n"))
+  } else {
+    cat(paste("La carpeta", carpeta, "ya existe en la ruta.\n"))
+  }
+}
+# Subcarpetas a verificar/crear,  Carpeta en la que verificar y crear subcarpetas
+carpeta_clasificando <- file.path(ruta_principal, "Clasificando")
+# Subcarpetas a verificar/crear
+subcarpetas <- c("Abundances", "Intersect", "logFC", "Files", "pval", "TOP","plot")
+# Verificar y crear subcarpetas en la carpeta "Clasificando"
+for (subcarpeta in subcarpetas) {
+  ruta_subcarpeta <- file.path(carpeta_clasificando, subcarpeta)
+  if (!dir.exists(ruta_subcarpeta)) {
+    dir.create(ruta_subcarpeta, recursive = TRUE)
+    cat(paste("Subcarpeta", subcarpeta, "creada en la carpeta Clasificando.\n"))
+  } else {
+    cat(paste("La subcarpeta", subcarpeta, "ya existe en la carpeta Clasificando.\n"))
+  }
+}
+#------------------------------------------------------------------------------------------
 # SE COPIAN LOS ARCHIVOS A UN DIRECTORIO DE RESPALDO PARA VALIDAR LAS OPERACIONES
 #------------------------------------------------------------------------------------------
 ruta_origen <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/DESeq2_Results"
@@ -291,7 +323,6 @@ for (archivo in nombres_archivos_subfolder) {
   cat("Versión CSV de", nombre_archivo, "creada.\n")
 }
 #------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------
 # Directorio base y subdirectorios
 #------------------------------------------------------------------------------------------
 library(readr)
@@ -345,7 +376,6 @@ for (subfolder in names(listas_por_subfolder)) {
 #
 # Crear un archivo de texto para almacenar los resultados
 archivo_resultados <- file("ResultsFirstAnalysis.txt", open = "wt")
-
 for (subfolder in names(listas_por_subfolder)) {
   ruta_archivo <- listas_por_subfolder[[subfolder]]
   # Cargar el contenido del archivo .RData
@@ -364,4 +394,19 @@ for (subfolder in names(listas_por_subfolder)) {
 }
 # Cerrar el archivo de resultados
 close(archivo_resultados)
-
+#----------------------------------------------------------------------
+# DESPUES DE REVISAR EL ARCHIVO RESULTSFIRSTANALYSYS.txt
+# SE DESPRENDE QUE HAY QUE ANALIZAR LA CARPETA FILES
+#----------------------------------------------------------------------
+#
+setwd("~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files")
+#ruta_carpeta <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files"
+Mis_archivos <- list.files(pattern = "\\.csv$", full.names = TRUE)
+print(Mis_archivos)
+nombres_archivos <- basename(Mis_archivos)
+print(nombres_archivos)
+#----------------------------------------------------------------------
+#
+library(readr)
+pEhExvsCDC5 <- read_csv("pEhExvsCDC5.csv")
+View(pEhExvsCDC5)
