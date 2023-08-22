@@ -425,6 +425,7 @@ colnames(pEhExvsCDC5) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                            "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                            "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                            "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
+write.csv(pEhExvsCmasM,"pEhExvsCDC5.csv")
 View(pEhExvsCDC5)
 #----------------------------------------------------------------------
 nombres_col <- colnames(pEhExvsCmasM); print(nombres_col)
@@ -434,6 +435,7 @@ colnames(pEhExvsCmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                             "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                             "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                             "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
+write.csv(pEhExvsCmasM,"pEhExvsCmasM.csv")
 View(pEhExvsCmasM)
 #----------------------------------------------------------------------
 nombres_col <- colnames(pEhExvsEhMyb10); print(nombres_col)
@@ -443,6 +445,7 @@ colnames(pEhExvsEhMyb10) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                               "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                               "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                               "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
+write.csv(pEhExvsEhMyb10,"pEhExvsEhMyb10.csv")
 View(pEhExvsEhMyb10)
 #----------------------------------------------------------------------
 nombres_col <- colnames(pEhExvsU2AF84); print(nombres_col)
@@ -452,6 +455,7 @@ colnames(pEhExvsU2AF84) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                              "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                              "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                              "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
+write.csv(pEhExvsU2AF84,"pEhExvsEhMyb10.csv")
 View(pEhExvsU2AF84)
 #----------------------------------------------------------------------
 nombres_col <- colnames(pEhExvsUmasM); print(nombres_col)
@@ -461,4 +465,5 @@ colnames(pEhExvsUmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                             "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                             "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                             "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
+write.csv(pEhExvsUmasM,"pEhExvsEhMyb10.csv")
 View(pEhExvsUmasM)
