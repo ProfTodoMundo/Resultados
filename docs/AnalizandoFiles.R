@@ -92,8 +92,18 @@ View(pEhExvsEhMyb10)
 View(pEhExvsU2AF84)
 View(pEhExvsUmasM)
 #----------------------------------------------------------------------
+nbreaks <- 10
 #----------------------------------------------------------------------
 data1 <- pEhExvsCDC5
-Log2data1 <- data1$log2FoldChange
-head(Log2data1,5)
+Log2pEhExvsCDC5 <- data1$log2FoldChange
+head(Log2pEhExvsCDC5,5)
+
+npEhExvsCDC5    <- length(Log2pEhExvsCDC5)
+hist(Log2pEhExvsCDC5, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = ' Log2 pEhExvsCDC5')
+meanL2pEhExvsCDC5 <- mean(Log2pEhExvsCDC5)
+StdDevL2pEhExvsCDC5 <- sd(Log2pEhExvsCDC5)
+NormLog2pEhExvsCDC5 <- (Log2pEhExvsCDC5-meanL2pEhExvsCDC5)/StdDevL2pEhExvsCDC5
+tst<- NormLog2pEhExvsCDC5
+hist(tst, breaks = nbreaks, col= 1:5, main = 'Normalized Log2 pEhExvsCDC5',xlab='pEhExvsCDC5',ylab= 'Frequency pEhExvsCDC5')
 
