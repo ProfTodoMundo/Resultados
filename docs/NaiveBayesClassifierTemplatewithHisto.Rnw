@@ -1,0 +1,2000 @@
+\documentclass[12pt]{article}         % the type of document and font size (default 10pt)
+\usepackage[margin=1.0in]{geometry}   % sets all margins to 1in, can be changed
+\usepackage{moreverb}                 % for verbatimtabinput -- LaTeX environment
+\usepackage{rotating}
+\usepackage{url}     
+\usepackage{hyperref}
+% for \url{} command
+\usepackage{amssymb}                  % for many mathematical symbols
+\usepackage[pdftex]{lscape}           % for landscaped tables
+\usepackage{longtable}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{multicol,multirow}
+\usepackage{tikz}
+% for tables that break over multiple pages
+\title{Aplicacion Naive Bayes}  % to specify title
+\author{$\blacktriangleright\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\blacktriangleleft$}          % to specify author(s)
+\begin{document}                      % document begins here
+\SweaveOpts{concordance=TRUE}
+
+% If .nw file contains graphs: To specify that EPS/#pdf graph files are to be 
+% saved to 'graphics' sub-folder
+%     NOTE: 'graphics' sub-folder must exist prior to Sweave step
+%\SweaveOpts{prefix.string=graphics/plot}
+
+% If .nw file contains graphs: to modify (shrink/enlarge} size of graphics 
+% file inserted
+%         NOTE: can be specified/modified before any graph chunk
+\setkeys{Gin}{width=1.0\textwidth}
+
+\maketitle              % makes the title
+\tableofcontents        % inserts TOC (section, sub-section, etc numbers and titles)
+\newpage
+%\listoftables           % inserts LOT (numbers and captions)
+%\listoffigures          % inserts LOF (numbers and captions)
+%                        %     NOTE: graph chunk must be wrapped with \begin{figure}, 
+%                        %  \end{figure}, and \caption{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Where everything else goes
+%===================================================================================
+\section{Lectura de las Bases de Datos}
+%===========================================================================
+
+Se cargan las librearias necesarias para poder procesar y sistematizar las bases de datos
+
+<<echo = FALSE>>=
+#===========================================================================
+setwd("~/Desktop/Datos Elisa")
+#setwd("~/Escritorio/Datos Elisa")
+#===========================================================================
+library(ggplot2);   library(dplyr);         library(readxl);
+library(pastecs);   library(sciplot);       library(MASS);
+library(gridExtra); library("gplots");      library("lattice");
+#library(car);       library(gridExtra);     library(lattice);
+library(corrplot);  library(readr);         library(readxl);   
+#library(rvest);    library(RSQLite); 
+library(DBI);    
+#library(xml2);    
+#library(RCurl);     
+#library(devtools);
+library(ggplot2);   library(datasets);      library(dplyr);
+library(sciplot);   library(scatterplot3d); #library("car")
+library(psych);     library("gplots");      library("plotrix")
+library(gplots);    library(moments);       #library(univariateML)
+#===========================================================================
+library("fitdistrplus"); library("MASS"); library("survival")
+#===========================================================================
+setwd("~/Desktop/Datos Elisa")
+url1 <- 'GenesERMDef.xlsx'
+dataset1 <- read_excel(url1)
+dataset <- na.omit(dataset1)
+dataset$Secuencia = factor(dataset$Secuencia,
+                           levels = c('CAACGG','CAACTG','TAACGG','TAACTG'),
+                           labels = c('CAACGG','CAACTG','TAACGG','TAACTG'))
+colnames(dataset) <- c( 'GenId1', 'ProdDescription','ExpBasal', 'GeneId2',
+                        'Sequence','Position','DigitVer')
+datosn <- dataset$Position;d <- as.numeric(datosn);dataset$Position <- d
+dataset$DigitVerif <- dataset$Sequence
+dataset$DigitVerif = factor(dataset$DigitVerif,
+                            levels = c('CAACGG','CAACTG','TAACGG','TAACTG'),
+                            labels = c(1,2,3,4))
+CtoDatos <- dataset[,c('Sequence','DigitVerif','Position','ExpBasal','GenId1')]
+colnames(CtoDatos) <- c('Sequence','CodedSeq','Position','BasalExp','GenId')
+bdd <- CtoDatos
+summary(bdd)
+@
+
+<<echo = FALSE>>=
+nbreaks <- 10
+@
+
+
+<<echo = FALSE, fig= FALSE>>=
+tBE <- hist(bdd$BasalExp, breaks = nbreaks, col= rainbow(1,0.7), main = 'BasalExpresion')
+@
+
+\subsection{$Log_{2}$ Basal Expresion}
+
+<<echo = FALSE, fig=TRUE>>=
+BE <- bdd$BasalExp
+par(mfrow=c(2,1))
+Log2BE <- log2(BE)
+nBE    <- length(Log2BE)
+hist(Log2BE, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = ' Log2 Basal Expresion')
+meanL2BE <- mean(Log2BE)
+StdDevL2BE <- sd(Log2BE)
+NormLog2BE <- (Log2BE-meanL2BE)/StdDevL2BE
+tst<- NormLog2BE
+hist(tst, breaks = nbreaks, col= 1:5, main = 'Normalized Log2 Basal Expresion',xlab='Basal Expresion',ylab= 'Frequency Basal Expresion')
+@
+
+
+%===================================================================
+\section{Comparando Modelos}
+%===================================================================
+
+<<echo = FALSE>>=
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+@
+
+<<echo = FALSE, fig=TRUE>>=
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+@
+
+
+\subsection{ C\'alculo de cuantiles}
+
+<<echo = FALSE>>=
+probs <- 0;
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+CuantilesA <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+@
+
+Los cuantiles calculados con base en el modelo ajustado, para ser considerados son 
+<<echo = FALSE>>=
+print(CuantilesD)
+@
+
+\newpage
+
+\subsection{Presentaci\'on de gr\'aficos}
+
+Lo que nos da las siguientes tablas
+
+<<echo = FALSE, fig=TRUE>>=
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2 Basal Expresion - DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2   Basal Expresion - ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+@
+
+
+\subsection{Grafica Cuantiles del $65\%$ y $80\%$}
+
+
+<<echo = FALSE, fig=TRUE>>=
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2  Basal Expresion - DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2  Basal Expresion - ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+@
+
+
+\subsection{Grafica Cuantiles del $70\%$ y $85\%$}
+
+<<echo = FALSE, fig=TRUE>>=
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7), 
+     main = 'Normalized Log2  Basal Expresion-DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2  Basal Expresion-ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+@
+
+\newpage
+
+\subsection{Valores Altos, Moderadamente Altos, Bajos y Moderadamente Bajos}
+
+
+Cuantiles con el modelo ajustado
+<<echo = FALSE>>=
+CuantilesData <- CuantilesA
+CuantilesA <- CuantilesD
+CuantilesD <- CuantilesData
+@
+
+Con base en la secci\'on anterior, se tienen que la expresi\'on basal, centrados y transformados ($Log_{2}$), tienen una distribuci\'on Normal y los cuantiles para los valores $65,70,75,80,85,90,95$ y $99$ por ciento se propone que los valores moderados altos (bajos )sean aquellos que se encuentran entre el
+\begin{itemize}
+\item[I. ] $65\%$ y $80\%$, mientras que los valores muy altos (bajos) aquellos superiores al $80\%$: 
+
+\item[II. ] $70\%$ y $85\%$, mientras que los valores muy altos (bajos) aquellos superiores al $85\%$: 
+
+\end{itemize}
+
+
+\subsection{Clases/Motif's}
+<<echo = FALSE>>=
+counts<- table(bdd$Sequence)
+PropSeq <- table(bdd$Sequence)
+prop.table(PropSeq)
+PC <- prop.table(PropSeq)
+#print(PropSeq)
+@
+
+De lo anterior se desprende 
+\begin{eqnarray*}
+P\left[C_{1}\right]=0.04926108\\
+P\left[C_{2}\right]=0.29433498\\
+P\left[C_{3}\right]=0.07019704\\
+P\left[C_{4}\right]=0.58620690
+\end{eqnarray*}
+
+
+Ahora contemos la cantidad de elementos que hay en las clases $HB,HMB,MB,LMB,LB$
+
+<<echo = FALSE>>=
+dataset <- cbind(bdd,tst);
+summary(dataset[,c('Sequence','BasalExp','tst')])
+#write.csv(dataset,"ExpBasalDataset.csv")
+@
+
+<<echo = FALSE>>=
+umbral <- 0.001
+
+@
+
+<<echo = FALSE>>=
+tt1 <- min(tst)
+VLI <- tt1
+VLS <- CuantilesA[4,1] - umbral;
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral;
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral;
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral;
+VHI <- CuantilesA[4,2]
+VHS <- max(tst);                
+Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+print( tst)
+print( Limites)
+N <- length(tst)
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tst[i]>=VLI) & (tst[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tst[i]>=MLI) & (tst[i]<=MLS)){ContML<- ContML+1;}
+  if((tst[i]>=MI)  & (tst[i]<=MS)){ContM <- ContM+1;}
+  if((tst[i]>=MHI) & (tst[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tst[i]>=VHI) & (tst[i]<=VHS)){ContVH<- ContVH+1;}
+}
+Conteo <- matrix(0,2,6);
+Conteo[1,1] <- ContVL;   Conteo[1,2] <- ContML
+Conteo[1,3] <- ContM;    Conteo[1,4] <- ContMH
+Conteo[1,5] <- ContVH;   Conteo[1,6] <- sum(Conteo[1,])
+Conteo[2,1] <- ContVL/N; Conteo[2,2] <- ContML/N;
+Conteo[2,3] <- ContM/N;  Conteo[2,4] <- ContMH/N;
+Conteo[2,5] <- ContVH/N; Conteo[2,6] <- sum(Conteo[2,])
+colnames(Conteo) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(Conteo) <- c('fr','Prob')
+ProbClEB <- Conteo
+@
+
+
+\section{Caso I. Cuantiles del $65\%$ y $80\%$}
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{1}$}
+
+
+<<echo = FALSE>>=
+### Secuencia CAACGG
+datos1   <- dataset %>% filter(dataset$Sequence=='CAACGG'); 
+summary(datos1[,c('Sequence','BasalExp','tst')]);
+tt <- datos1$tst; #summary(tt)
+tt1 <- min(tt); VLI <- tt1;     ConteoC1 <- matrix(0,2,6);
+VLS <- CuantilesA[4,1] - umbral;
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral;
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral; 
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral;
+VHI <- CuantilesA[4,2]
+VHS <- max(tt);                
+Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+print( tst)
+print( Limites)
+N <- length(tt); ContVL<- 0; ContML<- 0;
+ContM <- 0;      ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+}
+ConteoC1[1,1] <- ContVL;   ConteoC1[1,2] <- ContML
+ConteoC1[1,3] <- ContM;    ConteoC1[1,4] <- ContMH
+ConteoC1[1,5] <- ContVH;   ConteoC1[1,6] <- sum(Conteo[1,])
+ConteoC1[2,1] <- ContVL/N; ConteoC1[2,2] <- ContML/N;
+ConteoC1[2,3] <- ContM/N;  ConteoC1[2,4] <- ContMH/N;
+ConteoC1[2,5] <- ContVH/N; ConteoC1[2,6] <- sum(ConteoC1[2,])
+colnames(ConteoC1) <- c('VL','ML','M','MH','VH','Ttl');
+rownames(ConteoC1) <- c('fr','Prob');
+#print(ConteoC1);
+Q1C1 <- ConteoC1
+@
+
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{2}$}
+
+
+<<echo = FALSE>>=
+datos2   <- dataset %>% filter(dataset$Sequence=='CAACTG'); 
+summary(datos2[,c('Sequence','BasalExp','tst')])
+tt <- datos2$tst; #summary(tt)
+tt1 <- min(tt);   VLI <- tt1; ConteoC2 <- matrix(0,2,6);
+VLS <- CuantilesA[4,1] - umbral; 
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral; 
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral; 
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral; 
+VHI <- CuantilesA[4,2]
+VHS <- max(tt); Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); 
+print( tst)
+print( Limites)
+N <- length(tt);
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+ConteoC2[1,1] <- ContVL;   ConteoC2[1,2] <- ContML
+ConteoC2[1,3] <- ContM;    ConteoC2[1,4] <- ContMH
+ConteoC2[1,5] <- ContVH;   ConteoC2[1,6] <- sum(ConteoC2[1,])
+ConteoC2[2,1] <- ContVL/N; ConteoC2[2,2] <- ContML/N;
+ConteoC2[2,3] <- ContM/N;  ConteoC2[2,4] <- ContMH/N;
+ConteoC2[2,5] <- ContVH/N; ConteoC2[2,6] <- sum(ConteoC2[2,])
+colnames(ConteoC2) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC2) <- c('fr','Prob')
+#print(ConteoC2)
+Q1C2 <- ConteoC2 
+@
+
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{3}$}
+
+<<echo = FALSE>>=
+### Secuencia TAACGG
+datos3   <- dataset %>% filter(dataset$Sequence=='TAACGG'); 
+summary(datos3[,c('Sequence','BasalExp','tst')])
+tt <- datos3$tst; #summary(tt)
+tt1 <- min(tt);   VLI <- tt1; ConteoC3 <- matrix(0,2,6);
+VLS <- CuantilesA[4,1] - umbral; 
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral;
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral; 
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral; 
+VHI <- CuantilesA[4,2]
+VHS <- max(tt);   
+Limites <- matrix(0,1,10);
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); 
+print( tst)
+print( Limites)
+N <- length(tt);
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+ConteoC3[1,1] <- ContVL;    ConteoC3[1,2] <- ContML
+ConteoC3[1,3] <- ContM;     ConteoC3[1,4] <- ContMH
+ConteoC3[1,5] <- ContVH;    ConteoC3[1,6] <- sum(ConteoC3[1,])
+ConteoC3[2,1] <- ContVL/N;  ConteoC3[2,2] <- ContML/N;
+ConteoC3[2,3] <- ContM/N;   ConteoC3[2,4] <- ContMH/N;
+ConteoC3[2,5] <- ContVH/N;  ConteoC3[2,6] <- sum(ConteoC3[2,])
+colnames(ConteoC3) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC3) <- c('fr','Prob')
+#print(ConteoC3)
+Q1C3 <- ConteoC3
+@
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{4}$}
+
+<<echo = FALSE>>=
+### Secuencia TAACTG
+datos4   <- dataset %>% filter(dataset$Sequence=='TAACTG'); 
+summary(datos4[,c('Sequence','BasalExp','tst')])
+tt <- datos4$tst; #summary(tt);
+tt1 <- min(tt); 
+VLI <- tt1; 
+ConteoC4 <- matrix(0,2,6);
+VLS <- CuantilesA[4,1] - umbral;
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral;
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral;
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral; 
+VHI <- CuantilesA[4,2]
+VHS <- max(tt); Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+print( tst)
+print( Limites)
+N <- length(tt)
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+ConteoC4[1,1] <- ContVL;   ConteoC4[1,2] <- ContML
+ConteoC4[1,3] <- ContM;    ConteoC4[1,4] <- ContMH
+ConteoC4[1,5] <- ContVH;   ConteoC4[1,6] <- sum(ConteoC4[1,])
+ConteoC4[2,1] <- ContVL/N; ConteoC4[2,2] <- ContML/N;
+ConteoC4[2,3] <- ContM/N;  ConteoC4[2,4] <- ContMH/N;
+ConteoC4[2,5] <- ContVH/N; ConteoC4[2,6] <- sum(ConteoC4[2,])
+colnames(ConteoC4) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC4) <- c('fr','Prob')
+#print(ConteoC4)
+Q1C4 <- ConteoC4 
+@
+
+\subsection{Calculo de Probabilidades Condicionales}
+
+Es decir las probabilidades condicionales y las probabilidades de cada $C_{i}$ son
+
+<<echo = FALSE>>=
+ProbCond <- rbind(Q1C1[2,],Q1C2[2,],Q1C3[2,],Q1C4[2,])
+rownames(ProbCond) <- c('PB_C1','PB_C2','PB_C3','PB_C4');
+colnames(ProbCond) <- c('LB','LMB','MB','HMB','HB','Ttl_Prob')
+ProbC<- matrix(0,1,4);
+ProbC[1] <- PC[[1]]; ProbC[2] <- PC[[2]]
+ProbC[3] <- PC[[3]]; ProbC[4] <- PC[[4]]
+colnames(ProbC) <- c('C1','C2','C3','C4'); 
+rownames(ProbC) <- c('Prob')
+print(ProbC);       
+print(ProbCond)
+Q1ProbC    <- ProbC; Q1ProbCond <- ProbCond
+@
+
+Por tanto ya podemos determinar las probabiidades $P\left[\cdot|C_{i}\right]P\left[C_{i}\right]$
+
+<<echo = FALSE>>=
+print('calcular')
+#ProbCond <- Q1ProbCond; ProbC <- Q1ProbC;
+Numeradores <- matrix(0,5,4)
+colnames(Numeradores) <- c('C1','C2','C3','C4'); 
+rownames(Numeradores) <- c('LB','LMB','MB','HMB','HB')
+Numeradores[1,1] <- ProbCond[1,1]*ProbC[1]; 
+Numeradores[1,2] <- ProbCond[2,1]*ProbC[2]
+Numeradores[1,3] <- ProbCond[3,1]*ProbC[3]; 
+Numeradores[1,4] <- ProbCond[4,1]*ProbC[4]
+Numeradores[2,1] <- ProbCond[1,2]*ProbC[1]; 
+Numeradores[2,2] <- ProbCond[2,2]*ProbC[2]
+Numeradores[2,3] <- ProbCond[3,2]*ProbC[3]; 
+Numeradores[2,4] <- ProbCond[4,2]*ProbC[4]
+Numeradores[3,1] <- ProbCond[1,3]*ProbC[1]; 
+Numeradores[3,2] <- ProbCond[2,3]*ProbC[2]
+Numeradores[3,3] <- ProbCond[3,3]*ProbC[3]; 
+Numeradores[3,4] <- ProbCond[4,3]*ProbC[4]
+Numeradores[4,1] <- ProbCond[1,4]*ProbC[1]; 
+Numeradores[4,2] <- ProbCond[2,4]*ProbC[2]
+Numeradores[4,3] <- ProbCond[3,4]*ProbC[3]; 
+Numeradores[4,4] <- ProbCond[4,4]*ProbC[4]
+Numeradores[5,1] <- ProbCond[1,5]*ProbC[1]; 
+Numeradores[5,2] <- ProbCond[2,5]*ProbC[2]
+Numeradores[5,3] <- ProbCond[3,5]*ProbC[3]; 
+Numeradores[5,4] <- ProbCond[4,5]*ProbC[4]
+print(Numeradores); 
+Q1Numeradores <- Numeradores;
+@
+
+Ahora calculemos $\sum_{i=1}^{4}P\left[\cdot|C_{i}\right]P\left[C_{i}\right]$
+<<echo = FALSE>>=
+ProbTotal <- matrix(0,5,1);
+rownames(ProbTotal) <- c('LB','LMB','MB','HMB','HB'); 
+colnames(ProbTotal) <- c('ProbC')
+ProbTotal[1] <- sum(Numeradores[1,]); ProbTotal[2] <- sum(Numeradores[2,])
+ProbTotal[3] <- sum(Numeradores[3,]); ProbTotal[4] <- sum(Numeradores[4,])
+ProbTotal[5] <- sum(Numeradores[5,]); print(ProbTotal); Q1ProbTotal <- ProbTotal;
+@
+
+para finalmente obtener $P\left[C_{i}|\cdot\right]= \frac{P\left[\cdot|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[\cdot|C_{i}\right]P\left[C_{i}\right]}$
+
+<<echo = FALSE>>=
+ProbCi_B <- matrix(0,5,4); rownames(ProbCi_B) <- c('LB','LMB','MB','HMB','HB')
+colnames(ProbCi_B) <- c('C1','C2','C3','C4')
+ProbCi_B[1,1] <- Numeradores[1,1]/ProbTotal[1]; 
+ProbCi_B[1,2] <- Numeradores[1,2]/ProbTotal[1]
+ProbCi_B[1,3] <- Numeradores[1,3]/ProbTotal[1]; 
+ProbCi_B[1,4] <- Numeradores[1,4]/ProbTotal[1]
+ProbCi_B[2,1] <- Numeradores[2,1]/ProbTotal[2]; 
+ProbCi_B[2,2] <- Numeradores[2,2]/ProbTotal[2]
+ProbCi_B[2,3] <- Numeradores[2,3]/ProbTotal[2]; 
+ProbCi_B[2,4] <- Numeradores[2,4]/ProbTotal[2]
+ProbCi_B[3,1] <- Numeradores[3,1]/ProbTotal[3];
+ProbCi_B[3,2] <- Numeradores[3,2]/ProbTotal[3]
+ProbCi_B[3,3] <- Numeradores[3,3]/ProbTotal[3]; 
+ProbCi_B[3,4] <- Numeradores[3,4]/ProbTotal[3]
+ProbCi_B[4,1] <- Numeradores[4,1]/ProbTotal[4]; 
+ProbCi_B[4,2] <- Numeradores[4,2]/ProbTotal[4]
+ProbCi_B[4,3] <- Numeradores[4,3]/ProbTotal[4]; 
+ProbCi_B[4,4] <- Numeradores[4,4]/ProbTotal[4]
+ProbCi_B[5,1] <- Numeradores[5,1]/ProbTotal[5]; 
+ProbCi_B[5,2] <- Numeradores[5,2]/ProbTotal[5]
+ProbCi_B[5,3] <- Numeradores[5,3]/ProbTotal[5]; 
+ProbCi_B[5,4] <- Numeradores[5,4]/ProbTotal[5]
+ProbM <- ProbCi_B;  Q1ProbM <- ProbM; print(ProbM);
+@
+
+
+\subsubsection{Expresion Basal Muy Baja}
+<<echo = FALSE>>=
+tt1 <- min(tst)
+VLI <- tt1
+VLS <- CuantilesA[4,1] -umbral;
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral;
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral;
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral;
+VHI <- CuantilesA[4,2]
+VHS <- max(tst);                
+Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+print( tst)
+print( Limites)
+@
+
+<<echo = FALSE>>=
+EBVL   <- dataset %>% filter(dataset$tst>=VLI & dataset$tst<=VLS); 
+ExpBasalVL <- EBVL[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalVL) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalVL,"ExpBasalMuyBajaQ1.csv")
+summary(ExpBasalVL[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalVL$Sequence)
+ProbMotifVLQ1 <- prop.table(t)
+print(ProbMotifVLQ1)
+@
+
+\subsubsection{Expresion Basal Moderada Baja}
+
+<<echo = FALSE>>=
+EBML   <- dataset %>% filter(dataset$tst>=MLI & dataset$tst<=MLS); 
+ExpBasalML <- EBML[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalML) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalML,"ExpBasalModBajaQ1.csv")
+summary(ExpBasalML[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalML$Sequence)
+ProbMotifMLQ1 <- prop.table(t)
+print(ProbMotifMLQ1)
+@
+
+\subsubsection{Expresion Basal Moderada}
+
+<<echo = FALSE>>=
+EBM   <- dataset %>% filter(dataset$tst>=MI & dataset$tst<=MS); 
+ExpBasalM <- EBM[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalM) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalM,"ExpBasalModeradaQ1.csv")
+summary(ExpBasalM[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalM$Sequence)
+ProbMotifMQ1 <- prop.table(t)
+print(ProbMotifMQ1)
+@
+
+\subsubsection{Expresion Basal Moderada Alta}
+
+<<echo = FALSE>>=
+EBMH   <- dataset %>% filter(dataset$tst>=MHI & dataset$tst<=MHS); 
+ExpBasalMH <- EBMH[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalMH) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalMH,"ExpBasalModAltaQ1.csv")
+summary(ExpBasalMH[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalMH$Sequence)
+ProbMotifMHQ1 <- prop.table(t)
+print(ProbMotifMHQ1)
+@
+
+\subsubsection{Expresion Basal Muy Alta}
+<<echo = FALSE>>=
+EBVH   <- dataset %>% filter(dataset$tst>=VHI & dataset$tst<=VHS); 
+ExpBasalVH <- EBVH[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalVH) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalVH,"ExpBasalMuyAltaQ1.csv")
+summary(ExpBasalVH[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalVH$Sequence)
+ProbMotifVHQ1 <- prop.table(t)
+print(ProbMotifVHQ1)
+@
+
+\subsection{New Gene Classification}
+
+Recordemos que se comienza con las Expresiones basales:
+
+<<echo = FALSE, fig=TRUE>>=
+hist(NormLog2BE, breaks = nbreaks, col= rainbow(1,0.7), main = 'Normalized Log2 Basal Expresion')
+@
+
+La nueva lista de genes a clasificar son:
+<<echo = FALSE>>=
+GeneList <- matrix(0,8,2)
+GeneList[1] <- 24.98;
+GeneList[2] <- 36.83;
+GeneList[3] <- 19.68;
+GeneList[4] <- 17.35;
+GeneList[5] <- 22.77;
+GeneList[6] <- 7.34;
+GeneList[7] <- 59.48;
+GeneList[8] <- 5.99
+@
+
+
+estas expresiones basales deben ser log2- transformadas con los par\'ametros de la muestra, $\overline{X}_{Log_{2}}$ y $S_{Log_{2}}$, es decir, se supone que provienen de la misma muestra y por tanto tienen la misma media y la misma desviaci\'on est\'andar, por tanto primero se aplica la funci\'on $log_{2}$, para despu\'es ser normalizados, resultando los siguientes valores.
+
+
+<<echo = FALSE>>=
+NG <- log2(GeneList[,1])
+NormLog2NG <- (NG-meanL2BE)/StdDevL2BE
+GeneList[,2] <- NormLog2NG
+rownames(GeneList) <- c('EHI_000550','EHI_008130',
+                        'EHI_012420','EHI_063550',
+                        'EHI_092160','EHI_092700',
+                        'EHI_129790','EHI_136420')
+colnames(GeneList) <- c('ExpBasal','NormLog2ExpBasal')
+print(GeneList)
+listagenes <- as.numeric(GeneList[,2])
+@
+
+Ahora, la clasificación se hace determinando la clase que maximiza la probabilidad: $P\left[y_{k}|EB\right]*P\left[EB\right]$, estos valores son los que vamos denominar, temporalmente como verosimilitud, entonces, determinamos estos valores para cada intervalo de las Expresiones Basales: Muy baja (VL), Moderadamente Baja (ML), Moderada (M), Moderadamente Alta (MH) y Muy Alta (VH).
+
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\subsection{Estandarizaci\'on con los datos}
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+\subsubsection{EXPRESION BASAL MUY BAJA}
+
+Para este rango de valores los resultados obtenidos son:
+<<echo = FALSE>>=
+t1         <- ExpBasalVL$Log2Basal; n1 <- length(t1);
+ProbEBVL   <-  n1/nBE;
+meanEBVL   <- mean(t1);# print(meanEBVL)
+stdDevEBVL <- sd(t1); #  print(stdDevEBVL)
+ProbVL     <- matrix(0,8,2)
+ProbVL[,1] <- pnorm(listagenes,   mean = meanEBVL, sd = stdDevEBVL)
+ProbVL[,2] <- as.numeric(ProbVL[,1])*ProbEBVL
+ProbVL     <- cbind(GeneList[,2],ProbVL)
+colnames(ProbVL) <- c('NormLog2BE','pnorm','LikelihoodVL')
+print(ProbVL[,c('NormLog2BE','LikelihoodVL')])
+@
+
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE BAJA}
+
+Para el rango de valores correspondientes a Moderadamente Baja, los resultados obtenidos son:
+
+<<echo = FALSE>>=
+t2         <- ExpBasalML$Log2Basal; n2 <- length(t2)
+ProbEBML   <-  n2/nBE;
+meanEBML   <- mean(t2); #print(meanEBML)
+stdDevEBML <- sd(t2);   #print(stdDevEBML)
+ProbML     <- matrix(0,8,2)
+ProbML[,1] <- pnorm(listagenes,   mean = meanEBML, sd = stdDevEBML)
+ProbML[,2] <- as.numeric(ProbML[,1])*ProbEBML
+ProbML     <- cbind(GeneList[,2],ProbML)
+colnames(ProbML) <- c('NormLog2BE','pnorm','LikelihoodML')
+print(ProbML[,c('NormLog2BE','LikelihoodML')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADA}
+
+Mientras que para el rango de valores correspondiente a Expresi\'on Basal Moderada, se obtuvo:
+
+<<echo = FALSE>>=
+#summary(ExpBasalM)
+t3        <- ExpBasalM$Log2Basal; n3 <- length(t3)
+ProbEBM   <-  n3/nBE;
+meanEBM   <- mean(t3); #print(meanEBM)
+stdDevEBM <- sd(t3);   #print(stdDevEBM)
+ProbM     <- matrix(0,8,2)
+ProbM[,1] <- pnorm(listagenes,   mean = meanEBM, sd = stdDevEBM)
+ProbM[,2] <- as.numeric(ProbM[,1])*ProbEBM
+ProbM     <- cbind(GeneList[,2],ProbM)
+colnames(ProbM) <- c('NormLog2BE','pnorm','LikelihoodM')
+print(ProbM[,c('NormLog2BE','LikelihoodM')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE ALTA}
+
+Para el rango de Expresi\'on Basal Moderadamente Alta:
+
+<<echo = FALSE>>=
+#summary(ExpBasalMH)
+t4         <- ExpBasalMH$Log2Basal; n4 <- length(t4)
+ProbEBMH   <-  n4/nBE;
+meanEBMH   <- mean(t4); #print(meanEBMH)
+stdDevEBMH <- sd(t4);   #print(stdDevEBMH)
+ProbMH     <- matrix(0,8,2)
+ProbMH[,1] <- pnorm(listagenes,   mean = meanEBMH, sd = stdDevEBMH)
+ProbMH[,2] <- as.numeric(ProbMH[,1])*ProbEBMH
+ProbMH     <- cbind(GeneList[,2],ProbMH)
+colnames(ProbMH) <- c('NormLog2BE','pnorm','LikelihoodMH')
+print(ProbMH[,c('NormLog2BE','LikelihoodMH')])
+@
+
+\subsubsection{EXPRESION BASAL MUY ALTA}
+Finalmente, para el rango de valores correspondientes a la Expresi\'on Basal Muy Alta se tiene: 
+
+<<echo = FALSE>>=
+#summary(ExpBasalVH)
+t5         <- ExpBasalVH$Log2Basal; n5 <- length(t5)
+ProbEBVH   <-  n5/nBE;
+meanEBVH   <- mean(t5); #print(meanEBVH)
+stdDevEBVH <- sd(t5);   #print(stdDevEBVH)
+ProbVH     <- matrix(0,8,2)
+ProbVH[,1] <- pnorm(listagenes,   mean = meanEBVH, sd = stdDevEBVH)
+ProbVH[,2] <- as.numeric(ProbVH[,1])*ProbEBVH
+ProbVH     <- cbind(GeneList[,2],ProbVH)
+colnames(ProbVH) <- c('NormLog2BE','pnorm','LikelihoodVH')
+print(ProbVH[,c('NormLog2BE','LikelihoodVH')])
+@
+
+
+\subsubsection{Resultados}
+
+De lo anterior se tiene la siguiente informaci\'on conjunta con fines comparativos
+<<echo = FALSE>>=
+ProbClassgivenGen <- cbind(GeneList,
+                           as.numeric(ProbVL[,3]),
+                           as.numeric(ProbML[,3]),
+                           as.numeric(ProbM[,3]),
+                           as.numeric(ProbMH[,3]),
+                           as.numeric(ProbVH[,3]))
+row.names(ProbClassgivenGen) <- c('EHI_000550',
+                                 'EHI_008130',
+                                 'EHI_012420',
+                                 'EHI_063550',
+                                 'EHI_092160',
+                                 'EHI_092700',
+                                 'EHI_129790',
+                                 'EHI_136420')
+colnames(ProbClassgivenGen) <- c('ExpBasal',
+                                 'NormLog2ExpBasal',
+                                 'LikelihoodVL',
+                                 'LikelihoodML',
+                                 'LikelihoodM',
+                                 'LikelihoodMH',
+                                 'LikelihoodVH')
+print(ProbClassgivenGen)
+
+@
+
+misma que para facilitar su lectura se puede ver como
+<<echo = FALSE>>=
+cols <- c(1,3)
+NewGenes1Q1 <- ProbVL[,cols]; print(NewGenes1Q1)
+NewGenes2Q1 <- ProbML[,cols]; print(NewGenes2Q1)
+NewGenes3Q1 <- ProbM[,cols];  print(NewGenes3Q1)
+NewGenes4Q1 <- ProbMH[,cols]; print(NewGenes4Q1)
+NewGenes5Q1 <- ProbVH[,cols]; print(NewGenes5Q1)
+@
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\subsection{Estandarizaci\'on con los rangos}
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\subsubsection{EXPRESION BASAL MUY BAJA}
+
+Para este rango de valores los resultados obtenidos son:
+
+<<echo = FALSE>>=
+t1         <- ExpBasalVL$Log2Basal; n1 <- length(t1);
+ProbEBVL   <-  n1/nBE;
+meanEBVL   <- mean(t1);# print(meanEBVL)
+stdDevEBVL <- sd(t1); #  print(stdDevEBVL)
+ProbVL     <- matrix(0,8,2)
+listagenes1 <- (log2(GeneList[,2])-meanEBVL)/stdDevEBVL
+ProbVL[,1] <- pnorm(listagenes1,   mean = meanEBVL, sd = stdDevEBVL)
+ProbVL[,2] <- as.numeric(ProbVL[,1])*ProbEBVL
+ProbVL     <- cbind(GeneList[,2],ProbVL)
+colnames(ProbVL) <- c('NormLog2BE','pnorm','LikelihoodVL')
+print(ProbVL[,c('NormLog2BE','LikelihoodVL')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE BAJA}
+
+Para el rango de valores correspondientes a Moderadamente Baja, los resultados obtenidos son:
+
+<<echo = FALSE>>=
+#summary(ExpBasalML)
+t2         <- ExpBasalML$Log2Basal; n2 <- length(t2)
+ProbEBML   <-  n2/nBE;
+meanEBML   <- mean(t2); #print(meanEBML)
+stdDevEBML <- sd(t2);   #print(stdDevEBML)
+ProbML     <- matrix(0,8,2)
+listagenes2 <- (log2(GeneList[,2])-meanEBML)/stdDevEBML
+ProbML[,1] <- pnorm(listagenes2,   mean = meanEBML, sd = stdDevEBML)
+ProbML[,2] <- as.numeric(ProbML[,1])*ProbEBML
+ProbML     <- cbind(GeneList[,2],ProbML)
+colnames(ProbML) <- c('NormLog2BE','pnorm','LikelihoodML')
+print(ProbML[,c('NormLog2BE','LikelihoodML')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADA}
+
+Mientras que para el rango de valores correspondiente a Expresi\'on Basal Moderada, se obtuvo:
+
+<<echo = FALSE>>=
+#summary(ExpBasalM)
+t3        <- ExpBasalM$Log2Basal; n3 <- length(t3)
+ProbEBM   <-  n3/nBE;
+meanEBM   <- mean(t3); #print(meanEBM)
+stdDevEBM <- sd(t3);   #print(stdDevEBM)
+listagenes3 <- (log2(GeneList[,2])-meanEBM)/stdDevEBM
+ProbM     <- matrix(0,8,2)
+ProbM[,1] <- pnorm(listagenes3,   mean = meanEBM, sd = stdDevEBM)
+ProbM[,2] <- as.numeric(ProbM[,1])*ProbEBM
+ProbM     <- cbind(GeneList[,2],ProbM)
+colnames(ProbM) <- c('NormLog2BE','pnorm','LikelihoodM')
+print(ProbM[,c('NormLog2BE','LikelihoodM')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE ALTA}
+
+Para el rango de Expresi\'on Basal Moderadamente Alta:
+
+<<echo = FALSE>>=
+#summary(ExpBasalMH)
+t4         <- ExpBasalMH$Log2Basal; n4 <- length(t4)
+ProbEBMH   <-  n4/nBE;
+meanEBMH   <- mean(t4); #print(meanEBMH)
+stdDevEBMH <- sd(t4);   #print(stdDevEBMH)
+listagenes4 <- (log2(GeneList[,2])-meanEBMH)/stdDevEBMH
+ProbMH     <- matrix(0,8,2)
+ProbMH[,1] <- pnorm(listagenes4,   mean = meanEBMH, sd = stdDevEBMH)
+ProbMH[,2] <- as.numeric(ProbMH[,1])*ProbEBMH
+ProbMH     <- cbind(GeneList[,2],ProbMH)
+colnames(ProbMH) <- c('NormLog2BE','pnorm','LikelihoodMH')
+print(ProbMH[,c('NormLog2BE','LikelihoodMH')])
+@
+
+\subsubsection{EXPRESION BASAL MUY ALTA}
+
+Finalmente, para el rango de valores correspondientes a la Expresi\'on Basal Muy Alta se tiene: 
+
+<<echo = FALSE>>=
+#summary(ExpBasalVH)
+t5         <- ExpBasalVH$Log2Basal; n5 <- length(t5)
+ProbEBVH   <-  n5/nBE;
+meanEBVH   <- mean(t5); #print(meanEBVH)
+stdDevEBVH <- sd(t5);   #print(stdDevEBVH)
+listagenes5 <- (log2(GeneList[,2])-meanEBVH)/stdDevEBVH
+ProbVH     <- matrix(0,8,2)
+ProbVH[,1] <- pnorm(listagenes5,   mean = meanEBVH, sd = stdDevEBVH)
+ProbVH[,2] <- as.numeric(ProbVH[,1])*ProbEBVH
+ProbVH     <- cbind(GeneList[,2],ProbVH)
+colnames(ProbVH) <- c('NormLog2BE','pnorm','LikelihoodVH')
+print(ProbVH[,c('NormLog2BE','LikelihoodVH')])
+@
+
+
+\subsubsection{Resultados}
+
+De lo anterior se tiene la siguiente informaci\'on conjunta con fines comparativos
+<<echo = FALSE>>=
+ProbClassgivenGen <- cbind(GeneList,
+                           as.numeric(ProbVL[,3]),
+                           as.numeric(ProbML[,3]),
+                           as.numeric(ProbM[,3]),
+                           as.numeric(ProbMH[,3]),
+                           as.numeric(ProbVH[,3]))
+row.names(ProbClassgivenGen) <- c('EHI_000550',
+                                 'EHI_008130',
+                                 'EHI_012420',
+                                 'EHI_063550',
+                                 'EHI_092160',
+                                 'EHI_092700',
+                                 'EHI_129790',
+                                 'EHI_136420')
+colnames(ProbClassgivenGen) <- c('ExpBasal',
+                                 'Log2ExpBasal',
+                                 'LikelihoodVL',
+                                 'LikelihoodML',
+                                 'LikelihoodM',
+                                 'LikelihoodMH',
+                                 'LikelihoodVH')
+print(ProbClassgivenGen)
+
+@
+
+misma que para facilitar su lectura se puede ver como
+<<echo = FALSE>>=
+cols <- c(1,3)
+NewGenes1Q1 <- ProbVL[,cols]; print(NewGenes1Q1)
+NewGenes2Q1 <- ProbML[,cols]; print(NewGenes2Q1)
+NewGenes3Q1 <- ProbM[,cols];  print(NewGenes3Q1)
+NewGenes4Q1 <- ProbMH[,cols]; print(NewGenes4Q1)
+NewGenes5Q1 <- ProbVH[,cols]; print(NewGenes5Q1)
+@
+
+
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+\section{Graficando Histograma}
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+
+
+
+<<echo = FALSE>>=
+EBVL   <- dataset %>% filter(dataset$tst>=VLI & dataset$tst<VLS); 
+EBML   <- dataset %>% filter(dataset$tst>=MLI & dataset$tst<MLS); 
+EBM    <- dataset %>% filter(dataset$tst>=MI & dataset$tst<MS); 
+EBMH   <- dataset %>% filter(dataset$tst>=MHI & dataset$tst<MHS); 
+EBVH   <- dataset %>% filter(dataset$tst>=VHI & dataset$tst<=VHS); 
+print(EBVL)
+print(EBML)
+
+n1 <- length(EBVL$tst);
+n2 <- length(EBML$tst); 
+n3 <- length(EBM$tst); 
+n4 <- length(EBMH$tst);
+n5 <- length(EBVH$tst); 
+
+categoria <- rep('Muy Baja',n1);
+EBVLCateg <- mutate(EBVL,categoria);print(EBVLCateg)
+categoria <- rep('Moderada Baja',n2);
+EBMLCateg <- mutate(EBML,categoria);print(EBMLCateg)
+categoria <- rep('Moderada',n3);
+EBMCateg  <- mutate(EBM,categoria); print(EBMCateg)
+categoria <- rep('Moderada Alta',n4);
+EBMHCateg <- mutate(EBMH,categoria); print(EBMHCateg)
+categoria <- rep('Muy Alta',n5);
+EBVHCateg <- mutate(EBVH,categoria); print(EBVHCateg)
+
+write.csv(EBVLCateg,"EBVLCategoria.csv")
+write.csv(EBMLCateg,"EBMLCategoria.csv")
+write.csv(EBMCateg,"EBMCategoria.csv")
+write.csv(EBMHCateg,"EBMHCategoria.csv")
+write.csv(EBVHCateg,"EBVHCategoria.csv")
+#===========================================================================
+@
+
+<<echo = FALSE>>=
+NormBasalExp <- rbind(EBVLCateg,EBMLCateg,
+                      EBMCateg,EBMHCateg,EBVHCateg)
+colnames(NormBasalExp)
+ExpBasal <- NormBasalExp; head(ExpBasal)
+colnames(ExpBasal) <- c('Sequence','CodedSeq',
+                        'Position','BasalExp',
+                        'GenId','Log2Basal',
+                        'Categoria')
+head(ExpBasal,15)
+#=======================================================
+ExpBasal$Categoria = factor(ExpBasal$Categoria,
+                           levels = c('Muy Baja',
+                                      'Moderada Baja',
+                                      'Moderada',
+                                      'Moderada Alta',
+                                      'Muy Alta'),
+                           labels = c('Muy Baja',
+                                      'Moderada Baja',
+                                      'Moderada',
+                                      'Moderada Alta',
+                                      'Muy Alta'))
+#=======================================================
+summary(ExpBasal)
+#=================================================================
+bexp <- ExpBasal$Log2Basal
+Categorias <- ExpBasal$Categoria 
+@
+
+<<echo = FALSE, fig=TRUE>>=
+library(RColorBrewer)
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+tambinwidth <- 69
+numbins <- 25
+nbreaks = c(VLI,MLI,MI,MHI,VHI)
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+ggplot(data=ExpBasal,
+       aes(Log2Basal)) + 
+  geom_histogram(colour = 4, fill = "white", 
+                 bins = 15,
+                 position = "dodge") +
+  theme(legend.position="right")+
+  labs(title="Expresion Basal Normalizada",
+       x="Categoria por Expresion Basal (Log2)",
+       y = "Frecuencia")
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+ggplot(data=ExpBasal,
+       aes(Log2Basal,
+           fill=Categoria,
+           color=Categoria))+
+  geom_histogram(bins=30,
+                 binwidth = 0.5,
+                 position = "dodge")+
+  theme(legend.position="right")+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+# - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - - 
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,aes(Log2Basal,
+                         fill=Categoria,
+                         color=Categoria))+
+  geom_histogram(binwidth = 0.5, 
+                 position = "dodge")+ theme(legend.position="right")+
+  theme(legend.position="right")+theme_classic()
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+# - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - - 
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.1, bins = 30,position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="GnBu")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.1, bins = 30,position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="YlOrRd")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+#===========================================================================
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.1, bins = 30,position = "dodge")+
+  theme_classic()+scale_fill_brewer(7,palette="Dark2")+ theme(legend.position="left")+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+#=======================================================# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+ggplot(data=ExpBasal,
+       aes(Log2Basal,
+           fill=Categoria)) + 
+  geom_histogram(colour = 5, 
+                 binwidth = 0.07,
+                 bins = 25,
+                 position = "dodge") +
+  theme(legend.position="left")+
+  theme_classic()+scale_fill_brewer(7,palette="Dark2")+
+  labs(title="Expresion Basal Normalizada",
+       x="Categoria por Expresion Basal (Log2)",
+       y = "Frecuencia")
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,
+       aes(Log2Basal,
+           fill=Categoria))+
+  geom_histogram(binwidth = 0.5,
+                 bins = 15,
+                 position = "dodge",
+                 alpha=0.85)+
+  theme_classic()+ theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+#=======================================================
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+ggplot(data=ExpBasal,
+       aes(Log2Basal)) + 
+  geom_histogram(colour = 4, fill = "white", 
+                 bins = 25,
+                 position = "dodge") +
+  theme(legend.position="right")+
+  labs(title="Expresion Basal Normalizada",
+       x="Categoria por Expresion Basal (Log2)",
+       y = "Frecuencia")
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+
+  geom_histogram(position = "dodge",alpha=0.85,bins=50,binwidth = 0.05)+
+  theme_classic()+ theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+
+#===========================================================================
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.05, bins = 80,
+                                                                   position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="GnBu")+
+  theme_classic()+ theme(legend.position="left")+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+
+#===========================================================================
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(bins = 69,
+                                                                   position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="YlOrRd")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+#===========================================================================
+ggplot(data=ExpBasal,aes(Log2Basal,color=Categoria))+geom_histogram(binwidth = 0.15, bins = 25,
+                                                                    fill='white',
+                                                                    position = "dodge",
+                                                                    linetype = "dashed")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+#===========================================================================
+ggplot(data=ExpBasal,
+       aes(Log2Basal,
+           fill= Categoria))+
+  geom_histogram(binwidth = 0.15, 
+                 bins = 79)+ 
+  theme_classic()+ 
+  theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",
+       x="Categoria por Expresion Basal (Log2)",
+       y = "Frecuencia")
+#=======================================================# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+ggplot(data=ExpBasal,
+       aes(Log2Basal,
+           fill=Categoria)) + 
+  geom_histogram(bins = 60,
+                 binwidth = 0.35) +
+  theme_classic()+ 
+  theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",
+       x="Categoria por Expresion Basal (Log2)",
+       y = "Frecuencia")
+# <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+@
+
+%== == == == == == == == == == == == == == == == == == == == 
+\section{Caso II. Cuantiles del $70\%$ y $85\%$}
+%== == == == == == == == == == == == == == == == == == == == 
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{1}$}
+
+
+<<echo = FALSE>>=
+datos1   <- dataset %>% filter(dataset$Sequence=='CAACGG'); 
+summary(datos1[,c('Sequence','BasalExp','tst')]);
+tt <- datos1$tst; #summary(tt)
+tt1 <- min(tt); VLI <- tt1;     ConteoC1 <- matrix(0,2,6);
+VLS <- CuantilesA[5,1] - 0.0000001; MLI <- CuantilesA[5,1]
+MLS <- CuantilesA[2,1] - 0.0000001; MI  <- CuantilesA[2,1]
+MS  <- CuantilesA[2,2] - 0.0000001; MHI <- CuantilesA[2,2]
+MHS <- CuantilesA[5,2] - 0.0000001; VHI <- CuantilesA[5,2]
+VHS <- max(tt);                 Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+N <- length(tt); ContVL<- 0; ContML<- 0;
+ContM <- 0;      ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+}
+ConteoC1[1,1] <- ContVL;   ConteoC1[1,2] <- ContML
+ConteoC1[1,3] <- ContM;    ConteoC1[1,4] <- ContMH
+ConteoC1[1,5] <- ContVH;   ConteoC1[1,6] <- sum(Conteo[1,])
+ConteoC1[2,1] <- ContVL/N; ConteoC1[2,2] <- ContML/N;
+ConteoC1[2,3] <- ContM/N;  ConteoC1[2,4] <- ContMH/N;
+ConteoC1[2,5] <- ContVH/N; ConteoC1[2,6] <- sum(ConteoC1[2,])
+colnames(ConteoC1) <- c('VL','ML','M','MH','VH','Ttl');
+rownames(ConteoC1) <- c('fr','Prob');
+#print(ConteoC1);
+Q2C1 <- ConteoC1
+@
+
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{2}$}
+
+
+<<echo = FALSE>>=
+datos2   <- dataset %>% filter(dataset$Sequence=='CAACTG'); 
+summary(datos2[,c('Sequence','BasalExp','tst')])
+tt <- datos2$tst; #summary(tt)
+tt1 <- min(tt);   VLI <- tt1; ConteoC2 <- matrix(0,2,6);
+VLS <- CuantilesA[5,1] - 0.0000001; MLI <- CuantilesA[5,1]
+MLS <- CuantilesA[2,1] - 0.0000001; MI  <- CuantilesA[2,1]
+MS  <- CuantilesA[2,2] - 0.0000001; MHI <- CuantilesA[2,2]
+MHS <- CuantilesA[5,2] - 0.0000001; VHI <- CuantilesA[5,2]
+VHS <- max(tt); Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); N <- length(tt);
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+ConteoC2[1,1] <- ContVL;   ConteoC2[1,2] <- ContML
+ConteoC2[1,3] <- ContM;    ConteoC2[1,4] <- ContMH
+ConteoC2[1,5] <- ContVH;   ConteoC2[1,6] <- sum(ConteoC2[1,])
+ConteoC2[2,1] <- ContVL/N; ConteoC2[2,2] <- ContML/N;
+ConteoC2[2,3] <- ContM/N;  ConteoC2[2,4] <- ContMH/N;
+ConteoC2[2,5] <- ContVH/N; ConteoC2[2,6] <- sum(ConteoC2[2,])
+colnames(ConteoC2) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC2) <- c('fr','Prob')
+#print(ConteoC2)
+Q2C2 <- ConteoC2 
+@
+
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{3}$}
+
+<<echo = FALSE>>=
+### Secuencia TAACGG
+datos3   <- dataset %>% filter(dataset$Sequence=='TAACGG'); 
+summary(datos3[,c('Sequence','BasalExp','tst')])
+tt <- datos3$tst; #summary(tt)
+tt1 <- min(tt);   VLI <- tt1; ConteoC3 <- matrix(0,2,6);
+VLS <- CuantilesA[5,1] - 0.0000001; MLI <- CuantilesA[5,1]
+MLS <- CuantilesA[2,1] - 0.0000001; MI  <- CuantilesA[2,1]
+MS  <- CuantilesA[2,2] - 0.0000001; MHI <- CuantilesA[2,2]
+MHS <- CuantilesA[5,2] - 0.0000001; VHI <- CuantilesA[5,2]
+VHS <- max(tt);   Limites <- matrix(0,1,10);
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); N <- length(tt);
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+ConteoC3[1,1] <- ContVL;    ConteoC3[1,2] <- ContML
+ConteoC3[1,3] <- ContM;     ConteoC3[1,4] <- ContMH
+ConteoC3[1,5] <- ContVH;    ConteoC3[1,6] <- sum(ConteoC3[1,])
+ConteoC3[2,1] <- ContVL/N;  ConteoC3[2,2] <- ContML/N;
+ConteoC3[2,3] <- ContM/N;   ConteoC3[2,4] <- ContMH/N;
+ConteoC3[2,5] <- ContVH/N;  ConteoC3[2,6] <- sum(ConteoC3[2,])
+colnames(ConteoC3) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC3) <- c('fr','Prob')
+#print(ConteoC3)
+Q2C3 <- ConteoC3
+@
+
+\subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{4}$}
+
+<<echo = FALSE>>=
+### Secuencia TAACTG
+datos4   <- dataset %>% filter(dataset$Sequence=='TAACTG'); 
+summary(datos4[,c('Sequence','BasalExp','tst')])
+tt <- datos4$tst; #summary(tt);
+tt1 <- min(tt); VLI <- tt1; ConteoC4 <- matrix(0,2,6);
+VLS <- CuantilesA[5,1] - 0.0000001; MLI <- CuantilesA[5,1]
+MLS <- CuantilesA[2,1] - 0.0000001; MI  <- CuantilesA[2,1]
+MS  <- CuantilesA[2,2] - 0.0000001; MHI <- CuantilesA[2,2]
+MHS <- CuantilesA[5,2] - 0.0000001; VHI <- CuantilesA[5,2]
+VHS <- max(tt); Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); N <- length(tt)
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+ConteoC4[1,1] <- ContVL;   ConteoC4[1,2] <- ContML
+ConteoC4[1,3] <- ContM;    ConteoC4[1,4] <- ContMH
+ConteoC4[1,5] <- ContVH;   ConteoC4[1,6] <- sum(ConteoC4[1,])
+ConteoC4[2,1] <- ContVL/N; ConteoC4[2,2] <- ContML/N;
+ConteoC4[2,3] <- ContM/N;  ConteoC4[2,4] <- ContMH/N;
+ConteoC4[2,5] <- ContVH/N; ConteoC4[2,6] <- sum(ConteoC4[2,])
+colnames(ConteoC4) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC4) <- c('fr','Prob')
+#print(ConteoC4)
+Q2C4 <- ConteoC4 
+@
+
+\subsection{Calculo de Probabilidades Condicionales}
+
+Es decir las probabilidades condicionales y las probabilidades de cada $C_{i}$ son
+
+<<echo = FALSE>>=
+ProbCond <- rbind(Q2C1[2,],Q2C2[2,],Q2C3[2,],Q2C4[2,])
+rownames(ProbCond) <- c('PB_C1','PB_C2','PB_C3','PB_C4');
+colnames(ProbCond) <- c('LB','LMB','MB','HMB','HB','Ttl_Prob')
+ProbC<- matrix(0,1,4);
+ProbC[1] <- PC[[1]]; ProbC[2] <- PC[[2]]
+ProbC[3] <- PC[[3]]; ProbC[4] <- PC[[4]]
+colnames(ProbC) <- c('C1','C2','C3','C4'); 
+rownames(ProbC) <- c('Prob')
+print(ProbC);       
+print(ProbCond)
+Q2ProbC    <- ProbC; Q2ProbCond <- ProbCond
+@
+
+Por tanto ya podemos determinar las probabiidades $P\left[\cdot|C_{i}\right]P\left[C_{i}\right]$
+
+<<echo = FALSE>>=
+print('calcular')
+#ProbCond <- Q1ProbCond; ProbC <- Q1ProbC;
+Numeradores <- matrix(0,5,4)
+colnames(Numeradores) <- c('C1','C2','C3','C4'); 
+rownames(Numeradores) <- c('LB','LMB','MB','HMB','HB')
+Numeradores[1,1] <- ProbCond[1,1]*ProbC[1]; Numeradores[1,2] <- ProbCond[2,1]*ProbC[2]
+Numeradores[1,3] <- ProbCond[3,1]*ProbC[3]; Numeradores[1,4] <- ProbCond[4,1]*ProbC[4]
+Numeradores[2,1] <- ProbCond[1,2]*ProbC[1]; Numeradores[2,2] <- ProbCond[2,2]*ProbC[2]
+Numeradores[2,3] <- ProbCond[3,2]*ProbC[3]; Numeradores[2,4] <- ProbCond[4,2]*ProbC[4]
+Numeradores[3,1] <- ProbCond[1,3]*ProbC[1]; Numeradores[3,2] <- ProbCond[2,3]*ProbC[2]
+Numeradores[3,3] <- ProbCond[3,3]*ProbC[3]; Numeradores[3,4] <- ProbCond[4,3]*ProbC[4]
+Numeradores[4,1] <- ProbCond[1,4]*ProbC[1]; Numeradores[4,2] <- ProbCond[2,4]*ProbC[2]
+Numeradores[4,3] <- ProbCond[3,4]*ProbC[3]; Numeradores[4,4] <- ProbCond[4,4]*ProbC[4]
+Numeradores[5,1] <- ProbCond[1,5]*ProbC[1]; Numeradores[5,2] <- ProbCond[2,5]*ProbC[2]
+Numeradores[5,3] <- ProbCond[3,5]*ProbC[3]; Numeradores[5,4] <- ProbCond[4,5]*ProbC[4]
+print(Numeradores); 
+Q1Numeradores <- Numeradores;
+@
+
+Ahora calculemos $\sum_{i=1}^{4}P\left[\cdot|C_{i}\right]P\left[C_{i}\right]$
+<<echo = FALSE>>=
+ProbTotal <- matrix(0,5,1);
+rownames(ProbTotal) <- c('LB','LMB','MB','HMB','HB'); 
+colnames(ProbTotal) <- c('ProbC')
+ProbTotal[1] <- sum(Numeradores[1,]); ProbTotal[2] <- sum(Numeradores[2,])
+ProbTotal[3] <- sum(Numeradores[3,]); ProbTotal[4] <- sum(Numeradores[4,])
+ProbTotal[5] <- sum(Numeradores[5,]); print(ProbTotal); Q1ProbTotal <- ProbTotal;
+@
+
+para finalmente obtener $P\left[C_{i}|\cdot\right]= \frac{P\left[\cdot|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[\cdot|C_{i}\right]P\left[C_{i}\right]}$
+
+<<echo = FALSE>>=
+ProbCi_B <- matrix(0,5,4); rownames(ProbCi_B) <- c('LB','LMB','MB','HMB','HB')
+colnames(ProbCi_B) <- c('C1','C2','C3','C4')
+ProbCi_B[1,1] <- Numeradores[1,1]/ProbTotal[1]; ProbCi_B[1,2] <- Numeradores[1,2]/ProbTotal[1]
+ProbCi_B[1,3] <- Numeradores[1,3]/ProbTotal[1]; ProbCi_B[1,4] <- Numeradores[1,4]/ProbTotal[1]
+ProbCi_B[2,1] <- Numeradores[2,1]/ProbTotal[2]; ProbCi_B[2,2] <- Numeradores[2,2]/ProbTotal[2]
+ProbCi_B[2,3] <- Numeradores[2,3]/ProbTotal[2]; ProbCi_B[2,4] <- Numeradores[2,4]/ProbTotal[2]
+ProbCi_B[3,1] <- Numeradores[3,1]/ProbTotal[3]; ProbCi_B[3,2] <- Numeradores[3,2]/ProbTotal[3]
+ProbCi_B[3,3] <- Numeradores[3,3]/ProbTotal[3]; ProbCi_B[3,4] <- Numeradores[3,4]/ProbTotal[3]
+ProbCi_B[4,1] <- Numeradores[4,1]/ProbTotal[4]; ProbCi_B[4,2] <- Numeradores[4,2]/ProbTotal[4]
+ProbCi_B[4,3] <- Numeradores[4,3]/ProbTotal[4]; ProbCi_B[4,4] <- Numeradores[4,4]/ProbTotal[4]
+ProbCi_B[5,1] <- Numeradores[5,1]/ProbTotal[5]; ProbCi_B[5,2] <- Numeradores[5,2]/ProbTotal[5]
+ProbCi_B[5,3] <- Numeradores[5,3]/ProbTotal[5]; ProbCi_B[5,4] <- Numeradores[5,4]/ProbTotal[5]
+ProbM <- ProbCi_B;  Q1ProbM <- ProbM; print(ProbM);
+@
+
+
+\subsubsection{Expresion Basal Muy Baja}
+
+
+<<echo = FALSE>>=
+EBVL   <- dataset %>% filter(dataset$tst>=VLI & dataset$tst<=VLS); 
+ExpBasalVL <- EBVL[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalVL) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalVL,"ExpBasalMuyBajaQ2.csv")
+summary(ExpBasalVL[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalVL$Sequence)
+ProbMotifVLQ2 <- prop.table(t)
+print(ProbMotifVLQ2)
+@
+
+\subsubsection{Expresion Basal Moderada Baja}
+
+<<echo = FALSE>>=
+EBML   <- dataset %>% filter(dataset$tst>=MLI & dataset$tst<=MLS); 
+ExpBasalML <- EBML[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalML) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalML,"ExpBasalModBajaQ2.csv")
+summary(ExpBasalML[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalML$Sequence)
+ProbMotifMLQ2 <- prop.table(t)
+print(ProbMotifMLQ2)
+@
+
+\subsubsection{Expresion Basal Moderada}
+
+<<echo = FALSE>>=
+EBM   <- dataset %>% filter(dataset$tst>=MI & dataset$tst<=MS); 
+ExpBasalM <- EBM[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalM) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalM,"ExpBasalModeradaQ2.csv")
+summary(ExpBasalM[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalM$Sequence)
+ProbMotifMQ2 <- prop.table(t)
+print(ProbMotifMQ2)
+@
+
+\subsubsection{Expresion Basal Moderada Alta}
+
+<<echo = FALSE>>=
+EBMH   <- dataset %>% filter(dataset$tst>=MHI & dataset$tst<=MHS); 
+ExpBasalMH <- EBMH[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalMH) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalMH,"ExpBasalModAltaQ2.csv")
+summary(ExpBasalMH[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalMH$Sequence)
+ProbMotifMHQ2 <- prop.table(t)
+print(ProbMotifMHQ2)
+@
+
+\subsubsection{Expresion Basal Muy Alta}
+<<echo = FALSE>>=
+EBVH   <- dataset %>% filter(dataset$tst>=VHI & dataset$tst<=VHS); 
+ExpBasalVH <- EBVH[,c('GenId','Sequence','Position','BasalExp','tst')]
+colnames(ExpBasalVH) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+write.csv(ExpBasalVH,"ExpBasalMuyAltaQ2.csv")
+summary(ExpBasalVH[,c('Sequence','BasalExp','Log2Basal')])
+t <- table(ExpBasalVH$Sequence)
+ProbMotifVHQ2 <- prop.table(t)
+print(ProbMotifVHQ2)
+@
+
+\subsection{New Gene Classification}
+
+Recordemos que se comienza con las Expresiones basales:
+
+<<echo = FALSE, fig=TRUE>>=
+hist(NormLog2BE, breaks = nbreaks, col= rainbow(1,0.7), main = 'Normalized Log2 Basal Expresion')
+@
+
+La nueva lista de genes a clasificar son:
+<<echo = FALSE>>=
+GeneList <- matrix(0,8,2)
+GeneList[1] <- 24.98;
+GeneList[2] <- 36.83;
+GeneList[3] <- 19.68;
+GeneList[4] <- 17.35;
+GeneList[5] <- 22.77;
+GeneList[6] <- 7.34;
+GeneList[7] <- 59.48;
+GeneList[8] <- 5.99
+@
+
+
+estas expresiones basales deben ser log2- transformadas con los par\'ametros de la muestra, $\overline{X}_{Log_{2}}$ y $S_{Log_{2}}$, es decir, se supone que provienen de la misma muestra y por tanto tienen la misma media y la misma desviaci\'on est\'andar, por tanto se normalizan y luego se les aplica $log_{2}$, resultando los siguientes valores.
+
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\subsection{Estandarizaci\'on con los datos}
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
+<<echo = FALSE>>=
+NG <- log2(GeneList[,1])
+NormLog2NG <- (NG-meanL2BE)/StdDevL2BE
+GeneList[,2] <- NormLog2NG
+rownames(GeneList) <- c('EHI_000550','EHI_008130',
+                        'EHI_012420','EHI_063550',
+                        'EHI_092160','EHI_092700',
+                        'EHI_129790','EHI_136420')
+colnames(GeneList) <- c('ExpBasal','NormLog2ExpBasal')
+print(GeneList)
+listagenes <- as.numeric(GeneList[,2])
+@
+
+Ahora, la clasificación se hace determinando la clase que maximiza la probabilidad: $P\left[y_{k}|EB\right]*P\left[EB\right]$, estos valores son los que vamos denominar, temporalmente como verosimilitud, entonces, determinamos estos valores para cada intervalo de las Expresiones Basales: Muy baja (VL), Moderadamente Baja (ML), Moderada (M), Moderadamente Alta (MH) y Muy Alta (VH).
+
+
+\subsubsection{EXPRESION BASAL MUY BAJA}
+
+Para este rango de valores los resultados obtenidos son:
+<<echo = FALSE>>=
+t1         <- ExpBasalVL$Log2Basal; n1 <- length(t1);
+ProbEBVL   <-  n1/nBE;
+meanEBVL   <- mean(t1);# print(meanEBVL)
+stdDevEBVL <- sd(t1); #  print(stdDevEBVL)
+ProbVL     <- matrix(0,8,2)
+ProbVL[,1] <- pnorm(listagenes,   mean = meanEBVL, sd = stdDevEBVL)
+ProbVL[,2] <- as.numeric(ProbVL[,1])*ProbEBVL
+ProbVL     <- cbind(GeneList[,2],ProbVL)
+colnames(ProbVL) <- c('NormLog2BE','pnorm','LikelihoodVL')
+print(ProbVL[,c('NormLog2BE','LikelihoodVL')])
+@
+
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE BAJA}
+
+Para el rango de valores correspondientes a Moderadamente Baja, los resultados obtenidos son:
+
+<<echo = FALSE>>=
+t2         <- ExpBasalML$Log2Basal; n2 <- length(t2)
+ProbEBML   <-  n2/nBE;
+meanEBML   <- mean(t2); #print(meanEBML)
+stdDevEBML <- sd(t2);   #print(stdDevEBML)
+ProbML     <- matrix(0,8,2)
+ProbML[,1] <- pnorm(listagenes,   mean = meanEBML, sd = stdDevEBML)
+ProbML[,2] <- as.numeric(ProbML[,1])*ProbEBML
+ProbML     <- cbind(GeneList[,2],ProbML)
+colnames(ProbML) <- c('NormLog2BE','pnorm','LikelihoodML')
+print(ProbML[,c('NormLog2BE','LikelihoodML')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADA}
+
+Mientras que para el rango de valores correspondiente a Expresi\'on Basal Moderada, se obtuvo:
+
+<<echo = FALSE>>=
+#summary(ExpBasalM)
+t3        <- ExpBasalM$Log2Basal; n3 <- length(t3)
+ProbEBM   <-  n3/nBE;
+meanEBM   <- mean(t3); #print(meanEBM)
+stdDevEBM <- sd(t3);   #print(stdDevEBM)
+ProbM     <- matrix(0,8,2)
+ProbM[,1] <- pnorm(listagenes,   mean = meanEBM, sd = stdDevEBM)
+ProbM[,2] <- as.numeric(ProbM[,1])*ProbEBM
+ProbM     <- cbind(GeneList[,2],ProbM)
+colnames(ProbM) <- c('NormLog2BE','pnorm','LikelihoodM')
+print(ProbM[,c('NormLog2BE','LikelihoodM')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE ALTA}
+
+Para el rango de Expresi\'on Basal Moderadamente Alta:
+
+<<echo = FALSE>>=
+#summary(ExpBasalMH)
+t4         <- ExpBasalMH$Log2Basal; n4 <- length(t4)
+ProbEBMH   <-  n4/nBE;
+meanEBMH   <- mean(t4); #print(meanEBMH)
+stdDevEBMH <- sd(t4);   #print(stdDevEBMH)
+ProbMH     <- matrix(0,8,2)
+ProbMH[,1] <- pnorm(listagenes,   mean = meanEBMH, sd = stdDevEBMH)
+ProbMH[,2] <- as.numeric(ProbMH[,1])*ProbEBMH
+ProbMH     <- cbind(GeneList[,2],ProbMH)
+colnames(ProbMH) <- c('NormLog2BE','pnorm','LikelihoodMH')
+print(ProbMH[,c('NormLog2BE','LikelihoodMH')])
+@
+
+\subsubsection{EXPRESION BASAL MUY ALTA}
+Finalmente, para el rango de valores correspondientes a la Expresi\'on Basal Muy Alta se tiene: 
+
+<<echo = FALSE>>=
+#summary(ExpBasalVH)
+t5         <- ExpBasalVH$Log2Basal; n5 <- length(t5)
+ProbEBVH   <-  n5/nBE;
+meanEBVH   <- mean(t5); #print(meanEBVH)
+stdDevEBVH <- sd(t5);   #print(stdDevEBVH)
+ProbVH     <- matrix(0,8,2)
+ProbVH[,1] <- pnorm(listagenes,   mean = meanEBVH, sd = stdDevEBVH)
+ProbVH[,2] <- as.numeric(ProbVH[,1])*ProbEBVH
+ProbVH     <- cbind(GeneList[,2],ProbVH)
+colnames(ProbVH) <- c('NormLog2BE','pnorm','LikelihoodVH')
+print(ProbVH[,c('NormLog2BE','LikelihoodVH')])
+@
+
+
+\subsubsection{Resultados}
+
+De lo anterior se tiene la siguiente informaci\'on conjunta con fines comparativos
+<<echo = FALSE>>=
+ProbClassgivenGen <- cbind(GeneList,
+                           as.numeric(ProbVL[,3]),
+                           as.numeric(ProbML[,3]),
+                           as.numeric(ProbM[,3]),
+                           as.numeric(ProbMH[,3]),
+                           as.numeric(ProbVH[,3]))
+row.names(ProbClassgivenGen) <- c('EHI_000550',
+                                 'EHI_008130',
+                                 'EHI_012420',
+                                 'EHI_063550',
+                                 'EHI_092160',
+                                 'EHI_092700',
+                                 'EHI_129790',
+                                 'EHI_136420')
+colnames(ProbClassgivenGen) <- c('ExpBasal',
+                                 'NormLog2ExpBasal',
+                                 'LikelihoodVL',
+                                 'LikelihoodML',
+                                 'LikelihoodM',
+                                 'LikelihoodMH',
+                                 'LikelihoodVH')
+print(ProbClassgivenGen)
+
+@
+
+misma que para facilitar su lectura se puede ver como
+<<echo = FALSE>>=
+cols <- c(1,3)
+NewGenes1Q2 <- ProbVL[,cols]; print(NewGenes1Q2)
+NewGenes2Q2 <- ProbML[,cols]; print(NewGenes2Q2)
+NewGenes3Q2 <- ProbM[,cols];  print(NewGenes3Q2)
+NewGenes4Q2 <- ProbMH[,cols]; print(NewGenes4Q2)
+NewGenes5Q2 <- ProbVH[,cols]; print(NewGenes5Q2)
+@
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+\subsection{Estandarizaci\'on con los rangos}
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+\subsubsection{EXPRESION BASAL MUY BAJA}
+
+Para este rango de valores los resultados obtenidos son:
+
+<<echo = FALSE>>=
+t1         <- ExpBasalVL$Log2Basal; n1 <- length(t1);
+ProbEBVL   <-  n1/nBE;
+meanEBVL   <- mean(t1);# print(meanEBVL)
+stdDevEBVL <- sd(t1); #  print(stdDevEBVL)
+ProbVL     <- matrix(0,8,2)
+listagenes1 <- (log2(GeneList[,2])-meanEBVL)/stdDevEBVL
+ProbVL[,1] <- pnorm(listagenes1,   mean = meanEBVL, sd = stdDevEBVL)
+ProbVL[,2] <- as.numeric(ProbVL[,1])*ProbEBVL
+ProbVL     <- cbind(GeneList[,2],ProbVL)
+colnames(ProbVL) <- c('NormLog2BE','pnorm','LikelihoodVL')
+print(ProbVL[,c('NormLog2BE','LikelihoodVL')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE BAJA}
+
+Para el rango de valores correspondientes a Moderadamente Baja, los resultados obtenidos son:
+
+<<echo = FALSE>>=
+#summary(ExpBasalML)
+t2         <- ExpBasalML$Log2Basal; n2 <- length(t2)
+ProbEBML   <-  n2/nBE;
+meanEBML   <- mean(t2); #print(meanEBML)
+stdDevEBML <- sd(t2);   #print(stdDevEBML)
+ProbML     <- matrix(0,8,2)
+listagenes2 <- (log2(GeneList[,2])-meanEBML)/stdDevEBML
+ProbML[,1] <- pnorm(listagenes2,   mean = meanEBML, sd = stdDevEBML)
+ProbML[,2] <- as.numeric(ProbML[,1])*ProbEBML
+ProbML     <- cbind(GeneList[,2],ProbML)
+colnames(ProbML) <- c('NormLog2BE','pnorm','LikelihoodML')
+print(ProbML[,c('NormLog2BE','LikelihoodML')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADA}
+
+Mientras que para el rango de valores correspondiente a Expresi\'on Basal Moderada, se obtuvo:
+
+<<echo = FALSE>>=
+#summary(ExpBasalM)
+t3        <- ExpBasalM$Log2Basal; n3 <- length(t3)
+ProbEBM   <-  n3/nBE;
+meanEBM   <- mean(t3); #print(meanEBM)
+stdDevEBM <- sd(t3);   #print(stdDevEBM)
+listagenes3 <- (log2(GeneList[,2])-meanEBM)/stdDevEBM
+ProbM     <- matrix(0,8,2)
+ProbM[,1] <- pnorm(listagenes3,   mean = meanEBM, sd = stdDevEBM)
+ProbM[,2] <- as.numeric(ProbM[,1])*ProbEBM
+ProbM     <- cbind(GeneList[,2],ProbM)
+colnames(ProbM) <- c('NormLog2BE','pnorm','LikelihoodM')
+print(ProbM[,c('NormLog2BE','LikelihoodM')])
+@
+
+\subsubsection{EXPRESION BASAL MODERADAMENTE ALTA}
+
+Para el rango de Expresi\'on Basal Moderadamente Alta:
+
+<<echo = FALSE>>=
+#summary(ExpBasalMH)
+t4         <- ExpBasalMH$Log2Basal; n4 <- length(t4)
+ProbEBMH   <-  n4/nBE;
+meanEBMH   <- mean(t4); #print(meanEBMH)
+stdDevEBMH <- sd(t4);   #print(stdDevEBMH)
+listagenes4 <- (log2(GeneList[,2])-meanEBMH)/stdDevEBMH
+ProbMH     <- matrix(0,8,2)
+ProbMH[,1] <- pnorm(listagenes4,   mean = meanEBMH, sd = stdDevEBMH)
+ProbMH[,2] <- as.numeric(ProbMH[,1])*ProbEBMH
+ProbMH     <- cbind(GeneList[,2],ProbMH)
+colnames(ProbMH) <- c('NormLog2BE','pnorm','LikelihoodMH')
+print(ProbMH[,c('NormLog2BE','LikelihoodMH')])
+@
+
+\subsubsection{EXPRESION BASAL MUY ALTA}
+
+Finalmente, para el rango de valores correspondientes a la Expresi\'on Basal Muy Alta se tiene: 
+
+<<echo = FALSE>>=
+#summary(ExpBasalVH)
+t5         <- ExpBasalVH$Log2Basal; n5 <- length(t5)
+ProbEBVH   <-  n5/nBE;
+meanEBVH   <- mean(t5); #print(meanEBVH)
+stdDevEBVH <- sd(t5);   #print(stdDevEBVH)
+listagenes5 <- (log2(GeneList[,2])-meanEBVH)/stdDevEBVH
+ProbVH     <- matrix(0,8,2)
+ProbVH[,1] <- pnorm(listagenes5,   mean = meanEBVH, sd = stdDevEBVH)
+ProbVH[,2] <- as.numeric(ProbVH[,1])*ProbEBVH
+ProbVH     <- cbind(GeneList[,2],ProbVH)
+colnames(ProbVH) <- c('NormLog2BE','pnorm','LikelihoodVH')
+print(ProbVH[,c('NormLog2BE','LikelihoodVH')])
+@
+
+
+\subsubsection{Resultados}
+
+De lo anterior se tiene la siguiente informaci\'on conjunta con fines comparativos
+<<echo = FALSE>>=
+ProbClassgivenGen <- cbind(GeneList,
+                           as.numeric(ProbVL[,3]),
+                           as.numeric(ProbML[,3]),
+                           as.numeric(ProbM[,3]),
+                           as.numeric(ProbMH[,3]),
+                           as.numeric(ProbVH[,3]))
+row.names(ProbClassgivenGen) <- c('EHI_000550',
+                                 'EHI_008130',
+                                 'EHI_012420',
+                                 'EHI_063550',
+                                 'EHI_092160',
+                                 'EHI_092700',
+                                 'EHI_129790',
+                                 'EHI_136420')
+colnames(ProbClassgivenGen) <- c('ExpBasal',
+                                 'Log2ExpBasal',
+                                 'LikelihoodVL',
+                                 'LikelihoodML',
+                                 'LikelihoodM',
+                                 'LikelihoodMH',
+                                 'LikelihoodVH')
+print(ProbClassgivenGen)
+
+@
+
+misma que para facilitar su lectura se puede ver como
+<<echo = FALSE>>=
+cols <- c(1,3)
+NewGenes1Q2 <- ProbVL[,cols]; print(NewGenes1Q2)
+NewGenes2Q2 <- ProbML[,cols]; print(NewGenes2Q2)
+NewGenes3Q2 <- ProbM[,cols];  print(NewGenes3Q2)
+NewGenes4Q2 <- ProbMH[,cols]; print(NewGenes4Q2)
+NewGenes5Q2 <- ProbVH[,cols]; print(NewGenes5Q2)
+@
+
+
+% = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+\subsection{Graficando Histograma}
+
+
+
+<<echo = FALSE>>=
+EBVL   <- dataset %>% filter(dataset$tst>=VLI & dataset$tst<VLS); 
+EBML   <- dataset %>% filter(dataset$tst>=MLI & dataset$tst<MLS); 
+EBM    <- dataset %>% filter(dataset$tst>=MI & dataset$tst<MS); 
+EBMH   <- dataset %>% filter(dataset$tst>=MHI & dataset$tst<MHS); 
+EBVH   <- dataset %>% filter(dataset$tst>=VHI & dataset$tst<=VHS); 
+
+n1 <- length(EBVL$tst); categoria <- rep('Muy Baja',n1); 
+EBVLCateg <- mutate(EBVL,categoria)
+n2 <- length(EBML$tst); categoria <- rep('Moderada Baja',n2);
+EBMLCateg <- mutate(EBML,categoria)
+n3 <- length(EBM$tst);  categoria <- rep('Moderada',n3);
+EBMCateg  <- mutate(EBM,categoria)
+n4 <- length(EBMH$tst); categoria <- rep('Moderada Alta',n4);
+EBMHCateg <- mutate(EBMH,categoria)
+n5 <- length(EBVH$tst); categoria <- rep('Muy Alta',n5);
+EBVHCateg <- mutate(EBVH,categoria)
+#===========================================================================
+@
+
+<<echo = FALSE>>=
+NormBasalExp <- rbind(EBVLCateg,EBMLCateg,EBMCateg,EBMHCateg,EBVHCateg)
+colnames(NormBasalExp)
+ExpBasal <- NormBasalExp
+colnames(ExpBasal) <- c('GenId','BasalExp','Log2Basal','Categoria')
+#===========================================================================
+ExpBasal$Categoria = factor(ExpBasal$Categoria,
+                           levels = c('Muy Baja','Moderada Baja','Moderada','Moderada Alta','Muy Alta'),
+                           labels = c('Muy Baja','Moderada Baja','Moderada','Moderada Alta','Muy Alta'))
+#===========================================================================
+summary(ExpBasal)
+#===========================================================================
+bexp <- ExpBasal$Log2Basal
+Categorias <- ExpBasal$Categoria 
+@
+
+<<echo = FALSE, fig=TRUE>>=
+# - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - - 
+tambinwidth <- 9
+numbins <- 0
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria,color=Categoria))+
+  geom_histogram(binwidth = tambinwidth, bins = numbins,position = "dodge")+
+  theme(legend.position="right")+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+# - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - - 
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria,color=Categoria))+
+  geom_histogram(binwidth = 0.15, bins = 79,position = "dodge")+ theme(legend.position="right")+
+  theme(legend.position="right")+theme_classic()
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+# - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - -  - - - - - - - - 
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.1, bins = 30,position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="GnBu")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.1, bins = 30,position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="YlOrRd")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+#===========================================================================
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.1, bins = 30,position = "dodge")+
+  theme_classic()+scale_fill_brewer(7,palette="Dark2")+ theme(legend.position="left")+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+#===========================================================================
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+
+  geom_histogram(binwidth = 0.05, bins = 60,position = "dodge",alpha=0.85)+
+  theme_classic()+ theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+#===========================================================================
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+
+  geom_histogram(position = "dodge",alpha=0.85,bins=50,binwidth = 0.05)+
+  theme_classic()+ theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+
+#===========================================================================
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(binwidth = 0.05, bins = 80,
+                                                                   position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="GnBu")+
+  theme_classic()+ theme(legend.position="left")+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+
+#===========================================================================
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+ggplot(data=ExpBasal,aes(Log2Basal,fill=Categoria))+geom_histogram(bins = 69,
+                                                                   position = "dodge")+
+  theme(legend.position="left")+scale_fill_brewer(7,palette="YlOrRd")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+#===========================================================================
+ggplot(data=ExpBasal,aes(Log2Basal,color=Categoria))+geom_histogram(binwidth = 0.15, bins = 69,fill='white',
+                                                                    position = "dodge",
+                                                                    linetype = "dashed")
+@
+
+<<echo = FALSE, fig=TRUE>>=
+
+#===========================================================================
+ggplot(data=ExpBasal,aes(Log2Basal,fill= Categoria))+
+  geom_histogram(binwidth = 0.15, bins = 79)+ 
+  theme_classic()+ theme(legend.position="left")+
+  scale_color_manual(values = c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  scale_fill_manual(values=c("#104E8B","#8B2323", "#8B7355","#8B2323","#104E8B"))+
+  labs(title="Expresion Basal Normalizada",x="Categoria por Expresion Basal (Log2)", y = "Frecuencia")
+#===========================================================================
+@
+
+
+
+
+
+\end{document}

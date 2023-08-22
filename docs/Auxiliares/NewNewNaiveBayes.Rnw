@@ -1,0 +1,904 @@
+\documentclass[12pt]{article}         % the type of document and font size (default 10pt)
+\usepackage[margin=1.0in]{geometry}   % sets all margins to 1in, can be changed
+\usepackage{moreverb}                 % for verbatimtabinput -- LaTeX environment
+\usepackage{rotating}
+\usepackage{url}     
+\usepackage{hyperref}
+% for \url{} command
+\usepackage{amssymb}                  % for many mathematical symbols
+\usepackage[pdftex]{lscape}           % for landscaped tables
+\usepackage{longtable}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{multicol,multirow}
+\usepackage{tikz}
+% for tables that break over multiple pages
+\title{Aplicacion Naive Bayes}  % to specify title
+\author{$\blacktriangleright\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\blacktriangleleft$}          % to specify author(s)
+\begin{document}                      % document begins here
+\SweaveOpts{concordance=TRUE}
+
+% If .nw file contains graphs: To specify that EPS/#pdf graph files are to be 
+% saved to 'graphics' sub-folder
+%     NOTE: 'graphics' sub-folder must exist prior to Sweave step
+%\SweaveOpts{prefix.string=graphics/plot}
+
+% If .nw file contains graphs: to modify (shrink/enlarge} size of graphics 
+% file inserted
+%         NOTE: can be specified/modified before any graph chunk
+\setkeys{Gin}{width=1.0\textwidth}
+
+\maketitle              % makes the title
+\tableofcontents        % inserts TOC (section, sub-section, etc numbers and titles)
+%\listoftables           % inserts LOT (numbers and captions)
+%\listoffigures          % inserts LOF (numbers and captions)
+%                        %     NOTE: graph chunk must be wrapped with \begin{figure}, 
+%                        %  \end{figure}, and \caption{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Where everything else goes
+%===================================================================================
+\section{Lectura de las Bases de Datos}
+Se cargan las librearias necesarias para poder procesar y sistematizar las bases de datos
+
+<<echo = FALSE>>=
+#===========================================================================
+setwd("~/Desktop/Datos Elisa")
+#setwd("~/Escritorio/Datos Elisa")
+#===========================================================================
+library(ggplot2);   library(dplyr);         library(readxl);
+library(pastecs);   library(sciplot);       library(MASS);
+library(gridExtra); library("gplots");      library("lattice");
+#library(car);       library(gridExtra);     library(lattice);
+library(corrplot);  library(readr);         library(readxl);   
+#library(rvest);    library(RSQLite); 
+library(DBI);    
+#library(xml2);    
+#library(RCurl);     
+#library(devtools);
+library(ggplot2);   library(datasets);      library(dplyr);
+library(sciplot);   library(scatterplot3d); #library("car")
+library(psych);     library("gplots");      library("plotrix")
+library(gplots);    library(moments);       #library(univariateML)
+#===========================================================================
+dataset1 <- read_excel("BDD_Definitiva.xlsx")
+dataset <- na.omit(dataset1)
+@
+
+
+<<echo = FALSE>>=
+dataset$Secuencia = factor(dataset$Secuencia,
+                           levels = c('CAACGG','CAACTG','TAACGG','TAACTG'),
+                           labels = c('CAACGG','CAACTG','TAACGG','TAACTG'))
+colnames(dataset) <- c('Sequence', 'Position', 'Gen_Id1','Gen_Id2', 
+                       'Description', 'BasalExp','DigitVerif')
+#===========================================================================
+datosn <- dataset$Position;
+d <- as.numeric(datosn);
+dataset$Position <- d
+#===========================================================================
+#summary(dataset)
+#===========================================================================
+dataset$DigitVerif <- dataset$Sequence
+dataset$DigitVerif = factor(dataset$DigitVerif,
+                            levels = c('CAACGG','CAACTG','TAACGG','TAACTG'),
+                            labels = c(1,2,3,4))
+#===========================================================================
+#summary(dataset)
+#View(dataset)
+#===========================================================================
+CtoDatos <- dataset[,c('Sequence','DigitVerif','Position','BasalExp','Gen_Id1')]
+colnames(CtoDatos) <- c('Sequence','CodedSeq','Position','BasalExp','Gen_Id')
+#View(CtoDatos)
+#summary(CtoDatos)
+bdd <- CtoDatos
+#===========================================================================
+nbreaks <- 40
+#===========================================================================
+@
+
+\section{Grafica de datos}
+
+\subsection{Posici\'on}
+
+<<echo = FALSE, fig=TRUE>>=
+tP <- hist(bdd$Position, breaks = nbreaks, col= rainbow(15,0.7), main = 'Position')
+#print(tP)
+@
+
+
+<<echo = FALSE, fig=FALSE>>=
+tBE <- hist(bdd$BasalExp, breaks = nbreaks, col= rainbow(15,0.7), main = 'BasalExpresion')
+#print(tBE)
+@
+
+Conteo de datos por Clase
+
+<<echo = FALSE>>=
+counts<- table(bdd$Sequence)
+t <- table(bdd$Sequence)
+prop.table(t)*100
+@
+
+
+
+<<echo = FALSE>>=
+LF <- bdd$Position
+#summary(LF)
+hist(LF, breaks = nbreaks,col= rainbow(15,0.7), main = 'Raw Position' )
+CLF <- -LF
+@
+
+
+Posici\'on normalizada
+
+<<echo = FALSE>>=
+m1 <- 0; #mean(CLF)
+de1 <- sd(CLF)
+NormPosition <- (CLF-m1)/de1
+tNP <- hist(NormPosition, breaks = nbreaks, col= rainbow(15,0.7), main = ' Estandarized Position')
+#summary(NormPosition)
+#print(tNP)
+@
+
+$Log_{2}$ Posici\'on Normalizada
+
+<<echo = FALSE, fig=TRUE>>=
+Log2NP <- log2(NormPosition)
+summary(Log2NP)
+tLNP <- hist(Log2NP, breaks = nbreaks, col= rainbow(15,0.7), main = ' Log2 Transformed Position')
+#print(tLNP)
+@
+
+\subsection{Expresi\'on Basal}
+
+Expresi\'on Basal Normalizada
+
+<<echo = FALSE, fig=FALSE>>=
+BE <- bdd$BasalExp
+hist(BE,breaks = nbreaks, col= rainbow(6,0.7), main = 'Raw Basal Expresion' )
+#summary(BE)
+@
+
+Se normalizan
+
+<<echo = FALSE>>=
+mBE <- mean(BE)
+deBE <- sd(BE)
+NormBE <- (BE-mBE)/deBE
+nBE <- length(NormBE)
+@
+
+Ahora se transforma la expresi\'on basal  aplicando el $Log_{2}$ 
+
+<<echo = FALSE, fig=TRUE>>=
+Log2BE <- log2(BE)
+hist(Log2BE, breaks = nbreaks, col= rainbow(15,0.7), main = ' Log2 Transformed Basal Expresion')
+@
+
+
+<<echo = FALSE, fig=FALSE>>=
+tL2BE <- hist(Log2BE, breaks = nbreaks)
+#print(tL2BE)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+#===========================================================================
+library("fitdistrplus"); library("MASS"); library("survival")
+boxplot(Log2BE, main = 'Log2BE' )
+@
+
+
+<<echo = FALSE, fig= true>>=
+tst<- Log2BE
+boxplot(tst, main = 'Translated Log2BE')
+summary(tst)
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), main = 'Log2 Transformed Basal Expresion')
+#===========================================================================
+@
+
+
+\section{Ajustando Modelos}
+
+
+
+<<echo = FALSE, fig=TRUE>>=
+plotdist(tst, histo = TRUE, demp = TRUE)
+descdist(tst)
+#===========================================================================
+@
+
+
+\subsection{ Ajustando una Distribucion Normal}
+
+<<echo = FALSE>>=
+#===========================================================================
+fw5<-fitdist(tst, "norm")
+summary(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw5)
+@
+
+
+Los resultados del ajuste son: 
+
+<<echo = FALSE>>=
+summary(fw5)
+@
+
+Los datos del art\'iculo principal son sim\'etricos y se distribuyen normal casi perfectamente, con lo que es relativamente m\'as sencillo determinar los valores que ser\'an considerados de frecuencias bajas, medias y altas. 
+
+%Cuantiles con el modelo ajustado
+<<echo = FALSE>>=
+CuantilesA <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+qadj0175 <- quantile(fw5, probs = 0.175); t <- qadj0175[[1]];qadj0175 <-  t[[1]]-1; CuantilesA[1,1] <- qadj0175; #65% INFERIOR
+qadj0825 <- quantile(fw5, probs = 0.825); t <- qadj0825[[1]];qadj0825 <-  t[[1]]-1; CuantilesA[1,2] <- qadj0825;# 65% SUPERIOR 
+qadj015  <- quantile(fw5, probs = 0.15);  t <- qadj015[[1]]; qadj015  <-  t[[1]]-1; CuantilesA[2,1] <- qadj015; #70% INFERIOR
+qadj085  <- quantile(fw5, probs = 0.85);  t <- qadj085[[1]]; qadj085  <-  t[[1]]-1; CuantilesA[2,2] <- qadj085;# 70% SUPERIOR 
+qadj0125 <- quantile(fw5, probs = 0.125); t <- qadj0125[[1]];qadj0125 <-  t[[1]]-1; CuantilesA[3,1] <- qadj0125; # 75% INFERIOR
+qadj0875 <- quantile(fw5, probs = 0.875); t <- qadj0875[[1]];qadj0875 <-  t[[1]]-1;CuantilesA[3,2] <- qadj0875;# 75% SUPERIOR 
+qadj001  <- quantile(fw5, probs = 0.1);   t <- qadj001[[1]]; qadj001  <-  t[[1]]-1;CuantilesA[4,1] <- qadj001; # 80% INFERIOR
+qadj009  <- quantile(fw5, probs = 0.9);   t <- qadj009[[1]]; qadj009  <-  t[[1]]-1;CuantilesA[4,2] <- qadj009;# 80% SUPERIOR 
+qadj075  <- quantile(fw5, probs = 0.075); t <- qadj075[[1]]; qadj075  <-  t[[1]]-1;CuantilesA[5,1] <- qadj075; # 85% INFERIOR
+qadj0925 <- quantile(fw5, probs = 0.925); t <- qadj0925[[1]];qadj0925 <-  t[[1]]-1;CuantilesA[5,2] <- qadj0925;# 85% SUPERIOR 
+qadj005  <- quantile(fw5, probs = 0.05);  t <- qadj005[[1]]; qadj005  <-  t[[1]]-1;CuantilesA[6,1] <- qadj005; # 90% INFERIOR
+qadj095  <- quantile(fw5, probs = 0.95);  t <- qadj095[[1]]; qadj095  <-  t[[1]]-1;CuantilesA[6,2] <- qadj095;#905% SUPERIOR 
+qadj025  <- quantile(fw5, probs = 0.025); t <- qadj025[[1]]; qadj025  <-  t[[1]]-1;CuantilesA[7,1] <- qadj025; # 95% INFERIOR
+qadj0975 <- quantile(fw5, probs = 0.975); t <- qadj0975[[1]];qadj0975 <-  t[[1]]-1;CuantilesA[7,2] <- qadj0975;# 95% SUPERIOR 
+qadj005  <- quantile(fw5, probs = 0.005); t <- qadj005[[1]]; qadj005  <-  t[[1]]-1;CuantilesA[8,1] <- qadj005; # 99% INFERIOR
+qadj0995 <- quantile(fw5, probs = 0.995); t <- qadj0995[[1]];qadj0995 <-  t[[1]]-1;CuantilesA[8,2] <- qadj0995;# 99% SUPERIOR 
+print(CuantilesA)
+@
+
+Cuantiles con los datos
+
+<<echo = FALSE>>=
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+qdat0175 <- quantile(tst, probs = 0.175);  t <- qdat0175[[1]]; qdat0175 <- t-1;CuantilesD[1,1] <- qdat0175; # 65% INFERIOR
+qdat0825 <- quantile(tst, probs = 0.825);  t <- qdat0825[[1]]; qdat0825 <- t-1;CuantilesD[1,2] <- qdat0825;# 65% SUPERIOR
+qdat015  <- quantile(tst, probs = 0.15);   t <- qdat015[[1]];  qdat015  <- t-1;CuantilesD[2,1] <- qdat015;# 70% INFERIOR
+qdat085  <- quantile(tst, probs = 0.85);   t <- qdat085[[1]];  qdat085  <- t-1;CuantilesD[2,2] <- qdat085; # 70% SUPERIOR
+qdat0125 <- quantile(tst, probs = 0.125);  t <- qdat0125[[1]]; qdat0125 <- t-1;CuantilesD[3,1] <- qdat0125; # 75% INFERIOR
+qdat0875 <- quantile(tst, probs = 0.875);  t <- qdat0875[[1]]; qdat0875 <- t-1;CuantilesD[3,2] <- qdat0875; # 75% SUPERIOR
+qdat001  <- quantile(tst, probs = 0.1);    t <- qdat001[[1]];  qdat001  <- t-1;CuantilesD[4,1] <- qdat001; # 80% INFERIOR
+qdat09   <- quantile(tst, probs = 0.9);    t <- qdat09[[1]];   qdat09   <- t-1;CuantilesD[4,2] <- qdat09; # 80% SUPERIOR
+qdat075  <- quantile(tst, probs = 0.075);  t <- qdat075[[1]];  qdat075  <- t-1;CuantilesD[5,1] <- qdat075; # 85% INFERIOR
+qdat0925 <- quantile(tst, probs = 0.925);  t <- qdat0925[[1]]; qdat0925 <- t-1;CuantilesD[5,2] <- qdat0925; # 85% SUPERIOR
+qdat005  <- quantile(tst, probs = 0.05);   t <- qdat005[[1]];  qdat005  <- t-1;CuantilesD[6,1] <- qdat005; # 90% INFERIOR
+qdat095  <- quantile(tst, probs = 0.95);   t <- qdat095[[1]];  qdat095  <- t-1;CuantilesD[6,2] <- qdat095; # 90% SUPERIOR
+qdat025  <- quantile(tst, probs = 0.025);  t <- qdat025[[1]];  qdat025  <- t-1;CuantilesD[7,1] <- qdat025; # 95% INFERIOR
+qdat0975 <- quantile(tst, probs = 0.975);  t <- qdat0975[[1]]; qdat0975 <- t-1;CuantilesD[7,2] <- qdat0975; # 95% SUPERIOR
+qdat005  <- quantile(tst, probs = 0.005);  t <- qdat005[[1]];  qdat005  <- t-1;CuantilesD[8,1] <- qdat005; # 99% INFERIOR
+qdat0995 <- quantile(tst, probs = 0.995);  t <- qdat0995[[1]]; qdat0995 <- t-1;CuantilesD[8,2] <- qdat0995; # 99% SUPERIOR
+print(CuantilesD)
+@
+
+\subsection{Presentaci\'on de graficos}
+
+Lo que nos da las siguientes graficos
+
+Considerando el ajuste
+
+<<echo = FALSE, fig=TRUE>>=
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), xlim=c(-3,15),
+     main = 'Log2 Transformed Basal Expresion - ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+@
+
+Considerando los datos
+
+<<echo = FALSE, fig=TRUE>>=
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), xlim=c(-3,15),
+     main = 'Log2 Transformed Basal Expresion - DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+@
+
+
+\section{Presentacion de Cuantiles}
+
+%=============================================================================
+\subsection{Quantiles del $65\%$ y $80\%$}
+%=============================================================================
+
+
+<<echo = FALSE, fig=TRUE>>=
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), xlim=c(-3,15),
+     main = 'Log2 Transformed Basal Expresion - ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+#abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+#abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+#abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+#abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+#abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+#abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+#abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+#abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+#abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+#abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+#abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+#abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","80%"), 
+       pch=c(1,2),
+       col=c("darkgoldenrod4","green"))
+@
+
+<<echo = FALSE, fig=TRUE>>=
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), xlim=c(-3,15),
+     main = 'Log2 Transformed Basal Expresion - DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+#abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+#abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+#abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+#abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+#abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+#abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+#abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+#abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+#abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+#abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+#abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+#abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","80%"), 
+       pch=c(1,2),
+       col=c("darkgoldenrod4","green"))
+@
+
+
+
+Cuantiles con el modelo ajustado
+<<echo = FALSE>>=
+print(CuantilesA)
+@
+
+Con base en la secci\'on anterior, se tienen que la expresi\'on basal, centrados y transformados ($Log_{2}$), tienen una distribuci\'on Normal y los cuantiles para los valores $65,70,75,80,85,90,95$ y $99$ por ciento se propone que los valores moderados altos (bajos )sean aquellos que se encuentran entre el $65\%$ y $80\%$, mientras que los valores muy altos (bajos) aquellos superiores al $80\%$: 
+\begin{itemize}
+\item Very Low Expression: $\left[-\infty,-0.893891566\right)$,
+\item Moderately Low Expression: $\left[-0.893891566,-0.002791957\right)$,
+\item Moderate Expresion: $\left[-0.002791957,4.797800\right)$,
+\item Moderately High Expression: $\left[4.797800,5.688900\right)$,
+\item Very High Expression: $\left[5.688900,\infty\right)$.
+\end{itemize}
+
+%=============================================================================
+\subsection{Quantiles del $70\%$ y $85\%$}
+%=============================================================================
+
+
+
+<<echo = FALSE, fig=TRUE>>=
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), xlim=c(-3,15),
+     main = 'Log2 Transformed Basal Expresion - Adjust', lty=9)
+#===========================================================================
+#abline(v=1.130931, lty=2, col="darkgoldenrod4"); abline(v=5.5288913, lty=2, col="darkgoldenrod4")
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+#abline(v=0.7441547, lty=2, col="aquamarine4"); abline(v=6.536406, lty=2, col="aquamarine4")
+#abline(v=0.4624797, lty=2, col="green"); abline(v=6.969012, lty=2, col="green")
+abline(v=CuantilesA[5,1], lty=2, col="brown");# 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown");# 85% SUPERIOR
+#abline(v=-0.8272507, lty=2, col="red"); abline(v=8.176996, lty=2, col="red")
+#abline(v=-0.5713549, lty=2, col="blue"); abline(v=9.573605, lty=2, col="blue")
+#abline(v=-0.1910198, lty=2, col="orange"); abline(v=12.43287, lty=2, col="orange")
+legend("topright",
+       legend=c(#"65%",
+                "70%",
+                #"75%",
+                #"80%",
+                "85%"),
+                #"90%",
+                #"95%",
+                #"99%"
+#                ), 
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c(#"darkgoldenrod4",
+             "darkblue",
+#             "aquamarine4","green",
+             "brown"
+             #,"red","blue","orange"
+             ))
+@
+
+<<echo = FALSE, fig=TRUE>>=
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), xlim=c(-3,15),
+     main = 'Log2 Transformed Basal Expresion - DATA', lty=9)
+#===========================================================================
+#abline(v=1.130931, lty=2, col="darkgoldenrod4");
+#abline(v=5.5288913, lty=2, col="darkgoldenrod4")
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+#abline(v=0.7441547, lty=2, col="aquamarine4"); 
+#abline(v=6.536406, lty=2, col="aquamarine4")
+#abline(v=0.4624797, lty=2, col="green");
+#abline(v=6.969012, lty=2, col="green")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); #  85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+#abline(v=-0.8272507, lty=2, col="red"); 
+#abline(v=8.176996, lty=2, col="red")
+#abline(v=-0.5713549, lty=2, col="blue"); 
+#abline(v=9.573605, lty=2, col="blue")
+#abline(v=-0.1910198, lty=2, col="orange"); 
+#abline(v=12.43287, lty=2, col="orange")
+legend("topright",
+       legend=c(#"65%",
+                "70%",
+                #"75%",
+                #"80%",
+                "85%"),
+                #"90%",
+                #"95%",
+                #"99%"
+#                ), 
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c(#"darkgoldenrod4",
+             "darkblue",
+             #"aquamarine4","green",
+             "brown"
+             #,"red","blue","orange"
+             ))
+@
+
+
+
+Cuantiles con el modelo ajustado
+<<echo = FALSE>>=
+print(CuantilesA)
+@
+
+Con base en la secci\'on anterior, se tienen que la expresi\'on basal, centrados y transformados ($Log_{2}$), tienen una distribuci\'on Normal y los cuantiles para los valores $65,70,75,80,85,90,95$ y $99$ por ciento se propone que los valores moderados altos (bajos )sean aquellos que se encuentran entre el $70\%$ y $85\%$, mientras que los valores muy altos (bajos) aquellos superiores al $80\%$: 
+\begin{itemize}
+\item Very Low Expression: $\left[-\infty,-1.299629717\right)$,
+\item Moderately Low Expression: $\left[-1.299629717,-0.264357098\right)$,
+\item Moderate Expresion: $\left[-0.264357098,5.059365\right)$,
+\item Moderately High Expression: $\left[5.059365,6.094638\right)$,
+\item Very High Expression: $\left[6.094638,\infty\right)$.
+\end{itemize}
+
+
+\section{Soluci\'on }
+
+
+Con base en cualquiera de las opciones elegida para los cuantiles, se calcula la probabilidad de que dada una expresi\'on basal ($Log_{2}$) se pueda determinar a qu\'e motif pertenece, esto por medio del Teorema de Bayes. 
+
+
+Para lo anterio consideremos una partici\'on para el dominio de las \textit{Expresiones Basales}: $Y=\left\{y_{1},y_{2},\ldots,y_{n}\right\}$, y una partici\'on para el dominio de las posiciones de los genes: $X=\left\{x_{1},x_{2},\ldots,x_{m}\right\}$. Adem\'as se tienen cuatro clases $\left\{C_{1},C_{2},C_{3},C_{4}\right\}$, estas clases corresponden a los motifs: $\left\{CAACGG,CAACTG,TAACGG,TAACTG\right\}$ respectivamente.
+
+Si se hacen las siguientes consideraciones en t\'erminos de la notaci\'on: 
+\begin{itemize}
+\item $HB$ para las posiciones de valores altos, 
+\item $HMB$ para las posiciones de valores moderados altos, 
+\item $MB$ para las posiciones de valores moderados, 
+\item $LMB$ para las posiciones de valores moderados bajos, 
+\item $LB$ para las posiciones de valores bajos,
+\end{itemize}
+
+estos dependen de los umbrales definidos en $I$ y $II$. 
+
+
+Para cada una de las clases $C_{i}$, $i=1,2,3,4$ es posible determinar:
+
+\begin{eqnarray}\label{Eq.Bayes1}
+P\left[\textrm{pertenecer a la clase }C_{i}| HB\right]=\frac{P\left[HB|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[HB|C_{i}\right]P\left[C_{i}\right]}
+\end{eqnarray}
+
+\begin{eqnarray}\label{Eq.Bayes2}
+P\left[\textrm{pertenecer a la clase }C_{i}| HMB\right]=\frac{P\left[HMB|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[HMB|C_{i}\right]P\left[C_{i}\right]}
+\end{eqnarray}
+
+
+\begin{eqnarray}\label{Eq.Bayes3}
+P\left[\textrm{pertenecer a la clase }C_{i}| MB\right]=\frac{P\left[MB|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[MB|C_{i}\right]P\left[C_{i}\right]}
+\end{eqnarray}
+
+\begin{eqnarray}\label{Eq.Bayes4}
+P\left[\textrm{pertenecer a la clase }C_{i}| LMB\right]=\frac{P\left[LMB|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[LMB|C_{i}\right]P\left[C_{i}\right]}
+\end{eqnarray}
+y
+\begin{eqnarray}\label{Eq.Bayes5}
+P\left[\textrm{pertenecer a la clase }C_{i}| LB\right]=\frac{P\left[LB|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[LB|C_{i}\right]P\left[C_{i}\right]}
+\end{eqnarray}
+
+
+Incluso para cada elemento de $Y$:
+
+\begin{eqnarray}\label{Eq.BasalClase}
+P\left[\textrm{pertenecer a la clase }C_{i}| y_{k}\right]=\frac{P\left[y_{k}|C_{i}\right]P\left[C_{i}\right]}{\sum_{k=1}^{n}P\left[y_{k}|C_{i}\right]P\left[C_{i}\right]}
+\end{eqnarray}
+para $k=1,2,\ldots,n$, donde las clases corresponden a los 4 diferentes motif's que se tienen. 
+
+
+El procedimiento seguido fue el siguiente:
+  
+  \begin{itemize}
+\item[I. ] Se tienen $N$ valores para la expresi\'on basal, $\left\{b_{1},b_{2},\ldots,b_{N}\right\}$, con estos se calcula tanto la media como la varianza muestral, mismas que se denotan por $\overline{B}$ y $S_{b}^{2}$. A continuaci\'on se normalizaron es decir, se les resto el valor de la media y se dividieron por la desviaci\'on est\'andar muestral:
+
+\begin{eqnarray}
+\tilde{b}_{i}=\frac{b_{i}-\overline{B}}{S_{b}},
+\end{eqnarray}
+posteriormente se les aplic\'o $Log_{2}$
+\begin{eqnarray}
+\hat{b}_{i}=Log_{2}\left(\tilde{b}_{i}\right).
+\end{eqnarray}
+
+\item[II. ] Con la ayuda del programa R-Statistics, se encontr\'o la mejor partici\'on que permite obtener una representaci\'on gr\'afica apropiada de los datos transformados, esto se obtiene al considerar $n=40$ como el tama\~no de la partici\'on que permite el mejor gr\'afico de los datos ahora llamados \textit{Log2 Transformed Basal Expresion}
+
+\item[III. ] Se calculan las probabilidades de pertenecer a una de las cuatro clases $C_{1},C_{2},C_{3}, C_{4}$
+
+\item[IV. ] Para cada una de las clases, considerando la partici\'on $X=\left\{x_{1},x_{2},\ldots,x_{m}\right\}$ se calculan las probabilidades de estar en $LB$, $LMB$, $MB$ $HMB$ y $HB$, es decir, se calculan las probabilidades $P\left[LB|C_{i}\right]$, $P\left[LMB|C_{i}\right]$,$P\left[HMB|C_{i}\right]$ y $P\left[HB|C_{i}\right]$, para $i=1,2,3,4$.
+
+
+\item[V. ] Se utilizan las ecuaciones \ref{Eq.Bayes1}, \ref{Eq.Bayes2}, \ref{Eq.Bayes3}, \ref{Eq.Bayes4} y \ref{Eq.Bayes5}  para determinar las probabilidades de pertenecer a una de las clases $C_{i}$ dado que se sabe que se toma un valor de alta/baja expresi\'on basal
+
+\item[VI. ] Para cada una de las clases, se calcula la probabilidad de tomar un valor en la clase, suponiendo un muestreo con reemplazo, es decir, se calculan las probabilidades $P\left[y_{k}|C_{i}\right]$, para $i=1,2,3,4$, para $k=1,2,\ldots,N$.
+
+\item[VII. ] Con las probabilidades calculadas en el paso anterior se calculala probabilidad de pertenecer a una de las cuatro clases, considerando que se conoce el valor de la expresi\'on basal, esto se logra por medio de la ecuaci\'on \label{Eq.Basal-Clase}.
+\end{itemize}
+
+\subsection{Preguntas abiertas}
+
+Las preguntas que quedan a\'un queda sin responder son las siguientes: 
+
+\begin{itemize}
+\item[1. ] Dado el valor de la posici\'on de un gen, es posible determinar a qu\'e motif pertenece?
+\begin{eqnarray}
+P\left[C_{i}|p_{i}\right]
+\end{eqnarray}
+donde $p_{1},p_{2},\ldots,p_{M}$ son los valores conocidos que se tienen para las posiciones de los genes, y $C_{i}, i=1,2,3,4$ corresponden a los motif's.
+
+\item[2. ] Dado el valor de la posici\'on de un gen, es posible determinar que rango de expresi\'on basal tiene: \textit{Bajo, Bajo Moderado, Alto Moderado, Alto}?
+\begin{eqnarray}
+P\left[LB|p_{i}\right],P\left[LMB|p_{i}\right],P\left[HMB|p_{i}\right],P\left[HB|p_{i}\right]
+\end{eqnarray}
+
+\end{itemize}
+
+
+\subsection{Clases/Motif's}
+<<echo = FALSE>>=
+counts<- table(bdd$Sequence)
+PropSeq <- table(bdd$Sequence)
+prop.table(PropSeq)
+PC <- prop.table(PropSeq)
+#print(PropSeq)
+@
+
+De lo anterior se desprende 
+\begin{eqnarray*}
+P\left[C_{1}\right]=0.05339105\\
+P\left[C_{2}\right]=0.28427128\\
+P\left[C_{3}\right]=0.07503608\\
+P\left[C_{4}\right]=0.58730159
+\end{eqnarray*}
+
+
+<<echo = FALSE>>=
+#dataset <- cbind(CtoDatos,tt);
+dataset <- cbind(bdd,tst);
+summary(dataset)
+@
+
+
+%=============================================================================
+\subsection{Quantiles del $65\%$ y $80\%$}
+%=============================================================================
+
+
+\subsubsection{Bajas, Bajas Moderadas, Altas Moderadas, Altas Expresiones Basales transformadas: $C_{1}$}
+
+
+
+<<echo = FALSE>>=
+### Secuencia CAACGG
+datos1   <- dataset %>% filter(dataset$Sequence=='CAACGG'); summary(datos1)
+tt <- datos1$tst
+summary(tt)
+@
+
+
+
+<<echo = FALSE>>=
+tt1 <- min(tt)
+VLI <- tt1
+VLS <- CuantilesA[4,1] - 0.0000001
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - 0.0000001
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - 0.0000001
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - 0.0000001
+VHI <- CuantilesA[4,2]
+VHS <- max(tt)
+Limites <- matrix(0,1,10)
+#colnames(Limites) <- c('VLI','VLS','MLI','MLS','MI','MS','MHI','MHS','VHI','VHS')
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS)
+N <- length(tt)
+ContVL<- 0;
+ContML<- 0;
+ContM <- 0;
+ContMH<- 0;
+ContVH<- 0;
+
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+#  i <- i+1
+}
+ConteoC1 <- matrix(0,2,6);
+ConteoC1[1,1] <- ContVL
+ConteoC1[1,2] <- ContML
+ConteoC1[1,3] <- ContM
+ConteoC1[1,4] <- ContMH
+ConteoC1[1,5] <- ContVH
+ConteoC1[1,6] <- sum(ConteoC1[1,])
+ConteoC1[2,1] <- ContVL/N;
+ConteoC1[2,2] <- ContML/N;
+ConteoC1[2,3] <- ContM/N
+ConteoC1[2,4] <- ContMH/N;
+ConteoC1[2,5] <- ContVH/N;
+ConteoC1[2,6] <- sum(ConteoC1[2,])
+colnames(ConteoC1) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC1) <- c('fr','Prob')
+print(ConteoC1)
+@
+
+
+\subsubsection{Bajas, Bajas Moderadas, Altas Moderadas, Altas Expresiones Basales transformadas: $C_{2}$}
+
+
+<<echo = FALSE>>=
+datos2   <- dataset %>% filter(dataset$Sequence=='CAACTG'); summary(datos2)
+tt <- datos2$tst
+summary(tt)
+@
+
+<<echo = FALSE>>=
+tt1 <- min(tt)
+VLI <- tt1
+VLS <- CuantilesA[4,1] - 0.0000001
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - 0.0000001
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - 0.0000001
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - 0.0000001
+VHI <- CuantilesA[4,2]
+VHS <- max(tt)
+Limites <- matrix(0,1,10)
+#colnames(Limites) <- c('VLI','VLS','MLI','MLS','MI','MS','MHI','MHS','VHI','VHS')
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS)
+N <- length(tt)
+ContVL<- 0;
+ContML<- 0;
+ContM <- 0;
+ContMH<- 0;
+ContVH<- 0;
+
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+#  i <- i+1
+}
+ConteoC2 <- matrix(0,2,6);
+ConteoC2[1,1] <- ContVL
+ConteoC2[1,2] <- ContML
+ConteoC2[1,3] <- ContM
+ConteoC2[1,4] <- ContMH
+ConteoC2[1,5] <- ContVH
+ConteoC2[1,6] <- sum(ConteoC2[1,])
+ConteoC2[2,1] <- ContVL/N;
+ConteoC2[2,2] <- ContML/N;
+ConteoC2[2,3] <- ContM/N
+ConteoC2[2,4] <- ContMH/N;
+ConteoC2[2,5] <- ContVH/N;
+ConteoC2[2,6] <- sum(ConteoC2[2,])
+colnames(ConteoC2) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC2) <- c('fr','Prob')
+print(ConteoC2)
+@
+
+
+\subsubsection{Bajas, Bajas Moderadas, Altas Moderadas, Altas Expresiones Basales transformadas: $C_{3}$}
+
+<<echo = FALSE>>=
+### Secuencia TAACGG
+datos3   <- dataset %>% filter(dataset$Sequence=='TAACGG'); summary(datos3)
+tt <- datos3$tst
+summary(tt)
+@
+
+
+<<echo = FALSE>>=
+tt1 <- min(tt)
+VLI <- tt1
+VLS <- CuantilesA[4,1] - 0.0000001
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - 0.0000001
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - 0.0000001
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - 0.0000001
+VHI <- CuantilesA[4,2]
+VHS <- max(tt)
+Limites <- matrix(0,1,10)
+#colnames(Limites) <- c('VLI','VLS','MLI','MLS','MI','MS','MHI','MHS','VHI','VHS')
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS)
+N <- length(tt)
+ContVL<- 0;
+ContML<- 0;
+ContM <- 0;
+ContMH<- 0;
+ContVH<- 0;
+
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+#  i <- i+1
+}
+ConteoC3 <- matrix(0,2,6);
+ConteoC3[1,1] <- ContVL
+ConteoC3[1,2] <- ContML
+ConteoC3[1,3] <- ContM
+ConteoC3[1,4] <- ContMH
+ConteoC3[1,5] <- ContVH
+ConteoC3[1,6] <- sum(ConteoC3[1,])
+ConteoC3[2,1] <- ContVL/N;
+ConteoC3[2,2] <- ContML/N;
+ConteoC3[2,3] <- ContM/N
+ConteoC3[2,4] <- ContMH/N;
+ConteoC3[2,5] <- ContVH/N;
+ConteoC3[2,6] <- sum(ConteoC3[2,])
+colnames(ConteoC3) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC3) <- c('fr','Prob')
+print(ConteoC3)
+@
+
+
+
+\subsubsection{Bajas, Bajas Moderadas, Altas Moderadas, Altas Expresiones Basales transformadas: $C_{4}$}
+
+
+<<echo = FALSE>>=
+### Secuencia TAACTG
+datos4   <- dataset %>% filter(dataset$Sequence=='TAACTG'); summary(datos4)
+tt <- datos4$tst
+summary(tt)
+@
+
+
+<<echo = FALSE>>=
+tt1 <- min(tt)
+VLI <- tt1
+VLS <- CuantilesA[4,1] - 0.0000001
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - 0.0000001
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - 0.0000001
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - 0.0000001
+VHI <- CuantilesA[4,2]
+VHS <- max(tt)
+Limites <- matrix(0,1,10)
+#colnames(Limites) <- c('VLI','VLS','MLI','MLS','MI','MS','MHI','MHS','VHI','VHS')
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS)
+N <- length(tt)
+ContVL<- 0;
+ContML<- 0;
+ContM <- 0;
+ContMH<- 0;
+ContVH<- 0;
+
+for(i in 1:N){
+  if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+  if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+  if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+#  i <- i+1
+}
+ConteoC4 <- matrix(0,2,6);
+ConteoC4[1,1] <- ContVL
+ConteoC4[1,2] <- ContML
+ConteoC4[1,3] <- ContM
+ConteoC4[1,4] <- ContMH
+ConteoC4[1,5] <- ContVH
+ConteoC4[1,6] <- sum(ConteoC4[1,])
+ConteoC4[2,1] <- ContVL/N;
+ConteoC4[2,2] <- ContML/N;
+ConteoC4[2,3] <- ContM/N
+ConteoC4[2,4] <- ContMH/N;
+ConteoC4[2,5] <- ContVH/N;
+ConteoC4[2,6] <- sum(ConteoC4[2,])
+colnames(ConteoC4) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(ConteoC4) <- c('fr','Prob')
+print(ConteoC4)
+@
+
+
+
+%=============================================================================
+\subsection{Quantiles del $70\%$ y $85\%$}
+%=============================================================================
+
+
+\end{document}

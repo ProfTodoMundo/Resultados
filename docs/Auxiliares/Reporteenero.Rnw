@@ -1,0 +1,696 @@
+\documentclass[12pt]{article}         % the type of document and font size (default 10pt)
+\usepackage[margin=1.0in]{geometry}   % sets all margins to 1in, can be changed
+\usepackage{moreverb}                 % for verbatimtabinput -- LaTeX environment
+\usepackage{rotating}
+\usepackage{url}     
+\usepackage{hyperref}
+% for \url{} command
+\usepackage{amssymb}                  % for many mathematical symbols
+\usepackage[pdftex]{lscape}           % for landscaped tables
+\usepackage{longtable}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+% for tables that break over multiple pages
+\title{Aplicacion Naive Bayes}  % to specify title
+\author{$\blacktriangleright\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\therefore\because\blacktriangleleft$}          % to specify author(s)
+\begin{document}                      % document begins here
+\SweaveOpts{concordance=TRUE}
+
+% If .nw file contains graphs: To specify that EPS/#pdf graph files are to be 
+% saved to 'graphics' sub-folder
+%     NOTE: 'graphics' sub-folder must exist prior to Sweave step
+%\SweaveOpts{prefix.string=graphics/plot}
+
+% If .nw file contains graphs: to modify (shrink/enlarge} size of graphics 
+% file inserted
+%         NOTE: can be specified/modified before any graph chunk
+\setkeys{Gin}{width=1.0\textwidth}
+
+\maketitle              % makes the title
+\tableofcontents        % inserts TOC (section, sub-section, etc numbers and titles)
+%\listoftables           % inserts LOT (numbers and captions)
+%\listoffigures          % inserts LOF (numbers and captions)
+%                        %     NOTE: graph chunk must be wrapped with \begin{figure}, 
+%                        %  \end{figure}, and \caption{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Where everything else goes
+%===================================================================================
+\section{Lectura de las Bases de Datos}
+Se cargan las librearias necesarias para poder procesar y sistematizar las bases de datos
+
+<<echo = FALSE>>=
+#===========================================================================
+setwd("~/Desktop/Datos Elisa")
+#===========================================================================
+library(ggplot2);   library(dplyr);         library(readxl);
+library(pastecs);   library(sciplot);       library(MASS);
+library(gridExtra); library("gplots");      library("lattice");
+library(car);       library(gridExtra);     library(lattice);
+library(corrplot);  library(readr);         library(readxl);   
+library(rvest);     library(RSQLite);       library(DBI);    
+library(xml2);      library(RCurl);         library(devtools);
+library(ggplot2);   library(datasets);      library(dplyr);
+library(sciplot);   library(scatterplot3d); library("car")
+library(psych);     library("gplots");      library("plotrix")
+library(gplots);    library(moments);       library(univariateML)
+#===========================================================================
+dataset1 <- read_excel("BDD_Definitiva.xlsx")
+dataset <- na.omit(dataset1)
+@
+
+
+<<echo = FALSE>>=
+dataset$Secuencia = factor(dataset$Secuencia,
+                           levels = c('CAACGG','CAACTG','TAACGG','TAACTG'),
+                           labels = c('CAACGG','CAACTG','TAACGG','TAACTG'))
+colnames(dataset) <- c('Sequence', 'Position', 'Gen_Id1','Gen_Id2', 
+                       'Description', 'BasalExp','DigitVerif')
+#===========================================================================
+datosn <- dataset$Position;
+d <- as.numeric(datosn);
+dataset$Position <- d
+#===========================================================================
+summary(dataset)
+#===========================================================================
+@
+
+<<echo = FALSE>>=
+dataset$DigitVerif <- dataset$Sequence
+dataset$DigitVerif = factor(dataset$DigitVerif,
+                            levels = c('CAACGG','CAACTG','TAACGG','TAACTG'),
+                            labels = c(1,2,3,4))
+#===========================================================================
+summary(dataset)
+#View(dataset)
+#===========================================================================
+@
+
+<<echo = FALSE>>=
+CtoDatos <- dataset[,c('Sequence','DigitVerif','Position','BasalExp')]
+colnames(CtoDatos) <- c('Sequence','CodedSeq','Position','BasalExp')
+#View(CtoDatos)
+summary(CtoDatos)
+bdd <- CtoDatos
+#===========================================================================
+nbreaks <- 40
+#===========================================================================
+
+@
+
+
+
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+tP <- hist(bdd$Position, breaks = nbreaks, col= rainbow(15,0.7), main = 'Position')
+print(tP)
+
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+tBE <- hist(bdd$BasalExp, breaks = nbreaks, col= rainbow(15,0.7), main = 'BasalExpresion')
+print(tBE)
+@
+
+<<echo = FALSE>>=
+
+counts<- table(bdd$Sequence)
+t <- table(bdd$Sequence)
+prop.table(t)*100
+@
+
+
+
+<<echo = FALSE>>=
+
+LF <- bdd$Position
+summary(LF)
+hist(LF, breaks = nbreaks,col= rainbow(15,0.7), main = 'Raw Position' )
+CLF <- -LF
+@
+
+Media
+
+<<echo = FALSE>>=
+
+MediaP <- mean(CLF); print(MediaP)
+@
+
+Mediana
+
+<<echo = FALSE>>=
+MedianP <- median(CLF); print(MedianP)
+@
+
+Rango
+
+<<echo = FALSE>>=
+RangeP <- range(CLF); print(RangeP)
+@
+
+Desviación Estándar
+
+<<echo = FALSE>>=
+StDevP <- sd(CLF); print(StDevP)
+@
+
+Error Estandar
+
+<<echo = FALSE>>=
+SrErrP <- se(CLF); print(SrErrP)
+@
+
+
+
+<<echo = FALSE>>=
+
+m1 <- 0; #mean(CLF)
+de1 <- sd(CLF)
+NormPosition <- (CLF-m1)/de1
+tNP <- hist(NormPosition, breaks = nbreaks, col= rainbow(15,0.7), main = ' Estandarized Position')
+summary(NormPosition)
+print(tNP)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+Log2NP <- log2(NormPosition)
+summary(Log2NP)
+tLNP <- hist(Log2NP, breaks = nbreaks, col= rainbow(15,0.7), main = ' Log2 Transformed Position')
+print(tLNP)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+tLNP <- hist(Log2NP, breaks = nbreaks)
+print(tLNP)
+@
+
+
+<<echo = FALSE>>=
+
+ProbsNP <- tLNP$counts/sum(tLNP$counts)
+print(ProbsNP)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+#===========================================================================
+
+BE <- bdd$BasalExp
+plot(BE)
+hist(BE,breaks = nbreaks, col= rainbow(6,0.7), main = 'Raw Basal Expresion' )
+summary(BE)
+@
+
+
+<<echo = FALSE>>=
+
+mBE <- mean(BE)
+deBE <- sd(BE)
+NormBE <- (BE-mBE)/deBE
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+# Normalizados
+hist(NormBE, breaks = nbreaks, col= rainbow(15,0.7), main = ' Estandarized Basal Expresion')
+summary(NormBE)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+# Aplicando Log2
+Log2BE <- log2(BE)
+summary(Log2BE)
+hist(Log2BE, breaks = nbreaks, col= rainbow(15,0.7), main = ' Log2 Transformed Basal Expresion')
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+
+tL2BE <- hist(Log2BE, breaks = nbreaks)
+print(tL2BE)
+@
+
+
+<<echo = FALSE>>=
+
+ProbsLog2BE <- tL2BE$counts/sum(tL2BE$counts)
+print(ProbsLog2BE)
+
+
+
+@
+
+
+\section{ Ajustando Modelos}
+
+<<echo = FALSE, fig=TRUE>>=
+#===========================================================================
+library("fitdistrplus"); library("MASS"); library("survival")
+boxplot(Log2BE, main = 'Log2BE' )
+summary(Log2BE)
+@
+
+\subsection{ Datos Trasladados una unidad}
+
+<<echo = FALSE, fig=TRUE>>=
+tt<- Log2BE+1
+boxplot(tt, main = 'Translated Log2BE')
+summary(tt)
+hist(tt, breaks = nbreaks, col= rainbow(15,0.7), main = 'Translated Log2 Transformed Basal Expresion')
+#===========================================================================
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+xt<- plotdist(tt, histo = TRUE, demp = TRUE)
+descdist(tt)
+#===========================================================================
+@
+
+
+\subsection{ Ajustando una Cauchy}
+
+<<echo = FALSE>>=
+fw1<-fitdist(tt, "cauchy")
+summary(fw1)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw1)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw1)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw1)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw1)
+@
+
+<<echo = FALSE>>=
+quantile(fw1, probs = 0.05)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+\subsection{ Ajustando una Gamma}
+
+<<echo = FALSE>>=
+
+#===========================================================================
+fw2<-fitdist(tt, "gamma")
+summary(fw2)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw2)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw2)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw2)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw2)
+
+@
+
+<<echo = FALSE>>=
+quantile(fw2, probs = 0.05)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+
+\subsection{ Ajustando una Distribucion Normal}
+
+<<echo = FALSE>>=
+#===========================================================================
+fw4<-fitdist(tt, "norm")
+summary(fw4)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw4)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw4)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw4)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw4)
+@
+
+<<echo = FALSE>>=
+quantile(fw4, probs = 0.05)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+ Comparando
+<<echo = FALSE>>=
+dist1 <- mlnorm(x=tt)
+summary(dist1)
+@
+
+
+<<echo = FALSE>>=
+dist2 <- mlweibull(x=tt)
+summary(dist2)
+@
+
+
+<<echo = FALSE>>=
+dist3 <- mlgamma(x=tt)
+summary(dist3)
+@
+
+
+
+\subsection{Considerando la Distribución Cauchy}
+
+
+<<echo = FALSE>>=
+dist4 <- mlcauchy(x=tt)
+summary(dist4)
+@
+
+LogNormal
+
+<<echo = FALSE>>=
+dist6 <- mllnorm(x=tt)
+summary(dist6)
+@
+
+<<echo = FALSE>>=
+fw6<-fitdist(tt, "lnorm")
+summary(fw6)
+@
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw6)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw6)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw6)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw6)
+@
+
+
+<<echo = FALSE>>=
+confint(fw6)
+@
+
+<<echo = FALSE>>=
+quantile(fw6, probs = 0.05)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+
+\subsection{ Ajustando una Weibull}
+
+<<echo = FALSE>>=
+
+#===========================================================================
+fw3<-fitdist(tt, "weibull")
+summary(fw3)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw3)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw3)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw3)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw3)
+@
+
+
+<<echo = FALSE>>=
+confint(fw3)
+@
+
+\subsection*{Cuantiles}
+
+5 por ciento a la izquierda, considerando el ajuste
+
+<<echo = FALSE>>=
+quantile(fw3, probs = 0.05)
+@
+
+considerando los datos
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+95 por ciento a la izquierda, considerando el 
+<<echo = FALSE>>=
+quantile(fw3, probs = 0.95)
+@
+
+considerando los datos
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.95)
+@
+2.5 por ciento a la izquierda
+
+<<echo = FALSE>>=
+quantile(fw3, probs = 0.025)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.025)
+@
+
+97.5 por ciento a la izquierda
+<<echo = FALSE>>=
+quantile(fw3, probs = 0.975)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.975)
+@
+
+0.5 por ciento a la izquierda
+
+<<echo = FALSE>>=
+quantile(fw3, probs = 0.005)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.005)
+@
+
+99.5 por ciento a la izquierda
+<<echo = FALSE>>=
+quantile(fw3, probs = 0.995)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.995)
+@
+
+
+\section{ Datos sin Trasladado}
+
+<<echo = FALSE, fig= true>>=
+tst<- Log2BE
+boxplot(tst, main = 'Translated Log2BE')
+summary(tst)
+hist(tst, breaks = nbreaks, col= rainbow(15,0.7), main = 'Log2 Transformed Basal Expresion')
+#===========================================================================
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+plotdist(tst, histo = TRUE, demp = TRUE)
+descdist(tst)
+#===========================================================================
+@
+
+\subsection{ Ajustando una Cauchy}
+
+<<echo = FALSE>>=
+fw7<-fitdist(tst, "cauchy")
+summary(fw7)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw7)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw7)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw7)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw7)
+@
+
+<<echo = FALSE>>=
+quantile(fw7, probs = 0.05)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+\subsection{ Ajustando una Distribucion Normal}
+
+<<echo = FALSE>>=
+#===========================================================================
+fw5<-fitdist(tst, "norm")
+summary(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+denscomp(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+cdfcomp(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+qqcomp(fw5)
+@
+
+
+<<echo = FALSE, fig=TRUE>>=
+ppcomp(fw5)
+
+@
+
+
+Los resultados del ajuste son: 
+
+<<echo = FALSE>>=
+summary(fw5)
+@
+
+<<echo = FALSE>>=
+quantile(fw5, probs = 0.05)
+@
+
+<<echo = FALSE>>=
+quantile(tt, probs = 0.05)
+@
+
+
+<<echo = FALSE>>=
+dist1 <- mlnorm(x=tst)
+summary(dist1)
+@
+
+
+<<echo = FALSE>>=
+vals <- fw5$estimate
+Media <- as.numeric(vals[1])
+SDev <- as.numeric(vals[2])
+@
+
+QNorm
+
+<<echo = FALSE>>=
+#pq <- qnorm(tst,mean = Media, sd=SDev)
+#print(pq)
+#summary(pq)
+@
+
+dNorm
+
+<<echo = FALSE>>=
+pd <- dnorm(tst,mean = Media, sd=SDev)
+#print(pd)
+#summary(pd)
+@
+
+pNorm
+
+<<echo = FALSE>>=
+#pp <- pnorm(tst,mean = Media, sd=SDev)
+#print(pp)
+#summary(pp)
+
+@
+
+\end{document}
