@@ -39,7 +39,7 @@ colnames(pEhExvsCDC5) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                            "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                            "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                            "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsCmasM,"pEhExvsCDC5.csv")
+write.csv(pEhExvsCDC5,"pEhExvsCDC5.csv")
 View(pEhExvsCDC5)
 #----------------------------------------------------------------------
 nombres_col <- colnames(pEhExvsCmasM); print(nombres_col)
@@ -69,7 +69,7 @@ colnames(pEhExvsU2AF84) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                              "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                              "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                              "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsU2AF84,"pEhExvsEhMyb10.csv")
+write.csv(pEhExvsU2AF84,"pEhExvsU2AF84.csv")
 View(pEhExvsU2AF84)
 #----------------------------------------------------------------------
 nombres_col <- colnames(pEhExvsUmasM); print(nombres_col)
@@ -79,7 +79,7 @@ colnames(pEhExvsUmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
                             "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
                             "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
                             "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsUmasM,"pEhExvsEhMyb10.csv")
+write.csv(pEhExvsUmasM,"pEhExvsUmasM.csv")
 View(pEhExvsUmasM)
 #----------------------------------------------------------------------
 save.image("ColsCorrectedChackpoint.RData")
@@ -93,5 +93,7 @@ View(pEhExvsU2AF84)
 View(pEhExvsUmasM)
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
-
+data1 <- pEhExvsCDC5
+Log2data1 <- data1$log2FoldChange
+head(Log2data1,5)
 
