@@ -1,108 +1,46 @@
-#===========================================================================
-library(ggplot2);   library(dplyr);         library(readxl);
-library(pastecs);   library(sciplot);       library(MASS);
-library(gridExtra); library("gplots");      library("lattice");
-library(car);       library(gridExtra);     library(lattice);
-library(corrplot);  library(readr);         library(readxl);   
-library(rvest);     library(RSQLite);       library(DBI);    
-library(xml2);      library(RCurl);         library(devtools);
-library(ggplot2);   library(datasets);      library(dplyr);
-library(sciplot);   library(scatterplot3d); library("car")
-library(psych);     library("gplots");      library("plotrix")
-library(gplots);    library(moments);       library(univariateML)
-library("fitdistrplus"); library("MASS");   library("survival")
-library(readr)
-#===========================================================================
-#setwd("~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files")
-setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files") # MacBook pro
-#===========================================================================
-#ruta_carpeta <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files"
-#===========================================================================
-Mis_archivos <- list.files(pattern = "\\.csv$", full.names = TRUE)
-print(Mis_archivos)
-nombres_archivos <- basename(Mis_archivos)
-print(nombres_archivos)
-#----------------------------------------------------------------------
-pEhExvsCDC5 <- read_csv("pEhExvsCDC5.csv");         pEhExvsCmasM <- read_csv("pEhExvsCmasM.csv")
-pEhExvsEhMyb10 <- read_csv("pEhExvsEhMyb10.csv");   pEhExvsU2AF84 <- read_csv("pEhExvsU2AF84.csv")
-pEhExvsUmasM <- read_csv("pEhExvsUmasM.csv") 
-#----------------------------------------------------------------------
-View(pEhExvsCDC5)
-View(pEhExvsCmasM)
-View(pEhExvsEhMyb10)
-View(pEhExvsU2AF84)
-View(pEhExvsUmasM)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsCDC5); print(nombres_col)
-summary(pEhExvsCDC5)
-colnames(pEhExvsCDC5) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                           "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                           "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                           "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                           "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsCDC5,"pEhExvsCDC5.csv")
-View(pEhExvsCDC5)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsCmasM); print(nombres_col)
-summary(pEhExvsCmasM)
-colnames(pEhExvsCmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                            "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                            "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                            "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                            "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsCmasM,"pEhExvsCmasM.csv")
-View(pEhExvsCmasM)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsEhMyb10); print(nombres_col)
-summary(pEhExvsEhMyb10)
-colnames(pEhExvsEhMyb10) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                              "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                              "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                              "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                              "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsEhMyb10,"pEhExvsEhMyb10.csv")
-View(pEhExvsEhMyb10)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsU2AF84); print(nombres_col)
-summary(pEhExvsU2AF84)
-colnames(pEhExvsU2AF84) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                             "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                             "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                             "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                             "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsU2AF84,"pEhExvsU2AF84.csv")
-View(pEhExvsU2AF84)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsUmasM); print(nombres_col)
-summary(pEhExvsUmasM)
-colnames(pEhExvsUmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                            "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                            "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                            "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                            "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsUmasM,"pEhExvsUmasM.csv")
-View(pEhExvsUmasM)
-#----------------------------------------------------------------------
-save.image("ColsCorrectedChackpoint.RData")
+---
+title: "Clasificacion"
+author: "CEMR"
+date: "2023-08-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup}
 #----------------------------------------------------------------------
 setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files") # MacBook pro
 load("ColsCorrectedChackpoint.RData")
+```
+
+```{r setup}
 #----------------------------------------------------------------------
-View(pEhExvsCDC5)
-View(pEhExvsCmasM)
-View(pEhExvsEhMyb10)
-View(pEhExvsU2AF84)
-View(pEhExvsUmasM)
+head(pEhExvsCDC5,10)
+head(pEhExvsCmasM,10)
+head(pEhExvsEhMyb10,10)
+head(pEhExvsU2AF84,10)
+head(pEhExvsUmasM,10)
 #----------------------------------------------------------------------
 nbreaks <- 10
 #----------------------------------------------------------------------
+```
+
+```{r setup}
 data1 <- pEhExvsCDC5
 Log2pEhExvsCDC5 <- data1$log2FoldChange
 head(Log2pEhExvsCDC5,5)
 summary(data1)
+```
+
+```{r setup}
 npEhExvsCDC5    <- length(Log2pEhExvsCDC5)
 hist(Log2pEhExvsCDC5, breaks = nbreaks, col= rainbow(25,0.3), 
      main = ' Log2 pEhExvsCDC5')
+```
+
+```{r setup}
 meanL2pEhExvsCDC5 <- mean(Log2pEhExvsCDC5)
 StdDevL2pEhExvsCDC5 <- sd(Log2pEhExvsCDC5)
 NormLog2pEhExvsCDC5 <- (Log2pEhExvsCDC5-meanL2pEhExvsCDC5)/StdDevL2pEhExvsCDC5
@@ -112,9 +50,15 @@ hist(tst, breaks = nbreaks, col= 1:5,
      xlab='pEhExvsCDC5',
      ylab= 'Frequency pEhExvsCDC5')
 #----------------------------------------------------------------------
+```
+
+```{r setup}
 fw1<-fitdist(tst, "norm")
 plotdist(tst, histo = TRUE, demp = TRUE)
 #----------------------------------------------------------------------
+```
+
+```{r setup}
 nnorm.f <- fitdist(tst,"norm")
 summary(nnorm.f)
 par(mfrow=c(2,2))
@@ -122,6 +66,9 @@ denscomp(nnorm.f,legendtext = 'Dist Normal')
 qqcomp(nnorm.f,legendtext = 'Dist Normal')
 cdfcomp(nnorm.f,legendtext = 'Dist Normal')
 ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+```{r setup}
 #----------------------------------------------------------------------
 probs <- c();
 probs[8] = 0.175;  probs[9] = 0.825; 
@@ -171,6 +118,9 @@ CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
 print(CuantilesD)
 print(CuantilesA)
 #----------------------------------------------------------------------
+```
+
+```{r setup}
 par(mfrow=c(2,1))
 hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
      main = 'Normalized Log2 Basal Expresion - DATA', lty=9)
