@@ -1,89 +1,3 @@
-#===========================================================================
-library(ggplot2);   library(dplyr);         library(readxl);
-library(pastecs);   library(sciplot);       library(MASS);
-library(gridExtra); library("gplots");      library("lattice");
-library(car);       library(gridExtra);     library(lattice);
-library(corrplot);  library(readr);         library(readxl);   
-library(rvest);     library(RSQLite);       library(DBI);    
-library(xml2);      library(RCurl);         library(devtools);
-library(ggplot2);   library(datasets);      library(dplyr);
-library(sciplot);   library(scatterplot3d); library("car")
-library(psych);     library("gplots");      library("plotrix")
-library(gplots);    library(moments);       library(univariateML)
-library("fitdistrplus"); library("MASS");   library("survival")
-library(readr)
-#===========================================================================
-#setwd("~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files")
-setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files") # MacBook pro
-#===========================================================================
-#ruta_carpeta <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files"
-#===========================================================================
-Mis_archivos <- list.files(pattern = "\\.csv$", full.names = TRUE)
-print(Mis_archivos)
-nombres_archivos <- basename(Mis_archivos)
-print(nombres_archivos)
-#----------------------------------------------------------------------
-pEhExvsCDC5 <- read_csv("pEhExvsCDC5.csv");         pEhExvsCmasM <- read_csv("pEhExvsCmasM.csv")
-pEhExvsEhMyb10 <- read_csv("pEhExvsEhMyb10.csv");   pEhExvsU2AF84 <- read_csv("pEhExvsU2AF84.csv")
-pEhExvsUmasM <- read_csv("pEhExvsUmasM.csv") 
-#----------------------------------------------------------------------
-View(pEhExvsCDC5)
-View(pEhExvsCmasM)
-View(pEhExvsEhMyb10)
-View(pEhExvsU2AF84)
-View(pEhExvsUmasM)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsCDC5); print(nombres_col)
-summary(pEhExvsCDC5)
-colnames(pEhExvsCDC5) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                           "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                           "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                           "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                           "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsCDC5,"pEhExvsCDC5.csv")
-View(pEhExvsCDC5)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsCmasM); print(nombres_col)
-summary(pEhExvsCmasM)
-colnames(pEhExvsCmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                            "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                            "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                            "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                            "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsCmasM,"pEhExvsCmasM.csv")
-View(pEhExvsCmasM)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsEhMyb10); print(nombres_col)
-summary(pEhExvsEhMyb10)
-colnames(pEhExvsEhMyb10) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                              "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                              "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                              "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                              "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsEhMyb10,"pEhExvsEhMyb10.csv")
-View(pEhExvsEhMyb10)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsU2AF84); print(nombres_col)
-summary(pEhExvsU2AF84)
-colnames(pEhExvsU2AF84) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                             "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                             "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                             "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                             "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsU2AF84,"pEhExvsU2AF84.csv")
-View(pEhExvsU2AF84)
-#----------------------------------------------------------------------
-nombres_col <- colnames(pEhExvsUmasM); print(nombres_col)
-summary(pEhExvsUmasM)
-colnames(pEhExvsUmasM) <- c("GenId", "baseMean","log2FoldChange","lfcSE",
-                            "stat", "pvalue", "padj", "CDC5_1", "CDC5_2",
-                            "CDC5_3", "pEhEx_1", "pEhEx_2", "pEhEx_3",
-                            "CDC5_1.1", "CDC5_2.1", "CDC5_3.1", "pEhEx_1.1",
-                            "pEhEx_2.1", "pEhEx_3.1", "Certeza", "DE")
-write.csv(pEhExvsUmasM,"pEhExvsUmasM.csv")
-View(pEhExvsUmasM)
-#----------------------------------------------------------------------
-save.image("ColsCorrectedChackpoint.RData")
 #----------------------------------------------------------------------
 setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files") # MacBook pro
 load("ColsCorrectedChackpoint.RData")
@@ -284,92 +198,56 @@ legend("topright",legend=c("70%","85%"),
 CuantilesData <- CuantilesA
 CuantilesA <- CuantilesD
 CuantilesD <- CuantilesData
-
-  
+#----------------------------------------------------------------------
 # Con base en la secci\'on anterior, se tienen que la expresi\'on basal, 
 # centrados y transformados ($Log_{2}$), tienen una distribuci\'on Normal 
 # y los cuantiles para los valores $65,70,75,80,85,90,95$ y $99$ por ciento 
 # se propone que los valores moderados altos (bajos )sean aquellos que se 
 #encuentran entre el
-
-\begin{itemize}
-\item[I. ] $65\%$ y $80\%$, mientras que los valores muy altos (bajos) aquellos superiores al $80\%$: 
-
-\item[II. ] $70\%$ y $85\%$, mientras que los valores muy altos (bajos) aquellos superiores al $85\%$: 
-
-\end{itemize}
-
-
-#subsection{Clases/Motif's}
-
-  counts<- table(bdd$Sequence)
-  PropSeq <- table(bdd$Sequence)
-  prop.table(PropSeq)
-  PC <- prop.table(PropSeq)
-  #print(PropSeq)
-  
-    
-    De lo anterior se desprende 
-  \begin{eqnarray*}
-  P\left[C_{1}\right]=0.04926108\\
-  P\left[C_{2}\right]=0.29433498\\
-  P\left[C_{3}\right]=0.07019704\\
-  P\left[C_{4}\right]=0.58620690
-  \end{eqnarray*}
-  
-  
-  Ahora contemos la cantidad de elementos que hay en las clases $HB,HMB,MB,LMB,LB$
-    
-    
-    dataset <- cbind(bdd,tst);
-  summary(dataset[,c('Sequence','BasalExp','tst')])
-  #write.csv(dataset,"ExpBasalDataset.csv")
-  
-    
-    
-    umbral <- 0.001
-  
-  
-    
-    
-    tt1 <- min(tst)
-  VLI <- tt1
-  VLS <- CuantilesA[4,1] - umbral;
-  MLI <- CuantilesA[4,1]
-  MLS <- CuantilesA[1,1] - umbral;
-  MI  <- CuantilesA[1,1]
-  MS  <- CuantilesA[1,2] - umbral;
-  MHI <- CuantilesA[1,2]
-  MHS <- CuantilesA[4,2] - umbral;
-  VHI <- CuantilesA[4,2]
-  VHS <- max(tst);                
-  Limites <- matrix(0,1,10)
-  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
-  print( tst)
-  print( Limites)
-  N <- length(tst)
-  ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
-  for(i in 1:N){
-    if((tst[i]>=VLI) & (tst[i]<=VLS)){ContVL<- ContVL+1;}
-    if((tst[i]>=MLI) & (tst[i]<=MLS)){ContML<- ContML+1;}
-    if((tst[i]>=MI)  & (tst[i]<=MS)){ContM <- ContM+1;}
-    if((tst[i]>=MHI) & (tst[i]<=MHS)){ContMH<- ContMH+1;}
-    if((tst[i]>=VHI) & (tst[i]<=VHS)){ContVH<- ContVH+1;}
-  }
-  Conteo <- matrix(0,2,6);
-  Conteo[1,1] <- ContVL;   Conteo[1,2] <- ContML
-  Conteo[1,3] <- ContM;    Conteo[1,4] <- ContMH
-  Conteo[1,5] <- ContVH;   Conteo[1,6] <- sum(Conteo[1,])
-  Conteo[2,1] <- ContVL/N; Conteo[2,2] <- ContML/N;
-  Conteo[2,3] <- ContM/N;  Conteo[2,4] <- ContMH/N;
-  Conteo[2,5] <- ContVH/N; Conteo[2,6] <- sum(Conteo[2,])
-  colnames(Conteo) <- c('VL','ML','M','MH','VH','Ttl')
-  rownames(Conteo) <- c('fr','Prob')
-  ProbClEB <- Conteo
-  
-    
-    
-    \section{Caso I. Cuantiles del $65\%$ y $80\%$}
+#\begin{itemize}
+#\item[I. ] $65\%$ y $80\%$, mientras que los valores muy altos (bajos) aquellos superiores al $80\%$: 
+#\item[II. ] $70\%$ y $85\%$, mientras que los valores muy altos (bajos) aquellos superiores al $85\%$: 
+#\end{itemize}
+# Ahora contemos la cantidad de elementos que hay en las clases $HB,HMB,MB,LMB,LB$
+#----------------------------------------------------------------------
+umbral <- 0.001
+tt1 <- min(tst)
+VLI <- tt1
+VLS <- CuantilesA[4,1] - umbral;
+MLI <- CuantilesA[4,1]
+MLS <- CuantilesA[1,1] - umbral;
+MI  <- CuantilesA[1,1]
+MS  <- CuantilesA[1,2] - umbral;
+MHI <- CuantilesA[1,2]
+MHS <- CuantilesA[4,2] - umbral;
+VHI <- CuantilesA[4,2]
+VHS <- max(tst);                
+Limites <- matrix(0,1,10)
+Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+print( tst)
+print( Limites)
+N <- length(tst)
+ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+for(i in 1:N){
+  if((tst[i]>=VLI) & (tst[i]<=VLS)){ContVL<- ContVL+1;}
+  if((tst[i]>=MLI) & (tst[i]<=MLS)){ContML<- ContML+1;}
+  if((tst[i]>=MI)  & (tst[i]<=MS)){ContM <- ContM+1;}
+  if((tst[i]>=MHI) & (tst[i]<=MHS)){ContMH<- ContMH+1;}
+  if((tst[i]>=VHI) & (tst[i]<=VHS)){ContVH<- ContVH+1;}
+}
+Conteo <- matrix(0,2,6);
+Conteo[1,1] <- ContVL;   Conteo[1,2] <- ContML
+Conteo[1,3] <- ContM;    Conteo[1,4] <- ContMH
+Conteo[1,5] <- ContVH;   Conteo[1,6] <- sum(Conteo[1,])
+Conteo[2,1] <- ContVL/N; Conteo[2,2] <- ContML/N;
+Conteo[2,3] <- ContM/N;  Conteo[2,4] <- ContMH/N;
+Conteo[2,5] <- ContVH/N; Conteo[2,6] <- sum(Conteo[2,])
+colnames(Conteo) <- c('VL','ML','M','MH','VH','Ttl')
+rownames(Conteo) <- c('fr','Prob')
+ProbClEB <- Conteo;
+print(ProbClEB)
+#----------------------------------------------------------------------
+\section{Caso I. Cuantiles del $65\%$ y $80\%$}
   
   #subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{1}$}
   
