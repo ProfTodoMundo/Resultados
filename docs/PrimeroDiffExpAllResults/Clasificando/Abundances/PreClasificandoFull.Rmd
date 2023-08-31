@@ -46,7 +46,7 @@ head(data1)
 ```
 
 
-```{r}
+```{r, echo=TRUE}
 save.image('CheckPointTwo.RData')
 setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Abundances")
 #load('CheckPointTwo.RData')
