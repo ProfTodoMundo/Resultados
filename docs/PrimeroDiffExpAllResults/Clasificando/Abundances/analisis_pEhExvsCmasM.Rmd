@@ -20,7 +20,7 @@ setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/
 load('CheackPointOne.RData')
 ```
 
-# Primera Clasificacion: pEhEx
+# Segunda Clasificacion: pEhExvsCmasM
 
 ```{r}
 head(pEhExvsCmasM,10);
@@ -29,25 +29,25 @@ head(pEhExvsCmasM,10);
 
 ```{r}
 nbreaks <- 10
-data1 <- pEhExvsCDC5;       head(data1)
+data2 <- pEhExvsCmasM;       head(data2)
 ```
 
 ## Log-Normalización
 
 ```{r}
-sample1   <- data1$pEhEx_1; sample2   <- data1$pEhEx_2; sample3   <- data1$pEhEx_3;
-samplevs1 <- data1$CDC5_1;  samplevs2 <- data1$CDC5_2;  samplevs3 <- data1$CDC5_3;
+sample1   <- data2$pEhEx_1; sample2   <- data2$pEhEx_2; sample3   <- data2$pEhEx_3;
+samplevs1 <- data2$CDC5_1;  samplevs2 <- data2$CDC5_2;  samplevs3 <- data2$CDC5_3;
 log2sample1 <- log2(sample1+1);         log2sample2 <- log2(sample2+1)
 log2sample3 <- log2(sample3+1);         log2samplevsCDC51 <- log2(samplevs1+1)
 log2samplevsCDC52 <- log2(samplevs2+1); log2samplevsCDC53 <- log2(samplevs3+1)
-data1 <- cbind(data1, log2sample1,log2sample2,log2sample3,
+data2 <- cbind(data2, log2sample1,log2sample2,log2sample3,
                log2samplevsCDC51,log2samplevsCDC52,log2samplevsCDC53)
-head(data1)
+head(data2)
 ```
 
 
 ```{r}
-save.image('CheckPointTwo.RData')
+save.image('CheckPointThree.RData')
 setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Abundances")
 #load('CheckPointTwo.RData')
 ```
@@ -59,16 +59,16 @@ library("MASS");library("survival")
 
 
 ```{r}
-head(data1)
+head(data2)
 ```
 
 ## Muestra 1
 
 ```{r}
-log2sample1 <- data1$log2sample1; head(mean(log2sample1)); head(sd(log2sample1))
+log2sample1 <- data2$log2sample1; head(mean(log2sample1)); head(sd(log2sample1))
 head(log2sample1,5)
-summary(data1)
-ndata1    <- length(log2sample1)
+summary(data2)
+ndata2    <- length(log2sample1)
 hist(log2sample1, breaks = nbreaks, col= rainbow(25,0.3), 
      main = 'Log2 sample1')
 ```
@@ -269,7 +269,7 @@ legend("topright",legend=c("70%","85%"),
 ## Muestra 2
 
 ```{r}
-log2sample2 <- data1$log2sample2; head(mean(log2sample2)); head(sd(log2sample2))
+log2sample2 <- data2$log2sample2; head(mean(log2sample2)); head(sd(log2sample2))
 ```
 
 ```{r}
@@ -277,7 +277,7 @@ head(log2sample2,5)
 ```
 
 ```{r}
-ndata1    <- length(log2sample2)
+ndata2    <- length(log2sample2)
 hist(log2sample2, breaks = nbreaks, col= rainbow(25,0.3), 
      main = 'Log2 sample2')
 ```
@@ -483,7 +483,7 @@ legend("topright",legend=c("70%","85%"),
 ## Muestra 3
 
 ```{r}
-log2sample3 <- data1$log2sample3; head(mean(log2sample3)); head(sd(log2sample3))
+log2sample3 <- data2$log2sample3; head(mean(log2sample3)); head(sd(log2sample3))
 ```
 
 ```{r}
@@ -491,7 +491,7 @@ head(log2sample3,5)
 ```
 
 ```{r}
-ndata1    <- length(log2sample3)
+ndata2    <- length(log2sample3)
 hist(log2sample3, breaks = nbreaks, col= rainbow(25,0.3), 
      main = 'Log2 sample2')
 ```
@@ -699,7 +699,7 @@ legend("topright",legend=c("70%","85%"),
 ## Muestra pEhExvsCDC51
 
 ```{r}
-log2vsCDC51 <- data1$log2samplevsCDC51; head(mean(log2vsCDC51)); head(sd(log2vsCDC51))
+log2vsCDC51 <- data2$log2samplevsCDC51; head(mean(log2vsCDC51)); head(sd(log2vsCDC51))
 ```
 
 
@@ -708,7 +708,7 @@ head(log2vsCDC51,5)
 ```
 
 ```{r}
-ndata1    <- length(log2vsCDC51)
+ndata2    <- length(log2vsCDC51)
 hist(log2vsCDC51, breaks = nbreaks, col= rainbow(25,0.3), 
      main = 'Log2vsCDC51')
 ```
@@ -916,7 +916,7 @@ legend("topright",legend=c("70%","85%"),
 
 
 ```{r}
-log2vsCDC52 <- data1$log2samplevsCDC52; head(mean(log2vsCDC52)); head(sd(log2vsCDC52))
+log2vsCDC52 <- data2$log2samplevsCDC52; head(mean(log2vsCDC52)); head(sd(log2vsCDC52))
 ```
 
 ```{r}
@@ -926,7 +926,7 @@ head(log2vsCDC52,5)
 **Primer Histograma**
 
 ```{r}
-ndata1    <- length(log2vsCDC52)
+ndata2    <- length(log2vsCDC52)
 hist(log2vsCDC52, breaks = nbreaks, col= rainbow(25,0.3), 
      main = 'Log2vsCDC52')
 ```
@@ -1126,7 +1126,7 @@ legend("topright",legend=c("70%","85%"),
 ## Muestra pEhExvsCDC53
 
 ```{r}
-log2vsCDC53 <- data1$log2samplevsCDC53; head(mean(log2vsCDC53)); head(sd(log2vsCDC53))
+log2vsCDC53 <- data2$log2samplevsCDC53; head(mean(log2vsCDC53)); head(sd(log2vsCDC53))
 ```
 
 ```{r}
@@ -1134,7 +1134,7 @@ head(log2vsCDC53,5)
 ```
 
 ```{r}
-ndata1    <- length(log2vsCDC53)
+ndata2    <- length(log2vsCDC53)
 ```
 
 ** Primer histograma**

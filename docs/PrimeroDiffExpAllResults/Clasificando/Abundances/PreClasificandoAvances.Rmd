@@ -31,23 +31,23 @@ Descripción de los datos
 
 Descripción de los datos
 
-[Enlace al archivo del análisis 2](analisis_pEhExvsCmasM.Rmd)
+[Enlace al archivo del análisis 2](analisis_pEhExvsCmasM.html)
 
 ## Análisis 3: [pEhExvsEhMyb10]
 
 Descripción de los datos
 
-[Enlace al archivo del análisis 3](analisis_pEhExvsEhMyb10.Rmd)
+[Enlace al archivo del análisis 3](analisis_pEhExvsEhMyb10.html)
 
 ## Análisis 4: [pEhExvsU2AF84]
 
 Descripción de los datos
 
-[Enlace al archivo del análisis 4](analisis_pEhExvsU2AF84.Rmd)
+[Enlace al archivo del análisis 4](analisis_pEhExvsU2AF84.html)
 
 ## Análisis 5: [pEhExvsUmasM]
 
 Descripción de los datos
 
-[Enlace al archivo del análisis 5](analisis_pEhExvsUmasM.Rmd)
+[Enlace al archivo del análisis 5](analisis_pEhExvsUmasM.html)
 

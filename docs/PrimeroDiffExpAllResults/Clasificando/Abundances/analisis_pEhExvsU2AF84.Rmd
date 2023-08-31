@@ -1,0 +1,1344 @@
+---
+title: "Análisis 4: pEhExvsU2AF84"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: show
+
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Abundances")
+load('CheackPointOne.RData')
+```
+
+# Cuarta Clasificacion: pEhExvsU2AF84
+
+```{r}
+head(pEhExvsU2AF84,10);
+```
+
+
+```{r}
+nbreaks <- 10
+data4 <- pEhExvsU2AF84;       head(data4)
+```
+
+## Log-Normalización
+
+```{r}
+sample1   <- data4$pEhEx_1; sample2   <- data4$pEhEx_2; sample3   <- data4$pEhEx_3;
+samplevs1 <- data4$CDC5_1;  samplevs2 <- data4$CDC5_2;  samplevs3 <- data4$CDC5_3;
+log2sample1 <- log2(sample1+1);         log2sample2 <- log2(sample2+1)
+log2sample3 <- log2(sample3+1);         log2samplevsCDC51 <- log2(samplevs1+1)
+log2samplevsCDC52 <- log2(samplevs2+1); log2samplevsCDC53 <- log2(samplevs3+1)
+data4 <- cbind(data4, log2sample1,log2sample2,log2sample3,
+               log2samplevsCDC51,log2samplevsCDC52,log2samplevsCDC53)
+head(data4)
+```
+
+
+```{r}
+save.image('CheckPointFour.RData')
+setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Abundances")
+#load('CheckPointTwo.RData')
+```
+
+```{r}
+library(ggplot2);library(dplyr);library("fitdistrplus");
+library("MASS");library("survival")
+```
+
+
+```{r}
+head(data4)
+```
+
+## Muestra 1
+
+```{r}
+log2sample1 <- data4$log2sample1; head(mean(log2sample1)); head(sd(log2sample1))
+head(log2sample1,5)
+summary(data4)
+ndata4    <- length(log2sample1)
+hist(log2sample1, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = 'Log2 sample1')
+```
+
+
+```{r}
+meanlog2sample1 <- mean(log2sample1); head(meanlog2sample1)
+StdDevlog2sample1 <- sd(log2sample1); head(StdDevlog2sample1)
+Normlog2sample1 <- (log2sample1-meanlog2sample1)/StdDevlog2sample1; head(Normlog2sample1)
+
+tst<- Normlog2sample1
+
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2sample1',
+     xlab='pEhEx1',
+     ylab= 'Frequency pEhEx')
+```
+
+
+```{r}
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+```
+
+
+```{r}
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+
+```{r}
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+print(Cuantilillos)
+```
+
+**Cálculo de cuantiles**
+
+```{r}
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+```
+
+```{r}
+print(CuantilesD)
+```
+
+```{r}
+print(CuantilesA)
+```
+
+```{r}
+col_sequence <- rainbow(n = 7, alpha = 0.35, start = 0, end = 1)
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2 pEhEx - DATA', lty = 9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2   pEhEx - ADJUSTED', lty=9)
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+```
+
+### Grafica Cuantiles del $65\%$ y $80\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  BaseMean - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+```
+
+
+### Grafica Cuantiles del $70\%$ y $85\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence, 
+     main = 'Normalized Log2 pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+
+```
+
+## Muestra 2
+
+```{r}
+log2sample2 <- data4$log2sample2; head(mean(log2sample2)); head(sd(log2sample2))
+```
+
+```{r}
+head(log2sample2,5)
+```
+
+```{r}
+ndata4    <- length(log2sample2)
+hist(log2sample2, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = 'Log2 sample2')
+```
+
+**Log-normalizacion**
+
+```{r}
+meanlog2sample2 <- mean(log2sample2); head(meanlog2sample2)
+StdDevlog2sample2 <- sd(log2sample2); head(StdDevlog2sample2)
+Normlog2sample2 <- (log2sample2-meanlog2sample2)/StdDevlog2sample2; head(Normlog2sample2)
+tst<- Normlog2sample2
+```
+
+```{r}
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2sample1',
+     xlab='pEhEx1',
+     ylab= 'Frequency pEhEx')
+```
+
+**Ajuste de modelo**
+
+```{r}
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+```
+
+
+
+```{r}
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+```{r}
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+```
+
+```{r}
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+print(Cuantilillos)
+```
+
+```{r}
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+
+print(CuantilesD)
+```
+
+```{r}
+print(CuantilesA)
+```
+
+```{r}
+col_sequence <- rainbow(n = 7, alpha = 0.35, start = 0, end = 1)
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2 pEhEx - DATA (sample 2)', lty = 9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2   pEhEx - ADJUSTED (sample 2)', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+```
+
+
+### Grafica Cuantiles del $65\%$ y $80\%$
+
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  pEhEx - DATA (sample 2)', lty=9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  BaseMean - ADJUSTED (sample 2)', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+```
+
+
+### Grafica Cuantiles del $70\%$ y $85\%$
+
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence, 
+     main = 'Normalized Log2 pEhEx - DATA (sample 2)', lty=9)
+
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  pEhEx - ADJUSTED (sample 2)', lty=9)
+
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+```
+
+## Muestra 3
+
+```{r}
+log2sample3 <- data4$log2sample3; head(mean(log2sample3)); head(sd(log2sample3))
+```
+
+```{r}
+head(log2sample3,5)
+```
+
+```{r}
+ndata4    <- length(log2sample3)
+hist(log2sample3, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = 'Log2 sample2')
+```
+
+```{r}
+meanlog2sample3 <- mean(log2sample3); head(meanlog2sample3)
+```
+
+```{r}
+StdDevlog2sample3 <- sd(log2sample3); head(StdDevlog2sample3)
+```
+
+```{r}
+Normlog2sample3 <- (log2sample3-meanlog2sample3)/StdDevlog2sample3; head(Normlog2sample3)
+tst<- Normlog2sample3
+```
+
+```{r}
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2sample1',
+     xlab='pEhEx1',
+     ylab= 'Frequency pEhEx')
+```
+
+**Ajustando Modelos**
+
+```{r}
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+```
+
+```{r}
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+```
+
+```{r}
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+```{r}
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+print(Cuantilillos)
+```
+
+```{r}
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+print(CuantilesD)
+```
+
+```{r}
+print(CuantilesA)
+```
+
+**Creación de histogramas**
+
+```{r}
+col_sequence <- rainbow(n = 7, alpha = 0.35, start = 0, end = 1)
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2 pEhEx - DATA (sample 3)', lty = 9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2   pEhEx - ADJUSTED (sample 3)', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+```
+
+
+### Grafica Cuantiles del $65\%$ y $80\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  pEhEx - DATA (sample 2)', lty=9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  BaseMean - ADJUSTED (sample 3)', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+```
+
+
+### Grafica Cuantiles del $70\%$ y $85\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence, 
+     main = 'Normalized Log2 pEhEx - DATA (sample 3)', lty=9)
+
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2  pEhEx - ADJUSTED (sample 3)', lty=9)
+
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+
+```
+
+## Muestra pEhExvsCDC51
+
+```{r}
+log2vsCDC51 <- data4$log2samplevsCDC51; head(mean(log2vsCDC51)); head(sd(log2vsCDC51))
+```
+
+
+```{r}
+head(log2vsCDC51,5)
+```
+
+```{r}
+ndata4    <- length(log2vsCDC51)
+hist(log2vsCDC51, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = 'Log2vsCDC51')
+```
+
+```{r}
+meanlog2vsCDC51 <- mean(log2vsCDC51); head(meanlog2vsCDC51)
+StdDevlog2vsCDC51 <- sd(log2vsCDC51); head(StdDevlog2vsCDC51)
+```
+
+```{r}
+Normlog2vsCDC51 <- (log2vsCDC51-meanlog2vsCDC51)/StdDevlog2vsCDC51; head(Normlog2vsCDC51)
+tst<- Normlog2vsCDC51
+```
+
+**Primer histograma**
+
+```{r}
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2vsCDC51',
+     xlab='pEhEx1',
+     ylab= 'Frequency pEhEx')
+```
+
+**Ajustando modelo**
+
+```{r}
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+```
+
+```{r}
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+```
+
+```{r}
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+```{r}
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+print(Cuantilillos)
+```
+
+```{r}
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+print(CuantilesD)
+```
+
+```{r}
+print(CuantilesA)
+```
+
+**Histogramas**
+
+```{r}
+col_sequence <- rainbow(n = 7, alpha = 0.35, start = 0, end = 1)
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC51 pEhEx - DATA', lty = 9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC51   pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+```
+
+
+### Grafica Cuantiles del $65\%$ y $80\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC51  pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC51  - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+```
+
+
+### Grafica Cuantiles del $70\%$ y $85\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence, 
+     main = 'Normalized Log2vsCDC51 pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC51  pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+```
+
+
+## Muestra pEhExvsCDC52
+
+
+```{r}
+log2vsCDC52 <- data4$log2samplevsCDC52; head(mean(log2vsCDC52)); head(sd(log2vsCDC52))
+```
+
+```{r}
+head(log2vsCDC52,5)
+```
+
+**Primer Histograma**
+
+```{r}
+ndata4    <- length(log2vsCDC52)
+hist(log2vsCDC52, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = 'Log2vsCDC52')
+```
+
+```{r}
+meanlog2vsCDC52 <- mean(log2vsCDC52); head(meanlog2vsCDC52)
+StdDevlog2vsCDC52 <- sd(log2vsCDC52); head(StdDevlog2vsCDC52)
+Normlog2vsCDC52 <- (log2vsCDC52-meanlog2vsCDC52)/StdDevlog2vsCDC52; head(Normlog2vsCDC52)
+tst<- Normlog2vsCDC52
+```
+
+** Segundo Histograma**
+
+```{r}
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2vsCDC52',
+     xlab='pEhEx1',
+     ylab= 'Frequency pEhEx')
+```
+
+**Ajustando modelo**
+
+```{r}
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+```
+
+```{r}
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+**Cálculo de cuantiles**
+
+```{r}
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+print(Cuantilillos)
+```
+
+```{r}
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+print(CuantilesD)
+```
+
+```{r}
+print(CuantilesA)
+```
+
+**Histogramas**
+
+```{r}
+col_sequence <- rainbow(n = 7, alpha = 0.35, start = 0, end = 1)
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC52 pEhEx - DATA', lty = 9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC52   pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+```
+
+### Grafica Cuantiles del $65\%$ y $80\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC52  pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC52  - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+```
+
+### Grafica Cuantiles del $70\%$ y $85\%$
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence, 
+     main = 'Normalized Log2vsCDC52 pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC52  pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+```
+
+## Muestra pEhExvsCDC53
+
+```{r}
+log2vsCDC53 <- data4$log2samplevsCDC53; head(mean(log2vsCDC53)); head(sd(log2vsCDC53))
+```
+
+```{r}
+head(log2vsCDC53,5)
+```
+
+```{r}
+ndata4    <- length(log2vsCDC53)
+```
+
+** Primer histograma**
+
+```{r}
+hist(log2vsCDC53, breaks = nbreaks, col= rainbow(25,0.3), 
+     main = 'Log2vsCDC53')
+```
+
+```{r}
+meanlog2vsCDC53 <- mean(log2vsCDC53); head(meanlog2vsCDC53)
+StdDevlog2vsCDC53 <- sd(log2vsCDC53); head(StdDevlog2vsCDC53)
+Normlog2vsCDC53 <- (log2vsCDC53-meanlog2vsCDC53)/StdDevlog2vsCDC53; head(Normlog2vsCDC53)
+tst<- Normlog2vsCDC53
+```
+
+**Segundo histograma**
+
+```{r}
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2vsCDC53',
+     xlab='pEhEx1',
+     ylab= 'Frequency pEhEx')
+```
+
+**Ajustando modelo**
+
+```{r}
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+```
+
+```{r}
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+```
+
+**Calculo de cuantiles**
+
+```{r}
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+print(Cuantilillos)
+```
+
+```{r}
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+print(CuantilesD)
+```
+
+```{r}
+print(CuantilesA)
+```
+
+**Histogramas**
+
+```{r}
+col_sequence <- rainbow(n = 7, alpha = 0.35, start = 0, end = 1)
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC53 pEhEx - DATA', lty = 9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC53   pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+```
+
+
+### Grafica Cuantiles del $65\%$ y $80\%$
+
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC53  pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC51  - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+```
+
+
+### Grafica Cuantiles del $70\%$ y $85\%$
+
+
+```{r}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col = col_sequence, 
+     main = 'Normalized Log2vsCDC53 pEhEx - DATA', lty=9)
+
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col = col_sequence,
+     main = 'Normalized Log2vsCDC53  pEhEx - ADJUSTED', lty=9)
+
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+```
+
+
+
