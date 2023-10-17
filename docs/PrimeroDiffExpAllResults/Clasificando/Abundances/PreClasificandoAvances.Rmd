@@ -1,0 +1,53 @@
+---
+title: "Pre-Clasificando"
+author: "Carlos Ernesto Martinez"
+date: "2023-08-12"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Abundances")
+load('CheackPointOne.RData')
+```
+
+# Presentacion
+
+## Análisis 1: [pEhExvsCDC5]
+
+Descripción de los datos
+
+[Enlace al archivo del análisis 1](analisis_pEhExvsCDC5.html)
+
+## Análisis 2: [pEhExvsCmasM]
+
+Descripción de los datos
+
+[Enlace al archivo del análisis 2](analisis_pEhExvsCmasM.html)
+
+## Análisis 3: [pEhExvsEhMyb10]
+
+Descripción de los datos
+
+[Enlace al archivo del análisis 3](analisis_pEhExvsEhMyb10.html)
+
+## Análisis 4: [pEhExvsU2AF84]
+
+Descripción de los datos
+
+[Enlace al archivo del análisis 4](analisis_pEhExvsU2AF84.html)
+
+## Análisis 5: [pEhExvsUmasM]
+
+Descripción de los datos
+
+[Enlace al archivo del análisis 5](analisis_pEhExvsUmasM.html)
+

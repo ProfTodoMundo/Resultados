@@ -13,7 +13,8 @@ library(gplots);    library(moments);       library(univariateML)
 library("fitdistrplus"); library("MASS");   library("survival")
 library(readr)
 #===========================================================================
-setwd("~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files")
+#setwd("~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files")
+setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files") # MacBook pro
 #===========================================================================
 #ruta_carpeta <- "~/Desktop/MiGithub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files"
 #===========================================================================
@@ -84,8 +85,23 @@ View(pEhExvsUmasM)
 #----------------------------------------------------------------------
 save.image("ColsCorrectedChackpoint.RData")
 #----------------------------------------------------------------------
+setwd("~/Documents/GitHub/Resultados/docs/PrimeroDiffExpAllResults/Clasificando/Files") # MacBook pro
 load("ColsCorrectedChackpoint.RData")
 #----------------------------------------------------------------------
+library(ggplot2);   library(dplyr);         library(readxl);
+library(pastecs);   library(sciplot);       library(MASS);
+library(gridExtra); library("gplots");      library("lattice");
+library(car);       library(gridExtra);     library(lattice);
+library(corrplot);  library(readr);         library(readxl);   
+library(rvest);     library(RSQLite);       library(DBI);    
+library(xml2);      library(RCurl);         library(devtools);
+library(ggplot2);   library(datasets);      library(dplyr);
+library(sciplot);   library(scatterplot3d); library("car")
+library(psych);     library("gplots");      library("plotrix")
+library(gplots);    library(moments);       library(univariateML)
+library("fitdistrplus"); library("MASS");   library("survival")
+library(readr)
+#===========================================================================
 View(pEhExvsCDC5)
 View(pEhExvsCmasM)
 View(pEhExvsEhMyb10)
@@ -97,7 +113,7 @@ nbreaks <- 10
 data1 <- pEhExvsCDC5
 Log2pEhExvsCDC5 <- data1$log2FoldChange
 head(Log2pEhExvsCDC5,5)
-
+summary(data1)
 npEhExvsCDC5    <- length(Log2pEhExvsCDC5)
 hist(Log2pEhExvsCDC5, breaks = nbreaks, col= rainbow(25,0.3), 
      main = ' Log2 pEhExvsCDC5')
@@ -105,5 +121,590 @@ meanL2pEhExvsCDC5 <- mean(Log2pEhExvsCDC5)
 StdDevL2pEhExvsCDC5 <- sd(Log2pEhExvsCDC5)
 NormLog2pEhExvsCDC5 <- (Log2pEhExvsCDC5-meanL2pEhExvsCDC5)/StdDevL2pEhExvsCDC5
 tst<- NormLog2pEhExvsCDC5
-hist(tst, breaks = nbreaks, col= 1:5, main = 'Normalized Log2 pEhExvsCDC5',xlab='pEhExvsCDC5',ylab= 'Frequency pEhExvsCDC5')
+hist(tst, breaks = nbreaks, col= 1:5, 
+     main = 'Normalized Log2 pEhExvsCDC5',
+     xlab='pEhExvsCDC5',
+     ylab= 'Frequency pEhExvsCDC5')
+#----------------------------------------------------------------------
+fw1<-fitdist(tst, "norm")
+plotdist(tst, histo = TRUE, demp = TRUE)
+#----------------------------------------------------------------------
+nnorm.f <- fitdist(tst,"norm")
+summary(nnorm.f)
+par(mfrow=c(2,2))
+denscomp(nnorm.f,legendtext = 'Dist Normal')
+qqcomp(nnorm.f,legendtext = 'Dist Normal')
+cdfcomp(nnorm.f,legendtext = 'Dist Normal')
+ppcomp(nnorm.f,legendtext = 'Dist Normal')
+#----------------------------------------------------------------------
+probs <- c();
+probs[8] = 0.175;  probs[9] = 0.825; 
+probs[7] = 0.15;   probs[10] = 0.85;   
+probs[6] = 0.125;  probs[11] = 0.875; 
+probs[5] = 0.1;    probs[12] = 0.9;    
+probs[4] = 0.075;  probs[13] = 0.925; 
+probs[3] = 0.05;   probs[14] = 0.95;   
+probs[2] = 0.025;  probs[15] = 0.975; 
+probs[1] = 0.005;  probs[16] = 0.995;  
+#----------------------------------------------------------------------
+CuantilesData <- quantile(tst,prob = probs)
+CuantilesModel <- qnorm(probs, mean=0, sd=1)
+Cuantilillos <- t(CuantilesModel)
+colnames(Cuantilillos) <- c('0.5%','2.5%','5%','7.5%',
+                            '10%','12.5%','15%','17.5%',
+                            '82.5%','85%','87.5%','90%',
+                            '92.5%','95%','97.5%','99.5%')
+Cuantilillos <- t(Cuantilillos)
+colnames(Cuantilillos) <- c('Cuantiles Ajuste')
+#----------------------------------------------------------------------
+CuantilesA <- matrix(0,8,2)
+CuantilesD <- matrix(0,8,2)
+colnames(CuantilesA) <- c('LimInf','LimSup')
+colnames(CuantilesD) <- c('LimInf','LimSup')
+rownames(CuantilesA) <- c('65','70','75','80','85','90','95','99')
+rownames(CuantilesD) <- c('65','70','75','80','85','90','95','99')
+#----------------------------------------------------------------------
+CuantilesA[1,1] <-CuantilesData[8]; CuantilesA[1,2] <-CuantilesData[9]
+CuantilesA[2,1] <-CuantilesData[7]; CuantilesA[2,2] <-CuantilesData[10]
+CuantilesA[3,1] <-CuantilesData[6]; CuantilesA[3,2] <-CuantilesData[11]
+CuantilesA[4,1] <-CuantilesData[5]; CuantilesA[4,2] <-CuantilesData[12]
+CuantilesA[5,1] <-CuantilesData[4]; CuantilesA[5,2] <-CuantilesData[13]
+CuantilesA[6,1] <-CuantilesData[3]; CuantilesA[6,2] <-CuantilesData[14]
+CuantilesA[7,1] <-CuantilesData[2]; CuantilesA[7,2] <-CuantilesData[15]
+#----------------------------------------------------------------------
+CuantilesA[8,1] <-CuantilesData[1]; CuantilesA[8,2] <-CuantilesData[16]
+CuantilesD[1,1] <-Cuantilillos[8];  CuantilesD[1,2] <-Cuantilillos[9]
+CuantilesD[2,1] <-Cuantilillos[7];  CuantilesD[2,2] <-Cuantilillos[10]
+CuantilesD[3,1] <-Cuantilillos[6];  CuantilesD[3,2] <-Cuantilillos[11]
+CuantilesD[4,1] <-Cuantilillos[5];  CuantilesD[4,2] <-Cuantilillos[12]
+CuantilesD[5,1] <-Cuantilillos[4];  CuantilesD[5,2] <-Cuantilillos[13]
+CuantilesD[6,1] <-Cuantilillos[3];  CuantilesD[6,2] <-Cuantilillos[14]
+CuantilesD[7,1] <-Cuantilillos[2];  CuantilesD[7,2] <-Cuantilillos[15]
+CuantilesD[8,1] <-Cuantilillos[1];  CuantilesD[8,2] <-Cuantilillos[16]
+#----------------------------------------------------------------------
+print(CuantilesD)
+print(CuantilesA)
+#----------------------------------------------------------------------
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2 BaseMean - DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); # 70% INFERIOR
+abline(v=CuantilesA[2,2], lty=2, col="darkblue") # 70% SUPERIOR
+abline(v=CuantilesA[3,1], lty=2, col="aquamarine4"); # 75% INFERIOR
+abline(v=CuantilesA[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesA[5,1], lty=2, col="brown"); # 85% INFERIOR
+abline(v=CuantilesA[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesA[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesA[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesA[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesA[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesA[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesA[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2   BaseMean - ADJUSTED', lty=9)
+#----------------------------------------------------------------------
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[2,1], lty=2, col="darkblue");  # 70% INFERIOR
+abline(v=CuantilesD[2,2], lty=2, col="darkblue"); # 70% SUPERIOR
+abline(v=CuantilesD[3,1], lty=2, col="aquamarine4");  # 75% INFERIOR
+abline(v=CuantilesD[3,2], lty=2, col="aquamarine4"); # 75% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+abline(v=CuantilesD[5,1], lty=2, col="brown");  # 85% INFERIOR
+abline(v=CuantilesD[5,2], lty=2, col="brown"); # 85% SUPERIOR
+abline(v=CuantilesD[6,1], lty=2, col="red");  # 90% INFERIOR
+abline(v=CuantilesD[6,2], lty=2, col="red"); # 90% SUPERIOR
+abline(v=CuantilesD[7,1], lty=2, col="blue");  # 95% INFERIOR
+abline(v=CuantilesD[7,2], lty=2, col="blue"); # 95% SUPERIOR
+abline(v=CuantilesD[8,1], lty=2, col="orange");  # 99% INFERIOR
+abline(v=CuantilesD[8,2], lty=2, col="orange"); # 99% SUPERIOR
+legend("topright",
+       legend=c("65%","70%","75%","80%","85%","90%","95%","99%"), 
+       pch=c(1,2,3,4,5,6,7,8),
+       col=c("darkgoldenrod4","darkblue","aquamarine4",
+             "green", "brown","red","blue","orange"))
+#----------------------------------------------------------------------
+##subsection{Grafica Cuantiles del $65\%$ y $80\%$}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2  BaseMean - DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesA[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesA[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesA[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesA[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2  BaseMean - ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesD[1,1], lty=2, col="darkgoldenrod4"); # 65% INFERIOR
+abline(v=CuantilesD[1,2], lty=2, col="darkgoldenrod4"); # 65% SUPERIOR
+abline(v=CuantilesD[4,1], lty=2, col="green");  # 80% INFERIOR
+abline(v=CuantilesD[4,2], lty=2, col="green"); # 80% SUPERIOR
+legend("topright",legend=c("65%","80%"), 
+       pch=c(1,2),col=c("darkgoldenrod4","green"))
+#----------------------------------------------------------------------
+# #subsection{Grafica Cuantiles del $70\%$ y $85\%$}
+par(mfrow=c(2,1))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7), 
+     main = 'Normalized Log2 BaseMean-DATA', lty=9)
+#===========================================================================
+abline(v=CuantilesA[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesA[2,2], lty=2, col="darkblue")
+abline(v=CuantilesA[5,1], lty=2, col="brown"); 
+abline(v=CuantilesA[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+hist(tst, breaks = nbreaks, col= rainbow(1,0.7),
+     main = 'Normalized Log2  BaseMean-ADJUSTED', lty=9)
+#===========================================================================
+abline(v=CuantilesD[2,1], lty=2, col="darkblue"); 
+abline(v=CuantilesD[2,2], lty=2, col="darkblue")
+abline(v=CuantilesD[5,1], lty=2, col="brown"); 
+abline(v=CuantilesD[5,2], lty=2, col="brown")
+legend("topright",legend=c("70%","85%"),
+       pch=c(1,2),#3,4,5,6,7,8),
+       col=c("brown"))
+#----------------------------------------------------------------------
+#\subsection{Valores Altos, Moderadamente Altos, Bajos y Moderadamente Bajos}
+## Cuantiles con el modelo ajustado
+CuantilesData <- CuantilesA
+CuantilesA <- CuantilesD
+CuantilesD <- CuantilesData
 
+  
+# Con base en la secci\'on anterior, se tienen que la expresi\'on basal, 
+# centrados y transformados ($Log_{2}$), tienen una distribuci\'on Normal 
+# y los cuantiles para los valores $65,70,75,80,85,90,95$ y $99$ por ciento 
+# se propone que los valores moderados altos (bajos )sean aquellos que se 
+#encuentran entre el
+
+\begin{itemize}
+\item[I. ] $65\%$ y $80\%$, mientras que los valores muy altos (bajos) aquellos superiores al $80\%$: 
+
+\item[II. ] $70\%$ y $85\%$, mientras que los valores muy altos (bajos) aquellos superiores al $85\%$: 
+
+\end{itemize}
+
+
+#subsection{Clases/Motif's}
+
+  counts<- table(bdd$Sequence)
+  PropSeq <- table(bdd$Sequence)
+  prop.table(PropSeq)
+  PC <- prop.table(PropSeq)
+  #print(PropSeq)
+  
+    
+    De lo anterior se desprende 
+  \begin{eqnarray*}
+  P\left[C_{1}\right]=0.04926108\\
+  P\left[C_{2}\right]=0.29433498\\
+  P\left[C_{3}\right]=0.07019704\\
+  P\left[C_{4}\right]=0.58620690
+  \end{eqnarray*}
+  
+  
+  Ahora contemos la cantidad de elementos que hay en las clases $HB,HMB,MB,LMB,LB$
+    
+    
+    dataset <- cbind(bdd,tst);
+  summary(dataset[,c('Sequence','BasalExp','tst')])
+  #write.csv(dataset,"ExpBasalDataset.csv")
+  
+    
+    
+    umbral <- 0.001
+  
+  
+    
+    
+    tt1 <- min(tst)
+  VLI <- tt1
+  VLS <- CuantilesA[4,1] - umbral;
+  MLI <- CuantilesA[4,1]
+  MLS <- CuantilesA[1,1] - umbral;
+  MI  <- CuantilesA[1,1]
+  MS  <- CuantilesA[1,2] - umbral;
+  MHI <- CuantilesA[1,2]
+  MHS <- CuantilesA[4,2] - umbral;
+  VHI <- CuantilesA[4,2]
+  VHS <- max(tst);                
+  Limites <- matrix(0,1,10)
+  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+  print( tst)
+  print( Limites)
+  N <- length(tst)
+  ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+  for(i in 1:N){
+    if((tst[i]>=VLI) & (tst[i]<=VLS)){ContVL<- ContVL+1;}
+    if((tst[i]>=MLI) & (tst[i]<=MLS)){ContML<- ContML+1;}
+    if((tst[i]>=MI)  & (tst[i]<=MS)){ContM <- ContM+1;}
+    if((tst[i]>=MHI) & (tst[i]<=MHS)){ContMH<- ContMH+1;}
+    if((tst[i]>=VHI) & (tst[i]<=VHS)){ContVH<- ContVH+1;}
+  }
+  Conteo <- matrix(0,2,6);
+  Conteo[1,1] <- ContVL;   Conteo[1,2] <- ContML
+  Conteo[1,3] <- ContM;    Conteo[1,4] <- ContMH
+  Conteo[1,5] <- ContVH;   Conteo[1,6] <- sum(Conteo[1,])
+  Conteo[2,1] <- ContVL/N; Conteo[2,2] <- ContML/N;
+  Conteo[2,3] <- ContM/N;  Conteo[2,4] <- ContMH/N;
+  Conteo[2,5] <- ContVH/N; Conteo[2,6] <- sum(Conteo[2,])
+  colnames(Conteo) <- c('VL','ML','M','MH','VH','Ttl')
+  rownames(Conteo) <- c('fr','Prob')
+  ProbClEB <- Conteo
+  
+    
+    
+    \section{Caso I. Cuantiles del $65\%$ y $80\%$}
+  
+  #subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{1}$}
+  
+  
+  
+    ### Secuencia CAACGG
+    datos1   <- dataset %>% filter(dataset$Sequence=='CAACGG'); 
+  summary(datos1[,c('Sequence','BasalExp','tst')]);
+  tt <- datos1$tst; #summary(tt)
+  tt1 <- min(tt); VLI <- tt1;     ConteoC1 <- matrix(0,2,6);
+  VLS <- CuantilesA[4,1] - umbral;
+  MLI <- CuantilesA[4,1]
+  MLS <- CuantilesA[1,1] - umbral;
+  MI  <- CuantilesA[1,1]
+  MS  <- CuantilesA[1,2] - umbral; 
+  MHI <- CuantilesA[1,2]
+  MHS <- CuantilesA[4,2] - umbral;
+  VHI <- CuantilesA[4,2]
+  VHS <- max(tt);                
+  Limites <- matrix(0,1,10)
+  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+  print( tst)
+  print( Limites)
+  N <- length(tt); ContVL<- 0; ContML<- 0;
+  ContM <- 0;      ContMH<- 0; ContVH<- 0;
+  for(i in 1:N){
+    if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL<- ContVL+1;}
+    if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML<- ContML+1;}
+    if((tt[i]>=MI)  & (tt[i]<=MS)){ContM <- ContM+1;}
+    if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH<- ContMH+1;}
+    if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH<- ContVH+1;}
+  }
+  ConteoC1[1,1] <- ContVL;   ConteoC1[1,2] <- ContML
+  ConteoC1[1,3] <- ContM;    ConteoC1[1,4] <- ContMH
+  ConteoC1[1,5] <- ContVH;   ConteoC1[1,6] <- sum(Conteo[1,])
+  ConteoC1[2,1] <- ContVL/N; ConteoC1[2,2] <- ContML/N;
+  ConteoC1[2,3] <- ContM/N;  ConteoC1[2,4] <- ContMH/N;
+  ConteoC1[2,5] <- ContVH/N; ConteoC1[2,6] <- sum(ConteoC1[2,])
+  colnames(ConteoC1) <- c('VL','ML','M','MH','VH','Ttl');
+  rownames(ConteoC1) <- c('fr','Prob');
+  #print(ConteoC1);
+  Q1C1 <- ConteoC1
+  
+    
+    
+    #subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{2}$}
+  
+  
+  
+    datos2   <- dataset %>% filter(dataset$Sequence=='CAACTG'); 
+  summary(datos2[,c('Sequence','BasalExp','tst')])
+  tt <- datos2$tst; #summary(tt)
+  tt1 <- min(tt);   VLI <- tt1; ConteoC2 <- matrix(0,2,6);
+  VLS <- CuantilesA[4,1] - umbral; 
+  MLI <- CuantilesA[4,1]
+  MLS <- CuantilesA[1,1] - umbral; 
+  MI  <- CuantilesA[1,1]
+  MS  <- CuantilesA[1,2] - umbral; 
+  MHI <- CuantilesA[1,2]
+  MHS <- CuantilesA[4,2] - umbral; 
+  VHI <- CuantilesA[4,2]
+  VHS <- max(tt); Limites <- matrix(0,1,10)
+  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); 
+  print( tst)
+  print( Limites)
+  N <- length(tt);
+  ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+  for(i in 1:N){
+    if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+    if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+    if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+    if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+    if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+  ConteoC2[1,1] <- ContVL;   ConteoC2[1,2] <- ContML
+  ConteoC2[1,3] <- ContM;    ConteoC2[1,4] <- ContMH
+  ConteoC2[1,5] <- ContVH;   ConteoC2[1,6] <- sum(ConteoC2[1,])
+  ConteoC2[2,1] <- ContVL/N; ConteoC2[2,2] <- ContML/N;
+  ConteoC2[2,3] <- ContM/N;  ConteoC2[2,4] <- ContMH/N;
+  ConteoC2[2,5] <- ContVH/N; ConteoC2[2,6] <- sum(ConteoC2[2,])
+  colnames(ConteoC2) <- c('VL','ML','M','MH','VH','Ttl')
+  rownames(ConteoC2) <- c('fr','Prob')
+  #print(ConteoC2)
+  Q1C2 <- ConteoC2 
+  
+    
+    
+    #subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{3}$}
+  
+  
+    ### Secuencia TAACGG
+    datos3   <- dataset %>% filter(dataset$Sequence=='TAACGG'); 
+  summary(datos3[,c('Sequence','BasalExp','tst')])
+  tt <- datos3$tst; #summary(tt)
+  tt1 <- min(tt);   VLI <- tt1; ConteoC3 <- matrix(0,2,6);
+  VLS <- CuantilesA[4,1] - umbral; 
+  MLI <- CuantilesA[4,1]
+  MLS <- CuantilesA[1,1] - umbral;
+  MI  <- CuantilesA[1,1]
+  MS  <- CuantilesA[1,2] - umbral; 
+  MHI <- CuantilesA[1,2]
+  MHS <- CuantilesA[4,2] - umbral; 
+  VHI <- CuantilesA[4,2]
+  VHS <- max(tt);   
+  Limites <- matrix(0,1,10);
+  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS); 
+  print( tst)
+  print( Limites)
+  N <- length(tt);
+  ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+  for(i in 1:N){
+    if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+    if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+    if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+    if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+    if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+  ConteoC3[1,1] <- ContVL;    ConteoC3[1,2] <- ContML
+  ConteoC3[1,3] <- ContM;     ConteoC3[1,4] <- ContMH
+  ConteoC3[1,5] <- ContVH;    ConteoC3[1,6] <- sum(ConteoC3[1,])
+  ConteoC3[2,1] <- ContVL/N;  ConteoC3[2,2] <- ContML/N;
+  ConteoC3[2,3] <- ContM/N;   ConteoC3[2,4] <- ContMH/N;
+  ConteoC3[2,5] <- ContVH/N;  ConteoC3[2,6] <- sum(ConteoC3[2,])
+  colnames(ConteoC3) <- c('VL','ML','M','MH','VH','Ttl')
+  rownames(ConteoC3) <- c('fr','Prob')
+  #print(ConteoC3)
+  Q1C3 <- ConteoC3
+  
+    
+    #subsection{Expresiones Basales VL, ML, M, MH, VH: $C_{4}$}
+  
+  
+    ### Secuencia TAACTG
+    datos4   <- dataset %>% filter(dataset$Sequence=='TAACTG'); 
+  summary(datos4[,c('Sequence','BasalExp','tst')])
+  tt <- datos4$tst; #summary(tt);
+  tt1 <- min(tt); 
+  VLI <- tt1; 
+  ConteoC4 <- matrix(0,2,6);
+  VLS <- CuantilesA[4,1] - umbral;
+  MLI <- CuantilesA[4,1]
+  MLS <- CuantilesA[1,1] - umbral;
+  MI  <- CuantilesA[1,1]
+  MS  <- CuantilesA[1,2] - umbral;
+  MHI <- CuantilesA[1,2]
+  MHS <- CuantilesA[4,2] - umbral; 
+  VHI <- CuantilesA[4,2]
+  VHS <- max(tt); Limites <- matrix(0,1,10)
+  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+  print( tst)
+  print( Limites)
+  N <- length(tt)
+  ContVL<- 0; ContML<- 0; ContM <- 0; ContMH<- 0; ContVH<- 0;
+  for(i in 1:N){
+    if((tt[i]>=VLI) & (tt[i]<=VLS)){ContVL <- ContVL+1;}
+    if((tt[i]>=MLI) & (tt[i]<=MLS)){ContML <- ContML+1;}
+    if((tt[i]>=MI)  & (tt[i]<=MS)){ContM   <- ContM+1;}
+    if((tt[i]>=MHI) & (tt[i]<=MHS)){ContMH <- ContMH+1;}
+    if((tt[i]>=VHI) & (tt[i]<=VHS)){ContVH <- ContVH+1;}}
+  ConteoC4[1,1] <- ContVL;   ConteoC4[1,2] <- ContML
+  ConteoC4[1,3] <- ContM;    ConteoC4[1,4] <- ContMH
+  ConteoC4[1,5] <- ContVH;   ConteoC4[1,6] <- sum(ConteoC4[1,])
+  ConteoC4[2,1] <- ContVL/N; ConteoC4[2,2] <- ContML/N;
+  ConteoC4[2,3] <- ContM/N;  ConteoC4[2,4] <- ContMH/N;
+  ConteoC4[2,5] <- ContVH/N; ConteoC4[2,6] <- sum(ConteoC4[2,])
+  colnames(ConteoC4) <- c('VL','ML','M','MH','VH','Ttl')
+  rownames(ConteoC4) <- c('fr','Prob')
+  #print(ConteoC4)
+  Q1C4 <- ConteoC4 
+  
+    
+    #subsection{Calculo de Probabilidades Condicionales}
+  
+  Es decir las probabilidades condicionales y las probabilidades de cada $C_{i}$ son
+  
+  
+    ProbCond <- rbind(Q1C1[2,],Q1C2[2,],Q1C3[2,],Q1C4[2,])
+  rownames(ProbCond) <- c('PB_C1','PB_C2','PB_C3','PB_C4');
+  colnames(ProbCond) <- c('LB','LMB','MB','HMB','HB','Ttl_Prob')
+  ProbC<- matrix(0,1,4);
+  ProbC[1] <- PC[[1]]; ProbC[2] <- PC[[2]]
+  ProbC[3] <- PC[[3]]; ProbC[4] <- PC[[4]]
+  colnames(ProbC) <- c('C1','C2','C3','C4'); 
+  rownames(ProbC) <- c('Prob')
+  print(ProbC);       
+  print(ProbCond)
+  Q1ProbC    <- ProbC; Q1ProbCond <- ProbCond
+  
+    
+    Por tanto ya podemos determinar las probabiidades $P\left[\cdot|C_{i}\right]P\left[C_{i}\right]$
+    
+    
+    print('calcular')
+  #ProbCond <- Q1ProbCond; ProbC <- Q1ProbC;
+  Numeradores <- matrix(0,5,4)
+  colnames(Numeradores) <- c('C1','C2','C3','C4'); 
+  rownames(Numeradores) <- c('LB','LMB','MB','HMB','HB')
+  Numeradores[1,1] <- ProbCond[1,1]*ProbC[1]; 
+  Numeradores[1,2] <- ProbCond[2,1]*ProbC[2]
+  Numeradores[1,3] <- ProbCond[3,1]*ProbC[3]; 
+  Numeradores[1,4] <- ProbCond[4,1]*ProbC[4]
+  Numeradores[2,1] <- ProbCond[1,2]*ProbC[1]; 
+  Numeradores[2,2] <- ProbCond[2,2]*ProbC[2]
+  Numeradores[2,3] <- ProbCond[3,2]*ProbC[3]; 
+  Numeradores[2,4] <- ProbCond[4,2]*ProbC[4]
+  Numeradores[3,1] <- ProbCond[1,3]*ProbC[1]; 
+  Numeradores[3,2] <- ProbCond[2,3]*ProbC[2]
+  Numeradores[3,3] <- ProbCond[3,3]*ProbC[3]; 
+  Numeradores[3,4] <- ProbCond[4,3]*ProbC[4]
+  Numeradores[4,1] <- ProbCond[1,4]*ProbC[1]; 
+  Numeradores[4,2] <- ProbCond[2,4]*ProbC[2]
+  Numeradores[4,3] <- ProbCond[3,4]*ProbC[3]; 
+  Numeradores[4,4] <- ProbCond[4,4]*ProbC[4]
+  Numeradores[5,1] <- ProbCond[1,5]*ProbC[1]; 
+  Numeradores[5,2] <- ProbCond[2,5]*ProbC[2]
+  Numeradores[5,3] <- ProbCond[3,5]*ProbC[3]; 
+  Numeradores[5,4] <- ProbCond[4,5]*ProbC[4]
+  print(Numeradores); 
+  Q1Numeradores <- Numeradores;
+  
+    
+    Ahora calculemos $\sum_{i=1}^{4}P\left[\cdot|C_{i}\right]P\left[C_{i}\right]$
+    
+    ProbTotal <- matrix(0,5,1);
+  rownames(ProbTotal) <- c('LB','LMB','MB','HMB','HB'); 
+  colnames(ProbTotal) <- c('ProbC')
+  ProbTotal[1] <- sum(Numeradores[1,]); ProbTotal[2] <- sum(Numeradores[2,])
+  ProbTotal[3] <- sum(Numeradores[3,]); ProbTotal[4] <- sum(Numeradores[4,])
+  ProbTotal[5] <- sum(Numeradores[5,]); print(ProbTotal); Q1ProbTotal <- ProbTotal;
+  
+    
+    para finalmente obtener $P\left[C_{i}|\cdot\right]= \frac{P\left[\cdot|C_{i}\right]P\left[C_{i}\right]}{\sum_{i=1}^{4}P\left[\cdot|C_{i}\right]P\left[C_{i}\right]}$
+    
+    
+    ProbCi_B <- matrix(0,5,4); rownames(ProbCi_B) <- c('LB','LMB','MB','HMB','HB')
+  colnames(ProbCi_B) <- c('C1','C2','C3','C4')
+  ProbCi_B[1,1] <- Numeradores[1,1]/ProbTotal[1]; 
+  ProbCi_B[1,2] <- Numeradores[1,2]/ProbTotal[1]
+  ProbCi_B[1,3] <- Numeradores[1,3]/ProbTotal[1]; 
+  ProbCi_B[1,4] <- Numeradores[1,4]/ProbTotal[1]
+  ProbCi_B[2,1] <- Numeradores[2,1]/ProbTotal[2]; 
+  ProbCi_B[2,2] <- Numeradores[2,2]/ProbTotal[2]
+  ProbCi_B[2,3] <- Numeradores[2,3]/ProbTotal[2]; 
+  ProbCi_B[2,4] <- Numeradores[2,4]/ProbTotal[2]
+  ProbCi_B[3,1] <- Numeradores[3,1]/ProbTotal[3];
+  ProbCi_B[3,2] <- Numeradores[3,2]/ProbTotal[3]
+  ProbCi_B[3,3] <- Numeradores[3,3]/ProbTotal[3]; 
+  ProbCi_B[3,4] <- Numeradores[3,4]/ProbTotal[3]
+  ProbCi_B[4,1] <- Numeradores[4,1]/ProbTotal[4]; 
+  ProbCi_B[4,2] <- Numeradores[4,2]/ProbTotal[4]
+  ProbCi_B[4,3] <- Numeradores[4,3]/ProbTotal[4]; 
+  ProbCi_B[4,4] <- Numeradores[4,4]/ProbTotal[4]
+  ProbCi_B[5,1] <- Numeradores[5,1]/ProbTotal[5]; 
+  ProbCi_B[5,2] <- Numeradores[5,2]/ProbTotal[5]
+  ProbCi_B[5,3] <- Numeradores[5,3]/ProbTotal[5]; 
+  ProbCi_B[5,4] <- Numeradores[5,4]/ProbTotal[5]
+  ProbM <- ProbCi_B;  Q1ProbM <- ProbM; print(ProbM);
+  
+    
+    
+    #subsubsection{Expresion Basal Muy Baja}
+  
+    tt1 <- min(tst)
+  VLI <- tt1
+  VLS <- CuantilesA[4,1] -umbral;
+  MLI <- CuantilesA[4,1]
+  MLS <- CuantilesA[1,1] - umbral;
+  MI  <- CuantilesA[1,1]
+  MS  <- CuantilesA[1,2] - umbral;
+  MHI <- CuantilesA[1,2]
+  MHS <- CuantilesA[4,2] - umbral;
+  VHI <- CuantilesA[4,2]
+  VHS <- max(tst);                
+  Limites <- matrix(0,1,10)
+  Limites <- c(VLI,VLS,MLI,MLS,MI,MS,MHI,MHS,VHI,VHS);
+  print( tst)
+  print( Limites)
+  
+    
+    
+    EBVL   <- dataset %>% filter(dataset$tst>=VLI & dataset$tst<=VLS); 
+  ExpBasalVL <- EBVL[,c('GenId','Sequence','Position','BasalExp','tst')]
+  colnames(ExpBasalVL) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+  write.csv(ExpBasalVL,"ExpBasalMuyBajaQ1.csv")
+  summary(ExpBasalVL[,c('Sequence','BasalExp','Log2Basal')])
+  t <- table(ExpBasalVL$Sequence)
+  ProbMotifVLQ1 <- prop.table(t)
+  print(ProbMotifVLQ1)
+  
+    
+    #subsubsection{Expresion Basal Moderada Baja}
+  
+  
+    EBML   <- dataset %>% filter(dataset$tst>=MLI & dataset$tst<=MLS); 
+  ExpBasalML <- EBML[,c('GenId','Sequence','Position','BasalExp','tst')]
+  colnames(ExpBasalML) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+  write.csv(ExpBasalML,"ExpBasalModBajaQ1.csv")
+  summary(ExpBasalML[,c('Sequence','BasalExp','Log2Basal')])
+  t <- table(ExpBasalML$Sequence)
+  ProbMotifMLQ1 <- prop.table(t)
+  print(ProbMotifMLQ1)
+  
+    
+    #subsubsection{Expresion Basal Moderada}
+  
+  
+    EBM   <- dataset %>% filter(dataset$tst>=MI & dataset$tst<=MS); 
+  ExpBasalM <- EBM[,c('GenId','Sequence','Position','BasalExp','tst')]
+  colnames(ExpBasalM) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+  write.csv(ExpBasalM,"ExpBasalModeradaQ1.csv")
+  summary(ExpBasalM[,c('Sequence','BasalExp','Log2Basal')])
+  t <- table(ExpBasalM$Sequence)
+  ProbMotifMQ1 <- prop.table(t)
+  print(ProbMotifMQ1)
+  
+    
+    #subsubsection{Expresion Basal Moderada Alta}
+  
+  
+    EBMH   <- dataset %>% filter(dataset$tst>=MHI & dataset$tst<=MHS); 
+  ExpBasalMH <- EBMH[,c('GenId','Sequence','Position','BasalExp','tst')]
+  colnames(ExpBasalMH) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+  write.csv(ExpBasalMH,"ExpBasalModAltaQ1.csv")
+  summary(ExpBasalMH[,c('Sequence','BasalExp','Log2Basal')])
+  t <- table(ExpBasalMH$Sequence)
+  ProbMotifMHQ1 <- prop.table(t)
+  print(ProbMotifMHQ1)
+  
+    
+    #subsubsection{Expresion Basal Muy Alta}
+  
+    EBVH   <- dataset %>% filter(dataset$tst>=VHI & dataset$tst<=VHS); 
+  ExpBasalVH <- EBVH[,c('GenId','Sequence','Position','BasalExp','tst')]
+  colnames(ExpBasalVH) <- c('GenId','Sequence','Position','BasalExp','Log2Basal')
+  write.csv(ExpBasalVH,"ExpBasalMuyAltaQ1.csv")
+  summary(ExpBasalVH[,c('Sequence','BasalExp','Log2Basal')])
+  t <- table(ExpBasalVH$Sequence)
+  ProbMotifVHQ1 <- prop.table(t)
+  print(ProbMotifVHQ1)
+  
