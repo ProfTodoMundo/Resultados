@@ -65,6 +65,8 @@ View(pEhExvsUmasM)
 #----------------------------------------------------------------------
 save.image("ColsCorrectedChackpoint.RData")
 #----------------------------------------------------------------------
+#----------------------------------------------------------------------
+setwd("~/Desktop/MiGithub/Resultados/docs/TerceroDiffExpAllResults/GraficosAdicionales/")
 load("ColsCorrectedChackpoint.RData")
 #----------------------------------------------------------------------
 View(pEhExvsCDC5)
@@ -73,24 +75,55 @@ View(pEhExvsEhMyb10)
 View(pEhExvsU2AF84)
 View(pEhExvsUmasM)
 #----------------------------------------------------------------------
+# Carga la biblioteca ggplot2
+library(ggplot2)
+library(tidyr)
+
+dataCDC5 <- as.data.frame(pEhExvsCDC5[,"log2FoldChange"])
+dataEhMyb10 <- as.data.frame(pEhExvsEhMyb10[,"log2FoldChange"])
+
+n1 <- length(dataCDC5[[1]])
+n2 <- length(dataEhMyb10[[1]])
+# Asegúrate de que ambos conjuntos de datos tengan la misma longitud
+n <- min(n1,n2)
+
+dataCDC5_sampled <- sample(dataCDC5[[1]], size = n)
+dataEhMyb10_sampled <- sample(dataEhMyb10[[1]], size = n)
+dataSampled <- cbind(dataCDC5_sampled,dataEhMyb10_sampled); View(dataSampled)
+boxplot(dataSampled, names = c("CDC5", "EhMyb10"), col = c("blue", "red"), main = "Gráfico de Caja y Brazos",
+        xlab = "Conjunto de Datos", ylab = "Valor")
+axis(1, at = 1:2, labels = c("CDC5", "EhMyb10"), las = 2, cex.axis = 0.8)
 
 #----------------------------------------------------------------------
+# Crea el gráfico de caja y brazos con nombres inclinados en el eje X
+boxplot(dataSampled, names = c("", ""), col = c("blue", "red"), main = "Gráfico de Caja y Brazos",
+        xlab = "Conjunto de Datos", ylab = "Valor")
+
+# Inclina los nombres en el eje X en 60 grados
+axis(1, at = 1:2, labels = c("CDC5", "EhMyb10"), las = 2, cex.axis = 0.8)
 
 #----------------------------------------------------------------------
+# Crea el gráfico de caja y brazos con nombres inclinados en el eje X (45 grados)
+boxplot(dataSampled, names = c("CDC5", "EhMyb10"), col = c("blue", "red"), main = "Gráfico de Caja y Brazos",
+        xlab = "Conjunto de Datos", ylab = "Valor")
+
+# Inclina los nombres en el eje X en 45 grados
+axis(1, at = 1:2, labels = c("CDC5", "EhMyb10"), las = 2, cex.axis = 0.8, tck = 0.02)
 
 #----------------------------------------------------------------------
+# Crear un dataframe con los datos muestreados y etiquetas
+data_df <- data.frame(
+  Conjunto_de_Datos = rep(c("CDC5", "EhMyb10"), each = n),
+  Valor = c(dataCDC5_sampled, dataEhMyb10_sampled)
+)
 
-#----------------------------------------------------------------------
-
-#----------------------------------------------------------------------
-
-#----------------------------------------------------------------------
-
-#----------------------------------------------------------------------
-
-#----------------------------------------------------------------------
-
-#----------------------------------------------------------------------
+# Crear el gráfico con ggplot2
+ggplot(data_df, aes(x = Conjunto_de_Datos, y = Valor, fill = Conjunto_de_Datos)) +
+  geom_boxplot() +
+  labs(title = "Gráfico de Caja y Brazos", x = "Conjunto de Datos", y = "Valor") +
+  scale_x_discrete(labels = c("CDC5" = "CDC5", "EhMyb10" = "EhMyb10")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        panel.background = element_rect(fill = "whitesmoke"))
 
 #----------------------------------------------------------------------
 
