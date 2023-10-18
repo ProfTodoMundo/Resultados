@@ -1,0 +1,69 @@
+### lista para almacenar los IDs de las secuencias###
+ids_de_secuencias = [ ]
+invseq= [ ]
+>>> for seqDNA  in SeqIO.parse("/home/cs/Descargas/SequencesByTaxon.fasta","fasta"):
+    ids_de_secuencias.append(seqDNA.id)
+      invseq.append(seqDNA.seq)
+
+
+### lectura archivo transcriptoma 
+idn = [ ]
+iqn = [ ]
+nt_atg= [ ]
+
+
+
+for seqDNA  in SeqIO.parse("/home/cs/Descargas/transcriptoma .fasta","fasta"
+idn.append(seqDNA.id)
+iqn.append(seqDNA.seq)
+##iteracion para buscar posición de ATG###
+for su in iqn:
+de= su.find(“ATG”)
+nt_atg.append(de)
+#despues de  generear la lista por iteracin se genera otra lista para  guardar en columnas y filas dentro de una variable####
+tradat = {'id':idn_1,'pos':n_atg,'seq':iqn_1}
+tra = tradat
+#convertir a dataframe###
+>>> pd.DataFrame(tra)
+tr = tra
+tr = pd.DataFrame(tr)
+#se enfoca en la columna pos y elimina los valores en las filas que contengan 0###
+fd = tr[tr['pos'] != 0]
+#estos resultados son enlistados de nuevo. las seq son incluidas con comas por loque es recomndable eliminar las comas, aca solo se utlizaron las columnas de id y posicion de ATG ###
+kd = fd.values.tolist()
+print(kd)
+# Ahora la lista ids_de_secuencias contiene los IDs de las secuencias
+print(ids_de_secuencias)
+b canon en la lista
+myb_canon1  = "TAACGG"
+myb_canon2  = "TAACTG"
+myb_canon3  = "CAACTG"
+myb_canon4  = "CAACGG"
+can1 = []
+can2 = [] 
+can3 = []
+can4 = []
+#check
+ for can in n_atg:
+...     indice_can =. can.find(myb_canon1)
+...     if indice_can != -1:
+...             
+...     can1.append(indice_can)
+for can in invseq:
+...     indice_can = can.find(myb_canon4)
+...     can4.append(indice_can)
+##se genera una lista con de los resultados de búsqueda canonmyb
+data = {'seq':invseq,'c1':can1,'c2':can2,'c3':can3,'c4':can4}
+df = pd.DataFrame(data)
+arc_excel = 'lista_mybscann_ncbi_einv.xlsx'
+df.to_excel(arc_excel, index =False)
+###busqueda de ATG y recorte a 500bp aprox##
+ for seq in seqDNA:
+...     pos = 0
+...     index =seq.find("ATG",pos)
+...     while pos < len(seq):
+...             if  index == -1 or index > 600:
+...                     break
+...             if 500 <= index <=600:
+...                     secs.append(seq[:index+3])
+...             pos = index+3
