@@ -1,8 +1,8 @@
 ---
-title: "Respuesta"
+title: "Documentando Codigo Claudia"
 author: "Carlos E Martinez R"
 date: "2023-10-18"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -54,7 +54,8 @@ Finalmente, se crea un DataFrame llamado pheno_data que combina las columnas ids
 \textit{`{r, eval=FALSE}}pheno_data = data.frame(ids, type, path)\textit{`}
 En resumen, este código se utiliza para organizar información sobre las muestras de un estudio en un DataFrame llamado pheno_data. Cada muestra está asociada con un identificador, un tipo y una ruta de acceso a los archivos relacionados con la muestra.
 
-\textit{`{r, eval=FALSE}}bg2 = ballgown(dataDir = "~/ballgown_r2/", samplePattern = "_S", pData=pheno_data)\textit{`}
+\textit{`{r, eval=FALSE}}
+bg2 = ballgown(dataDir = "~/ballgown_r2/", samplePattern = "_S", pData=pheno_data)\textit{`}
 
 El código que proporcionaste se utiliza para crear un objeto ballgown en R, que es una estructura de datos utilizada para analizar datos de expresión génica de alto rendimiento, como los datos de RNA-seq. A continuación, explicaré los diferentes argumentos y lo que hace este código:
 
@@ -102,12 +103,13 @@ Entonces, el código toma bg_table2, que es una tabla de expresión de genes, y 
 
 El código pData(bg2) se utiliza para extraer la información de los datos fenotípicos asociados con un objeto ballgown llamado bg2. Aquí se explica lo que hace este código:
 
-pData(bg2): Esta expresión llama a la función pData() en el objeto ballgown bg2. La función pData() se utiliza para acceder a la información fenotípica o de metadatos asociada con las muestras en el objeto ballgown. En el contexto de análisis de expresión génica, los datos fenotípicos pueden incluir información sobre las condiciones experimentales, grupos de tratamiento, identificadores de muestra, tipos de muestra y cualquier otro metadato relevante.
+    a. pData(bg2): Esta expresión llama a la función pData() en el objeto ballgown bg2. La función pData() se utiliza para acceder a la información fenotípica o de metadatos asociada con las muestras en el objeto ballgown. En el contexto de análisis de expresión génica, los datos fenotípicos pueden incluir información sobre las condiciones experimentales, grupos de tratamiento, identificadores de muestra, tipos de muestra y cualquier otro metadato relevante.
 
 La salida de pData(bg2) será un DataFrame que contiene la información fenotípica de las muestras asociadas con el objeto ballgown. Cada fila del DataFrame corresponderá a una muestra y las columnas representarán diferentes atributos o metadatos de esas muestras. Esta información fenotípica es útil para realizar análisis estadísticos y visualizaciones que relacionen los datos de expresión génica con las características de las muestras en el estudio.
 
 
-\textit{`{r, eval=FALSE}}bg_table2 %>% 
+\textit{`{r, eval=FALSE}}
+bg_table2 %>% 
   select(c(t_name, num_exons, length), starts_with("FPKM")) %>%
   mutate_at(vars(starts_with("FPKM")), ~ log2(.x+1)) %>% 
   pivot_longer(cols=starts_with("FPKM"), values_to = "FPKM", names_to = "Sample") %>%
@@ -115,7 +117,8 @@ La salida de pData(bg2) será un DataFrame que contiene la información fenotíp
   ggplot(aes(x=Sample, y=FPKM, fill=Sample)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) -> p
-ggplotly(p)\textit{`}
+ggplotly(p)
+\textit{`}
 
 
 El código que proporcionaste realiza una serie de operaciones para visualizar datos de expresión génica utilizando el paquete ggplot2 y la función ggplotly del paquete plotly para obtener una gráfica interactiva. A continuación, se detallan las operaciones paso a paso:
@@ -139,8 +142,10 @@ El código que proporcionaste realiza una serie de operaciones para visualizar d
 En resumen, este código realiza una serie de transformaciones en los datos de expresión génica y crea una gráfica de cajas interactiva para visualizar la distribución de los valores FPKM en diferentes muestras del estudio.
 
 
-\textit{`{r, eval=FALSE}}stat_results = stattest(bg2, feature='transcript', meas='FPKM', covariate='type')
-stat_results %>% head()\textit{`}
+\textit{`{r, eval=FALSE}}
+stat_results = stattest(bg2, feature='transcript', meas='FPKM', covariate='type')
+stat_results %>% head()
+\textit{`}
 
 El código que proporcionaste se utiliza para realizar pruebas estadísticas en los datos de expresión génica contenidos en el objeto ballgown llamado bg2. A continuación, se detallan las operaciones realizadas:
 
@@ -158,7 +163,9 @@ Los resultados de stattest pueden incluir estadísticas de prueba, valores p, y 
 
 En resumen, este código realiza pruebas estadísticas en los datos de expresión génica en el nivel de transcripción para analizar si hay diferencias significativas en la expresión de genes entre diferentes grupos definidos por la variable 'type'. Luego, muestra las primeras filas de los resultados estadísticos para su inspección.
 
-\textit{`{r, eval=FALSE}}stat_results %>% filter(qval<=0.06)\textit{`}
+\textit{`{r, eval=FALSE}}
+stat_results %>% filter(qval<=0.06)
+\textit{`}
 
 El código que proporcionaste filtra los resultados de las pruebas estadísticas contenidos en el objeto stat_results para seleccionar las filas en las que el valor de q-valor (qval) sea menor o igual a 0.06. A continuación, se explica lo que hace este código:
 
@@ -171,7 +178,8 @@ El código que proporcionaste filtra los resultados de las pruebas estadísticas
 La operación de filtrado se utiliza para identificar las transcripciones o genes cuyas diferencias en la expresión entre grupos son consideradas significativas en el contexto del análisis. Esto puede ser importante para identificar genes de interés o procesos biológicos relevantes en función de la variable 'type' o cualquier otra variable de interés utilizada en el análisis estadístico.
 
 
-\textit{`{r, eval=FALSE}}bg_table2 %>% 
+\textit{`{r, eval=FALSE}}
+bg_table2 %>% 
   select(c(t_name, num_exons, length), starts_with("FPKM")) %>%
   mutate_at(vars(starts_with("FPKM")), ~ log2(.x+1)) %>% 
   pivot_longer(cols=starts_with("FPKM"), values_to = "FPKM", names_to = "Sample") %>%
@@ -181,7 +189,8 @@ La operación de filtrado se utiliza para identificar las transcripciones o gene
   mutate(Type = str_replace(Type, "cdc5", "EhCDC5-like")) %>%
   mutate(Type = str_replace(Type, "pEhEx", "Control")) %>%
   group_by(t_name, Type) %>%
-  summarise(FPKM=mean(FPKM))-> tmp_data\textit{`}
+  summarise(FPKM=mean(FPKM))-> tmp_data
+\textit{`}
 
 El código que proporcionaste realiza una serie de transformaciones en los datos de expresión génica contenidos en el objeto bg_table2 y luego crea una nueva tabla resumida llamada tmp_data. Aquí se detallan las operaciones paso a paso:
 
@@ -207,12 +216,14 @@ El código que proporcionaste realiza una serie de transformaciones en los datos
 
 En resumen, este código realiza una serie de transformaciones en los datos de expresión génica para crear una tabla resumida llamada tmp_data. En esta tabla, los valores de FPKM se han logaritmado, las muestras se han agrupado por tipo, y se ha calculado la media de los valores de FPKM para cada transcripción en función de su tipo de muestra. Esto puede ser útil para analizar patrones de expresión genética por tipo de muestra.
 
-\textit{`{r, eval=FALSE}}tmp_data$Type = factor(tmp_data$Type, levels=c("Control","EhMyb10","EhCDC5-like","EhCDC5-like+EhMyb10"))
+\textit{`{r, eval=FALSE}}
+tmp_data$Type = factor(tmp_data$Type, levels=c("Control","EhMyb10","EhCDC5-like","EhCDC5-like+EhMyb10"))
 tmp_data %>%
   ggplot(aes(x=Type, y=FPKM, fill=Type)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) -> p
-ggplotly(p)\textit{`}
+ggplotly(p)
+\textit{`}
 
 El código que proporcionaste se utiliza para crear una gráfica de cajas (boxplot) interactiva que muestra la distribución de los valores de expresión FPKM (Fragmentos Por Kilobase de millón) para diferentes tipos de muestras. Aquí se explica lo que hace el código:
 
@@ -233,10 +244,12 @@ El código que proporcionaste se utiliza para crear una gráfica de cajas (boxpl
 En resumen, este código crea una gráfica de cajas interactiva que muestra la distribución de los valores de expresión FPKM para diferentes tipos de muestras, con las categorías de muestra en el orden especificado. La gráfica interactiva permite explorar y analizar los patrones de expresión genética de manera dinámica.
 
 
-\textit{`{r, eval=FALSE}}bg_table2 %>% 
+\textit{`{r, eval=FALSE}}
+bg_table2 %>% 
   select(c(t_name, num_exons, length), starts_with("FPKM")) %>%
   mutate(mean_FPKM_pEhEx=(FPKM.pEhEx_2_S8+FPKM.pEhEx1_S7)/2) %>%
-  mutate_at(vars(starts_with("FPKM")), ~ .x/mean_FPKM_pEhEx) %>% head()\textit{`}
+  mutate_at(vars(starts_with("FPKM")), ~ .x/mean_FPKM_pEhEx) %>% head()
+\textit{`}
 
 El código que proporcionaste realiza una serie de operaciones en los datos contenidos en el objeto bg_table2. A continuación, se detallan las operaciones paso a paso:
 
@@ -250,7 +263,8 @@ El código que proporcionaste realiza una serie de operaciones en los datos cont
 
 El resultado de estas operaciones es que los valores FPKM en las columnas que comienzan con "FPKM" se han normalizado dividiendo cada valor por el valor promedio de FPKM de las muestras "pEhEx_2_S8" y "pEhEx1_S7". Esto puede ser útil para comparar la expresión relativa de genes entre diferentes muestras y normalizar los datos en función de una muestra de referencia.
 
-\textit{`{r, eval=FALSE}}bg_table2 %>% 
+\textit{`{r, eval=FALSE}}
+bg_table2 %>% 
   select(c(t_name, num_exons, length), starts_with("FPKM")) %>%
   mutate(exprpEhEx=(FPKM.pEhEx_2_S8+FPKM.pEhEx1_S7)/2) %>%
   mutate_at(vars(starts_with("FPKM")), ~ .x/exprpEhEx) %>%
@@ -262,7 +276,8 @@ El resultado de estas operaciones es que los valores FPKM en las columnas que co
   mutate(Type = str_replace(Type, "cdc5", "EhCDC5-like")) %>%
   mutate(Type = str_replace(Type, "pEhEx", "Control")) %>%
   group_by(t_name, Type) %>%
-  summarise(log2FC=mean(log2FC)) -> tmp_data\textit{`}
+  summarise(log2FC=mean(log2FC)) -> tmp_data
+\textit{`}
 
 El código que proporcionaste realiza una serie de transformaciones en los datos de expresión génica contenidos en el objeto bg_table2 y crea una nueva tabla resumida llamada tmp_data. A continuación, se detallan las operaciones paso a paso:
 
@@ -293,12 +308,14 @@ Luego, se utilizan múltiples llamadas a mutate para asignar etiquetas de tipo m
 En resumen, este código realiza una serie de transformaciones en los datos de expresión génica para crear una tabla resumida llamada tmp_data. En esta tabla, los valores FPKM se normalizan, se toma el logaritmo en base 2 de los valores y se calcula la media del fold change (log2FC) de los genes por tipo de muestra. Esto puede ser útil para analizar patrones de expresión genética y comparar la expresión entre diferentes tipos de muestras.
 
 
-\textit{`{r, eval=FALSE}}tmp_data$Type = factor(tmp_data$Type, levels=c("Control","EhMyb10","EhCDC5-like","EhCDC5-like+EhMyb10"))
+\textit{`{r, eval=FALSE}}
+tmp_data$Type = factor(tmp_data$Type, levels=c("Control","EhMyb10","EhCDC5-like","EhCDC5-like+EhMyb10"))
 tmp_data %>%
   ggplot(aes(x=Type, y=log2FC, fill=Type)) + 
   geom_boxplot() + 
   theme(axis.text.x = element_text(angle = 20, vjust = 0.5, hjust=1)) -> p
-ggplotly(p)\textit{`}
+ggplotly(p)
+\textit{`}
 
 
 Este código crea una gráfica de cajas (boxplot) interactiva que muestra la distribución de los valores del logaritmo en base 2 del fold change (log2FC) para diferentes tipos de muestras. A continuación, se explica el funcionamiento del código:
@@ -320,7 +337,8 @@ Este código crea una gráfica de cajas (boxplot) interactiva que muestra la dis
 En resumen, este código crea una gráfica de cajas interactiva que muestra la distribución de los valores del logaritmo en base 2 del fold change (log2FC) para diferentes tipos de muestras, con las categorías de muestra en el orden especificado. La gráfica interactiva permite explorar y analizar los patrones de expresión genética de manera dinámica.
 
 
-\textit{`{r, eval=FALSE}}bg_table2 %>% 
+\textit{`{r, eval=FALSE}}
+bg_table2 %>% 
   select(c(t_name, num_exons, length), starts_with("FPKM")) %>%
   mutate(exprpEhEx=(FPKM.pEhEx_2_S8+FPKM.pEhEx1_S7)/2) %>%
   mutate_at(vars(starts_with("FPKM")), ~ .x/exprpEhEx) %>%
@@ -331,7 +349,8 @@ En resumen, este código crea una gráfica de cajas interactiva que muestra la d
   ggplot(aes(x=exprpEhEx, y=log2FC, color=Sample)) +
   geom_point() + 
   scale_x_log10() +
-  scale_color_brewer(palette = "Set1")\textit{`}
+  scale_color_brewer(palette = "Set1")
+\textit{`}
 
 El código que proporcionaste realiza una serie de operaciones en los datos de expresión génica contenidos en el objeto bg_table2 y crea un gráfico de dispersión (scatter plot) utilizando ggplot2. A continuación, se detallan las operaciones paso a paso:
 
@@ -363,7 +382,9 @@ En resumen, este código realiza una serie de transformaciones en los datos de e
 
 
 
-\textit{`{r, eval=FALSE}}Warning: Transformation introduced infinite values in continuous x-axis\textit{`}
+\textit{`{r, eval=FALSE}}
+Warning: Transformation introduced infinite values in continuous x-axis
+\textit{`}
 
 El mensaje de advertencia "Transformation introduced infinite values in continuous x-axis" indica que al aplicar una transformación logarítmica en base 10 a los valores del eje x (en este caso, "exprpEhEx"), se han generado valores infinitos o indefinidos en el eje x. Esto puede ocurrir cuando algunos de los valores originales en "exprpEhEx" son iguales a cero o negativos, ya que el logaritmo en base 10 de cero o un número negativo es indefinido.
 
@@ -379,7 +400,9 @@ Para solucionar este problema, puedes considerar las siguientes opciones:
 
 Recuerda que la elección de la transformación y la manipulación de los datos debe basarse en un entendimiento sólido del significado de los datos y los objetivos de tu análisis. Asegúrate de que cualquier transformación o ajuste que realices sea relevante y justificable en el contexto de tus datos y tu pregunta de investigación.
 
-\textit{`{r, eval=FALSE}}Warning: Removed 8213 rows containing missing values (`geom_point()`).\textit{`}
+\textit{`{r, eval=FALSE}}
+Warning: Removed 8213 rows containing missing values (`geom_point()`).
+\textit{`}
 
 El mensaje de advertencia "Removed 8213 rows containing missing values (geom_point())" indica que se eliminaron 8,213 filas de datos de la gráfica de dispersión (geom_point()) debido a la presencia de valores faltantes en una o ambas de las variables utilizadas en el gráfico (en este caso, "exprpEhEx" y "log2FC"). Los valores faltantes suelen representarse como "NA" en R.
 
